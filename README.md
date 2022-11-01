@@ -14,10 +14,10 @@ chemtools --> utility
 
 preprocessing --> pp_fun1{{autoscaling}}
 preprocessing --> pp_fun2{{correlation_matrix}}
-preprocessing --> pp_fun2{{diagonalized_matrix}}
-preprocessing --> pp_fun3{{matrix_mean}}
-preprocessing --> pp_fun4{{matrix_standard_deviation}}
-preprocessing --> pp_fun5{{variance}}
+preprocessing --> pp_fun3{{diagonalized_matrix}}
+preprocessing --> pp_fun4{{matrix_mean}}
+preprocessing --> pp_fun5{{matrix_standard_deviation}}
+preprocessing --> pp_fun6{{variance}}
 
 explotation --> cl_fun1{{principal_component_analysis}}
 
