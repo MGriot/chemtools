@@ -1,0 +1,192 @@
+{
+  "build": "pyhd8ed1ab_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/noarch",
+  "constrains": [],
+  "depends": [
+    "asttokens",
+    "executing",
+    "pure_eval",
+    "python >=3.5"
+  ],
+  "extracted_package_dir": "c:\\Users\\Admin\\miniconda3\\pkgs\\stack_data-0.5.1-pyhd8ed1ab_0",
+  "features": "",
+  "files": [
+    "Lib/site-packages/stack_data-0.5.1.dist-info/INSTALLER",
+    "Lib/site-packages/stack_data-0.5.1.dist-info/LICENSE.txt",
+    "Lib/site-packages/stack_data-0.5.1.dist-info/METADATA",
+    "Lib/site-packages/stack_data-0.5.1.dist-info/RECORD",
+    "Lib/site-packages/stack_data-0.5.1.dist-info/REQUESTED",
+    "Lib/site-packages/stack_data-0.5.1.dist-info/WHEEL",
+    "Lib/site-packages/stack_data-0.5.1.dist-info/direct_url.json",
+    "Lib/site-packages/stack_data-0.5.1.dist-info/top_level.txt",
+    "Lib/site-packages/stack_data/__init__.py",
+    "Lib/site-packages/stack_data/core.py",
+    "Lib/site-packages/stack_data/formatting.py",
+    "Lib/site-packages/stack_data/py.typed",
+    "Lib/site-packages/stack_data/serializing.py",
+    "Lib/site-packages/stack_data/utils.py",
+    "Lib/site-packages/stack_data/version.py",
+    ".nonadmin",
+    "Lib/site-packages/stack_data/__pycache__/__init__.cpython-311.pyc",
+    "Lib/site-packages/stack_data/__pycache__/core.cpython-311.pyc",
+    "Lib/site-packages/stack_data/__pycache__/formatting.cpython-311.pyc",
+    "Lib/site-packages/stack_data/__pycache__/serializing.cpython-311.pyc",
+    "Lib/site-packages/stack_data/__pycache__/utils.cpython-311.pyc",
+    "Lib/site-packages/stack_data/__pycache__/version.cpython-311.pyc"
+  ],
+  "fn": "stack_data-0.5.1-pyhd8ed1ab_0.tar.bz2",
+  "license": "MIT",
+  "license_family": "MIT",
+  "link": {
+    "source": "c:\\Users\\Admin\\miniconda3\\pkgs\\stack_data-0.5.1-pyhd8ed1ab_0",
+    "type": 1
+  },
+  "md5": "3282a2d79f5f4d25469d71bc851771e3",
+  "name": "stack_data",
+  "noarch": "python",
+  "package_tarball_full_path": "c:\\Users\\Admin\\miniconda3\\pkgs\\stack_data-0.5.1-pyhd8ed1ab_0.tar.bz2",
+  "package_type": "noarch_python",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "site-packages/stack_data-0.5.1.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "sha256_in_prefix": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+        "size_in_bytes": 5
+      },
+      {
+        "_path": "site-packages/stack_data-0.5.1.dist-info/LICENSE.txt",
+        "path_type": "hardlink",
+        "sha256": "a476a2cb0ef4c41450340a577a28b91ac4c7f669136b2ee148047fabd5fc4181",
+        "sha256_in_prefix": "a476a2cb0ef4c41450340a577a28b91ac4c7f669136b2ee148047fabd5fc4181",
+        "size_in_bytes": 1066
+      },
+      {
+        "_path": "site-packages/stack_data-0.5.1.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "37b0b950c98e5797ecb1c556f936db492359303de5544bb5a671002788a88cb8",
+        "sha256_in_prefix": "37b0b950c98e5797ecb1c556f936db492359303de5544bb5a671002788a88cb8",
+        "size_in_bytes": 18373
+      },
+      {
+        "_path": "site-packages/stack_data-0.5.1.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "70975287196c4e415b64889a6a181012d00e356604bbe0b7f2fbc8bf0cca5722",
+        "sha256_in_prefix": "70975287196c4e415b64889a6a181012d00e356604bbe0b7f2fbc8bf0cca5722",
+        "size_in_bytes": 1545
+      },
+      {
+        "_path": "site-packages/stack_data-0.5.1.dist-info/REQUESTED",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "site-packages/stack_data-0.5.1.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "1b5e87e00dc87a84269cead8578b9e6462928e18a95f1f3373c9eef451a5bcc0",
+        "sha256_in_prefix": "1b5e87e00dc87a84269cead8578b9e6462928e18a95f1f3373c9eef451a5bcc0",
+        "size_in_bytes": 92
+      },
+      {
+        "_path": "site-packages/stack_data-0.5.1.dist-info/direct_url.json",
+        "path_type": "hardlink",
+        "sha256": "e0337636990c6952e6aa5191f9189a3735911ea98b9e9bc24d8bf7b188d0d46a",
+        "sha256_in_prefix": "e0337636990c6952e6aa5191f9189a3735911ea98b9e9bc24d8bf7b188d0d46a",
+        "size_in_bytes": 106
+      },
+      {
+        "_path": "site-packages/stack_data-0.5.1.dist-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "21aacf058618f5e7c99008149eeca43143f39d047e79b590618b1072a606c42a",
+        "sha256_in_prefix": "21aacf058618f5e7c99008149eeca43143f39d047e79b590618b1072a606c42a",
+        "size_in_bytes": 11
+      },
+      {
+        "_path": "site-packages/stack_data/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "a02d0f23f72687a4767af1c52e05056eb31912017f62f0a1ea91d76cfba83d2c",
+        "sha256_in_prefix": "a02d0f23f72687a4767af1c52e05056eb31912017f62f0a1ea91d76cfba83d2c",
+        "size_in_bytes": 419
+      },
+      {
+        "_path": "site-packages/stack_data/core.py",
+        "path_type": "hardlink",
+        "sha256": "2aa20fb0976b568fad614e0c1d53ef076d40ce60629a20ad16e1eb6de24163e3",
+        "sha256_in_prefix": "2aa20fb0976b568fad614e0c1d53ef076d40ce60629a20ad16e1eb6de24163e3",
+        "size_in_bytes": 33083
+      },
+      {
+        "_path": "site-packages/stack_data/formatting.py",
+        "path_type": "hardlink",
+        "sha256": "74889ac38ec7e0f2ec5d946c782d231278a3e5116cf7c940aa5f2bec35784a5d",
+        "sha256_in_prefix": "74889ac38ec7e0f2ec5d946c782d231278a3e5116cf7c940aa5f2bec35784a5d",
+        "size_in_bytes": 8508
+      },
+      {
+        "_path": "site-packages/stack_data/py.typed",
+        "path_type": "hardlink",
+        "sha256": "e64f0169cbc512f44e3433509ba153b23e43c13f293199f20a4ec520770b92ff",
+        "sha256_in_prefix": "e64f0169cbc512f44e3433509ba153b23e43c13f293199f20a4ec520770b92ff",
+        "size_in_bytes": 73
+      },
+      {
+        "_path": "site-packages/stack_data/serializing.py",
+        "path_type": "hardlink",
+        "sha256": "b402695ca71838019d03ed24f10026257673713d9428999e1c2002fde672b4ed",
+        "sha256_in_prefix": "b402695ca71838019d03ed24f10026257673713d9428999e1c2002fde672b4ed",
+        "size_in_bytes": 6468
+      },
+      {
+        "_path": "site-packages/stack_data/utils.py",
+        "path_type": "hardlink",
+        "sha256": "e2effd2c246ab14f14900ae13154959f146a9f8c333ddde171ad61ae1cacb9bc",
+        "sha256_in_prefix": "e2effd2c246ab14f14900ae13154959f146a9f8c333ddde171ad61ae1cacb9bc",
+        "size_in_bytes": 5592
+      },
+      {
+        "_path": "site-packages/stack_data/version.py",
+        "path_type": "hardlink",
+        "sha256": "b3c62af4e9b5c81c6b300ef1610e58d773da7aec67abdf4dc61ca3b8f9671fa0",
+        "sha256_in_prefix": "b3c62af4e9b5c81c6b300ef1610e58d773da7aec67abdf4dc61ca3b8f9671fa0",
+        "size_in_bytes": 22
+      },
+      {
+        "_path": "Lib/site-packages/stack_data/__pycache__/__init__.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "Lib/site-packages/stack_data/__pycache__/core.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "Lib/site-packages/stack_data/__pycache__/formatting.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "Lib/site-packages/stack_data/__pycache__/serializing.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "Lib/site-packages/stack_data/__pycache__/utils.cpython-311.pyc",
+        "path_type": "pyc_file"
+      },
+      {
+        "_path": "Lib/site-packages/stack_data/__pycache__/version.cpython-311.pyc",
+        "path_type": "pyc_file"
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "sha256": "808d9df446fc49646231eaf64c0ed4e2775629f29b763776866f6c888836b077",
+  "size": 24548,
+  "subdir": "noarch",
+  "timestamp": 1664126579712,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/noarch/stack_data-0.5.1-pyhd8ed1ab_0.tar.bz2",
+  "version": "0.5.1"
+}
