@@ -163,6 +163,20 @@ class ordinary_least_squares:
             SSxx=self.SSxx,
             t_two=self.t_two,
         )
+    def predict(self,x=None,y=None, decimal=1):
+        """Dato un valore di y (o di x) da in dietro il valore di x (o di y) calcolato mediante l'equazione di regressione.
+
+        Args:
+            x (number): x value
+            y (number): y value
+
+        Returns:
+            number: Valore di x (o di y) calcolato mediante l'equazione di regressione.
+        """
+        if y!=None:
+            return round((y-self.intercept)/self.slope,decimal)
+        elif x!=None:
+            return round(self.slope*x+self.intercept, decimal)
 
     def scatter_plot(
         self,
