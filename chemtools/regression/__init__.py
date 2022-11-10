@@ -1,3 +1,4 @@
 from .ordinary_least_squares import ordinary_least_squares
+from .OrdinaryLeastSquares import OrdinaryLeastSquares
 from .confidence_band import confidence_band
 from .prediction_band import prediction_band
