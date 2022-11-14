@@ -1,12 +1,12 @@
 import numpy as np
 
-class OrdinaryLeastSquares:
-    """Ordinay Least Squares class"""
+class WeightedLeastSquares:
+    """Weighted Least Squares class"""
     def __init__(self):
         pass
 
     def regression(self, x, y):
-        """Date due matrici X e Y esegue la regressione dei minimi quadrati.
+        """Date due matrici X e Y esegue la regressione
 
         Args:
             x (matrix): _description_, serve una matrice contenente conentenente, oltre ai valori di x, anche una colonna formata da soli 1 (per ottenere l'intercetta)
