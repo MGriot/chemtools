@@ -21,7 +21,7 @@ preprocessing --> pp_fun6{{variance}}
 
 explotation --> cl_fun1{{principal_component_analysis}}
 
-regression --> re_fun_1{{ordinary_least_squares}}
+regression --> re_fun_1{{LinearRegression}}
 regression --> re_fun_2{{confidence_band}}
 regression --> re_fun_3{{prediction_band}}
 

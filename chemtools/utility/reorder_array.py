@@ -25,3 +25,27 @@ def reorder_array(X):
         X.append(x)
         Y.append(y)
     return np.flip(X), np.flip(Y)
+
+
+def sort_arrays(x, y):
+    """
+    Ordina due array in base ai valori del primo.
+    
+    Parametri:
+    x : array
+        Array da utilizzare come base per l'ordinamento
+    y : array
+        Secondo array da ordinare
+    
+    Restituisce:
+    sorted_x : array
+        Primo array ordinato
+    sorted_y : array
+        Secondo array ordinato in base all'ordinamento del primo
+    """
+    # Creare un array di indici ordinati in base ai valori di x
+    sorted_indices = np.argsort(x)
+    # Utilizzare gli indici ordinati per riordinare entrambi gli array
+    sorted_x = x[sorted_indices]
+    sorted_y = y[sorted_indices]
+    return sorted_x, sorted_y
