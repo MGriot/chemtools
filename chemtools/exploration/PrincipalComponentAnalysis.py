@@ -16,7 +16,7 @@ from chemtools.utility import matplotlib_savefig
 
 
 # maca Hotelling's T-Squared e T2 vs Q plot e upper control limit (UCL) for T
-class principal_component_analysis:
+class PrincipalComponentAnalysis:
     def __init__(
         self,
         x,

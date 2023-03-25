@@ -1,1 +1,1 @@
-from .principal_component_analysis import principal_component_analysis
+from .PrincipalComponentAnalysis import PrincipalComponentAnalysis

@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 
@@ -17,9 +16,9 @@ def confidence_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two):
     Restituisce:
     CI_Y_upper (array): Array contenente gli estremi superiori della banda di confidenza per ogni valore x in input.
     CI_Y_lower (array): Array contenente gli estremi inferiori della banda di confidenza per ogni valore x in input.
-    
+
     Esempio:
-    
+
         # Definisci i parametri in input
         number_data = 100
         x = np.array([...])
@@ -27,18 +26,22 @@ def confidence_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two):
         y_pred_orig = np.array([...])
         SSxx = np.sum((x - x_mean) ** 2)
         t_two = stats.t.ppf(1 - 0.05 / 2, number_data - 2)
-        
+
         # Chiama la funzione confidence_band passando i parametri in input
         CI_Y_upper, CI_Y_lower = confidence_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two)
-        
+
         # Visualizza gli estremi superiori e inferiori della banda di confidenza
         print(CI_Y_upper)
         print(CI_Y_lower)
 
     """
-    
+
     # Calcola la banda di confidenza superiore e inferiore utilizzando operazioni vettoriali
-    CI_Y_upper = y_pred_orig + t_two * np.sqrt(1 / number_data + (x - x_mean) ** 2 / SSxx)
-    CI_Y_lower = y_pred_orig - t_two * np.sqrt(1 / number_data + (x - x_mean) ** 2 / SSxx)
+    CI_Y_upper = y_pred_orig + t_two * np.sqrt(
+        1 / number_data + (x - x_mean) ** 2 / SSxx
+    )
+    CI_Y_lower = y_pred_orig - t_two * np.sqrt(
+        1 / number_data + (x - x_mean) ** 2 / SSxx
+    )
 
     return CI_Y_upper, CI_Y_lower

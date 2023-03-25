@@ -1,4 +1,3 @@
-import math
 import numpy as np
 
 
@@ -19,7 +18,7 @@ def prediction_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two):
     PI_Y_lower (array): Array contenente gli estremi inferiori della banda di predizione per ogni valore x in input.
 
     Esempio:
-        
+
             # Definisci i parametri in input
             number_data = 100
             x = np.array([...])
@@ -27,18 +26,22 @@ def prediction_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two):
             y_pred_orig = np.array([...])
             SSxx = np.sum((x - x_mean) ** 2)
             t_two = stats.t.ppf(1 - 0.05 / 2, number_data - 2)
-            
+
             # Chiama la funzione prediction_band passando i parametri in input
             PI_Y_upper, PI_Y_lower = prediction_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two)
-            
+
             # Visualizza gli estremi superiori e inferiori della banda di predizione
             print(PI_Y_upper)
             print(PI_Y_lower)
 
     """
-        
+
     # Calcola la banda di predizione superiore e inferiore utilizzando operazioni vettoriali
-    PI_Y_upper = y_pred_orig + t_two * np.sqrt(1 + 1 / number_data + (x - x_mean) ** 2 / SSxx)
-    PI_Y_lower = y_pred_orig - t_two * np.sqrt(1 + 1 / number_data + (x - x_mean) ** 2 / SSxx)
+    PI_Y_upper = y_pred_orig + t_two * np.sqrt(
+        1 + 1 / number_data + (x - x_mean) ** 2 / SSxx
+    )
+    PI_Y_lower = y_pred_orig - t_two * np.sqrt(
+        1 + 1 / number_data + (x - x_mean) ** 2 / SSxx
+    )
 
     return PI_Y_upper, PI_Y_lower
