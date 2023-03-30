@@ -2,28 +2,19 @@ import numpy as np
 
 
 def reorder_array(X):
-    """Function for ordered an array from highest to lowest values.
+    """
+    Ordina un array dal valore più alto al più basso e restituisce l'array ordinato e gli indici originali.
 
     Args:
-        X (_type_, optional): _description_. Defaults to V.
-        Y (_type_, optional): _description_. Defaults to np.arange(0, V.size, 1).
+        X (np.ndarray): Array di input da ordinare.
 
     Returns:
-        _type_: _description_
+        tuple: Una tupla contenente l'array ordinato e gli indici originali.
     """
     Y = np.arange(0, X.size, 1)
-    new_list = list(zip(X, Y))
-    # new_list = []
-    # for x, y in zip(X, Y):
-    # new_list.append((x, y))
-
-    new_list = sorted(new_list, key=lambda element: element[0])
-
-    X, Y = [], []
-
-    for x, y in new_list:
-        X.append(x)
-        Y.append(y)
+    sorted_indices = np.argsort(X)
+    X = X[sorted_indices]
+    Y = Y[sorted_indices]
     return np.flip(X), np.flip(Y)
 
 

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def correlation_matrix(x):
+def correlation_matrix(X):
     """_summary_
 
     Args:
@@ -10,4 +10,4 @@ def correlation_matrix(x):
     Returns:
         (numpy matrix): correlation matrix
     """
-    return (x.T @ x) / (x.shape[0])
+    return (X.T @ X) / (X.shape[0])

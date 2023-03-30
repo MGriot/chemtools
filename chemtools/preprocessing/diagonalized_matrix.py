@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def diagonalized_matrix(x):
+def diagonalized_matrix(X):
     """_summary_
 
     Args:
@@ -11,5 +11,5 @@ def diagonalized_matrix(x):
         V: eigenvalues
         L: eigenvectors
     """
-    V, L = np.linalg.eig(x)
+    V, L = np.linalg.eig(X)
     return (V, L)
