@@ -12,3 +12,4 @@ from .matplotlib_savefig import matplotlib_savefig
 from .make_standards import make_standards
 from .degrees_of_freedom import degrees_of_freedom
 from .r_sqaured import centered_r_squared, uncentered_r_squared, uncentered_adjusted_r_squared
+from .set_names import set_objects_names, set_variables_names
