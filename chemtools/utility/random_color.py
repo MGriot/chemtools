@@ -1,5 +1,6 @@
 import random
 
+
 def random_colorRGB(n):
     """Generate random RGB color
 
@@ -7,14 +8,14 @@ def random_colorRGB(n):
         n (number): Number of color that you want.
 
     Returns:
-        array: Array of colors
+        list: List of colors
     """
     colors = []
     for _ in range(n):
         r = random.randint(0, 255)
         g = random.randint(0, 255)
         b = random.randint(0, 255)
-        rgb = [r, g, b]
+        rgb = (r, g, b)  # Usa una tupla invece di una lista
         colors.append(rgb)
     return colors
 
@@ -26,12 +27,12 @@ def random_colorHEX(n):
         n (number): Number of color that you want.
 
     Returns:
-        array: Array of colors
+        list: List of colors
     """
     colors = []
     for _ in range(n):
-        hexadecimal = [
-            "#" + "".join([random.choice("ABCDEF0123456789") for _ in range(6)])
-        ]
+        hexadecimal = "#" + "".join(
+            [random.choice("ABCDEF0123456789") for _ in range(6)]
+        )
         colors.append(hexadecimal)
     return colors
