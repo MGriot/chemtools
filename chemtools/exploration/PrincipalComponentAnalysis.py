@@ -35,16 +35,29 @@ class PrincipalComponentAnalysis:
         self.objects_colors = self.change_objects_colors()
 
     def fit(self):
-        self.mean = np.mean(self.X, axis=0)
-        self.std = np.std(self.X, axis=0)
-        self.X_autoscaled = (self.X - self.mean) / self.std
-        self.correlation_matrix = np.corrcoef(self.X_autoscaled, rowvar=False)
-        self.V, self.L = np.linalg.eigh(self.correlation_matrix)
-        self.order = np.argsort(self.V)[::-1]
-        self.V_ordered = self.V[self.order]
-        self.L_ordered = self.L[:, self.order]
-        self.PC_index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
-        self.num_eigenvalues_greater_than_one = np.argmax(self.V_ordered < 1)
+        try:
+            self.mean = np.mean(self.X, axis=0)
+            self.std = np.std(self.X, axis=0)
+            # Controllo per evitare divisione per zero e identificazione delle colonne problematiche
+            zero_std_columns = np.where(self.std == 0)[0]
+            if zero_std_columns.size > 0:
+                raise ValueError(
+                    f"The standard deviation contains zero in the columns: {zero_std_columns}"
+                )
+            self.X_autoscaled = (self.X - self.mean) / self.std
+            self.correlation_matrix = np.corrcoef(self.X_autoscaled, rowvar=False)
+            self.V, self.L = np.linalg.eigh(self.correlation_matrix)
+            self.order = np.argsort(self.V)[::-1]
+            self.V_ordered = self.V[self.order]
+            self.L_ordered = self.L[:, self.order]
+            self.PC_index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
+            self.num_eigenvalues_greater_than_one = np.argmax(self.V_ordered < 1)
+        except np.linalg.LinAlgError as e:
+            print(f"Error during the calculation of eigenvalues and eigenvectors: {e}")
+        except ValueError as e:
+            print(f"Error in input data: {e}")
+        except Exception as e:
+            print(f"Unknown error: {e}")
 
     def reduction(self, n_components):
         self.n_component = n_components

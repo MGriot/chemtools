@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-import polars as pl
+
+# import polars as pl
 
 
 def handle_nan_values(X, method="mean", axis=None, index=None):
@@ -43,10 +44,11 @@ def handle_nan_values(X, method="mean", axis=None, index=None):
         row_mask = [False, True, False, True]  # Apply to rows 1 and 3
         handle_nan_values(X, method="mean", axis=1, index=row_mask)
     """
-    is_dataframe = isinstance(X, (pd.DataFrame, pl.DataFrame))
+    # is_dataframe = isinstance(X, (pd.DataFrame, pl.DataFrame))
+    is_dataframe = isinstance(X, (pd.DataFrame))
     if is_dataframe:
-        if isinstance(X, pl.DataFrame):
-            X = X.to_pandas()
+        # if isinstance(X, pl.DataFrame):
+        # X = X.to_pandas()
         X_np = X.to_numpy()
     else:
         X_np = X
@@ -139,8 +141,8 @@ def one_hot_encode(data, column, axis=0, labels=None):
         np.ndarray: Array with one-hot encoded variables.
         list (optional): Updated labels for the new columns or rows if labels are provided.
     """
-    if isinstance(data, pl.DataFrame):
-        data = data.to_pandas()
+    # if isinstance(data, pl.DataFrame):
+    #    data = data.to_pandas()
 
     if isinstance(data, pd.DataFrame):
         if axis == 0:
@@ -148,18 +150,14 @@ def one_hot_encode(data, column, axis=0, labels=None):
             dummies = pd.get_dummies(data[column], prefix=column)
             data = pd.concat([data.drop(column, axis=1), dummies], axis=1)
             updated_labels = list(data.columns)
-            return data.to_numpy(), (
-                updated_labels if labels is not None else data.to_numpy()
-            )
+            return data.to_numpy(), updated_labels
         elif axis == 1:
             # One-hot encode a row
             data = data.T
             dummies = pd.get_dummies(data[column], prefix=column)
             data = pd.concat([data.drop(column, axis=1), dummies], axis=1).T
             updated_labels = list(data.index)
-            return data.to_numpy(), (
-                updated_labels if labels is not None else data.to_numpy()
-            )
+            return data.to_numpy(), updated_labels
         else:
             raise ValueError("Invalid axis. Choose 0 for columns or 1 for rows.")
 
@@ -167,15 +165,16 @@ def one_hot_encode(data, column, axis=0, labels=None):
         if axis == 0:
             unique_values = np.unique(data[:, column])
             encoded_columns = [
-                (data[:, column] == value).astype(int) for value in unique_values
+                (data[:, column] == value).astype(int).reshape(-1, 1)
+                for value in unique_values
             ]
             data = np.delete(data, column, axis=1)
             data = np.hstack([data] + encoded_columns)
             if labels is not None:
                 updated_labels = (
                     labels[:column]
-                    + [f"{labels[column]}_{value}" for value in unique_values]
                     + labels[column + 1 :]
+                    + [f"{labels[column]}_{value}" for value in unique_values]
                 )
                 return data, updated_labels
             else:
@@ -183,15 +182,16 @@ def one_hot_encode(data, column, axis=0, labels=None):
         elif axis == 1:
             unique_values = np.unique(data[column, :])
             encoded_rows = [
-                (data[column, :] == value).astype(int) for value in unique_values
+                (data[column, :] == value).astype(int).reshape(1, -1)
+                for value in unique_values
             ]
             data = np.delete(data, column, axis=0)
             data = np.vstack([data] + encoded_rows)
             if labels is not None:
                 updated_labels = (
                     labels[:column]
-                    + [f"{labels[column]}_{value}" for value in unique_values]
                     + labels[column + 1 :]
+                    + [f"{labels[column]}_{value}" for value in unique_values]
                 )
                 return data, updated_labels
             else:
@@ -203,3 +203,57 @@ def one_hot_encode(data, column, axis=0, labels=None):
         raise TypeError(
             "Input data must be a pandas DataFrame, polars DataFrame, or numpy array."
         )
+
+
+if __name__ == "__main__":
+    # Creazione di un DataFrame di esempio con valori NaN
+    data = {"A": [1, 2, np.nan, 4], "B": [5, np.nan, np.nan, 8], "C": [9, 10, 11, 12]}
+    df = pd.DataFrame(data)
+    print("DataFrame originale:")
+    print(type(df))
+    print(df)
+
+    # Test della funzione handle_nan_values
+    df_handled = handle_nan_values(df, method="mean", axis=0)
+    print("\nDataFrame dopo handle_nan_values (mean):")
+    print(type(df_handled))
+    print(df_handled)
+
+    # Creazione di un DataFrame di esempio per one_hot_encode
+    data2 = {"Category": ["A", "B", "A", "C"], "Value": [10, 20, 30, 40]}
+    df2 = pd.DataFrame(data2)
+    print("\nDataFrame originale per one_hot_encode:")
+    print(type(df2))
+    print(df2)
+
+    # Test della funzione one_hot_encode
+    df_encoded, updated_labels = one_hot_encode(df2, column="Category", axis=0)
+    df_one_hot_encode = pd.DataFrame(df_encoded, columns=updated_labels)
+    print("\nDataFrame dopo one_hot_encode:")
+    print(type(df_one_hot_encode))
+    print(df_one_hot_encode)
+
+    print("\nNumpy")
+    # Creazione di una matrice NumPy di esempio con valori NaN
+    matrix = np.array([[1, 2, np.nan, 4], [5, np.nan, np.nan, 8], [9, 10, 11, 12]])
+    print("Matrice originale:")
+    print(matrix)
+
+    # Test della funzione handle_nan_values
+    matrix_handled = handle_nan_values(matrix, method="mean", axis=0)
+    print("\nMatrice dopo handle_nan_values (mean):")
+    print(matrix_handled)
+
+    # Creazione di una matrice NumPy di esempio per one_hot_encode
+    matrix2 = np.array([["A", 10], ["B", 20], ["A", 30], ["C", 40]])
+    print("\nMatrice originale per one_hot_encode:")
+    print(matrix2)
+
+    # Test della funzione one_hot_encode
+    matrix_encoded, updated_labels = one_hot_encode(
+        matrix2, column=0, axis=0, labels=["CAT", "val"]
+    )
+    print("\nMatrice dopo one_hot_encode:")
+    print(matrix_encoded)
+    print("Etichette aggiornate:")
+    print(updated_labels)
