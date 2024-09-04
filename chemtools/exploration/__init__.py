@@ -1,1 +1,7 @@
 from .PrincipalComponentAnalysis import PrincipalComponentAnalysis
+from .ExtendedPrincipalComponentAnalysis import ExtendedPrincipalComponentAnalysis
+from .MultipleCorrespondenceAnalysis import MultipleCorrespondenceAnalysis
+from .FactorAnalysisForMixedData import FactorAnalysisForMixedData
+from .GeneralizedCanonicalCorrelationAnalysis import (
+    GeneralizedCanonicalCorrelationAnalysis,
+)

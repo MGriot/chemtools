@@ -51,7 +51,6 @@ class PrincipalComponentAnalysis:
             self.V_ordered = self.V[self.order]
             self.L_ordered = self.L[:, self.order]
             self.PC_index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
-            self.num_eigenvalues_greater_than_one = np.argmax(self.V_ordered < 1)
         except np.linalg.LinAlgError as e:
             print(f"Error during the calculation of eigenvalues and eigenvectors: {e}")
         except ValueError as e:
@@ -132,6 +131,7 @@ class PrincipalComponentAnalysis:
         plt.show()
 
     def plot_eigenvalues_greater_than_one(self, show=True):
+        self.num_eigenvalues_greater_than_one = np.argmax(self.V_ordered < 1)
         plt.axvline(
             x=self.num_eigenvalues_greater_than_one - 0.5,
             color="brown",
