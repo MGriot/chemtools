@@ -338,22 +338,13 @@ class PrincipalComponentAnalysis:
         plt.show()
 
     def plot_loadings(self, arrows=True, text_color="black", components=None):
-        # Loadings plot
         if components is not None:
             i, j = components
             fig, ax = plt.subplots(figsize=(5, 5))
             fig.suptitle(
                 f"Loadings plot PC{i+1} vs PC{j+1}", fontsize=24, y=1, color=text_color
             )
-            x_range = self.W[:, i].max() - self.W[:, i].min()
-            y_range = self.W[:, j].max() - self.W[:, j].min()
-            arrow_scale = (
-                min(x_range, y_range) * 0.1
-            )  # Adjust the scale factor as needed
-            head_width = 0.015  # Larghezza standard della testa delle frecce
-            head_length = 0.03  # Lunghezza standard della testa delle frecce
 
-            # Utilizza ax.scatter con array di dati
             x_data = self.W[:, i]
             y_data = self.W[:, j]
             colors = self.variables_colors
@@ -364,11 +355,10 @@ class PrincipalComponentAnalysis:
                     ax.arrow(
                         0,
                         0,
-                        self.W[d, i] * arrow_scale,
-                        self.W[d, j] * arrow_scale,
+                        self.W[d, i],
+                        self.W[d, j],
                         length_includes_head=True,
-                        head_width=head_width,
-                        head_length=head_length,
+                        width=0.01,
                         color=text_color,
                         alpha=0.3,
                     )
@@ -400,10 +390,17 @@ class PrincipalComponentAnalysis:
             plt.tight_layout()
             plt.show()
         else:
+            height_ratios = [1] * self.n_component
+            width_ratios = [1] * self.n_component
+
             fig, axs = plt.subplots(
                 self.n_component,
                 self.n_component,
                 figsize=(5 * self.n_component, 5 * self.n_component),
+                gridspec_kw={
+                    "height_ratios": height_ratios,
+                    "width_ratios": width_ratios,
+                },
             )
             fig.suptitle("Loadings plot", fontsize=24, y=1, color=text_color)
 
@@ -411,19 +408,7 @@ class PrincipalComponentAnalysis:
                 for j in range(self.n_component):
                     ax = axs[i, j] if self.n_component > 1 else axs
                     if i != j:
-                        x_range = self.W[:, i].max() - self.W[:, i].min()
-                        y_range = self.W[:, j].max() - self.W[:, j].min()
-                        arrow_scale = (
-                            min(x_range, y_range) * 0.1
-                        )  # Adjust the scale factor as needed
-                        head_width = (
-                            0.015  # Larghezza standard della testa delle frecce
-                        )
-                        head_length = (
-                            0.03  # Lunghezza standard della testa delle frecce
-                        )
 
-                        # Utilizza ax.scatter con array di dati
                         x_data = self.W[:, i]
                         y_data = self.W[:, j]
                         colors = self.variables_colors
@@ -434,11 +419,10 @@ class PrincipalComponentAnalysis:
                                 ax.arrow(
                                     0,
                                     0,
-                                    self.W[d, i] * arrow_scale,
-                                    self.W[d, j] * arrow_scale,
+                                    self.W[d, i],
+                                    self.W[d, j],
                                     length_includes_head=True,
-                                    head_width=head_width,
-                                    head_length=head_length,
+                                    width=0.01,
                                     color=text_color,
                                     alpha=0.3,
                                 )
@@ -483,6 +467,7 @@ class PrincipalComponentAnalysis:
                         )
 
             handles, labels = ax.get_legend_handles_labels()
+
             fig.legend(
                 handles,
                 labels,
@@ -491,10 +476,10 @@ class PrincipalComponentAnalysis:
                 labelcolor=text_color,
             )
             plt.tight_layout()
+            plt.subplots_adjust(wspace=0.4, hspace=0.4)
             plt.show()
 
     def plot_scores(self, label_point=False, text_color="black", components=None):
-        # Scores plot
         if components is not None:
             i, j = components
             fig, ax = plt.subplots(figsize=(5, 5))
@@ -502,7 +487,6 @@ class PrincipalComponentAnalysis:
                 f"Scores plot PC{i+1} vs PC{j+1}", fontsize=24, y=1, color=text_color
             )
 
-            # Utilizza ax.scatter con array di dati
             x_data = self.T[:, i]
             y_data = self.T[:, j]
             colors = self.objects_colors
@@ -529,10 +513,17 @@ class PrincipalComponentAnalysis:
             plt.tight_layout()
             plt.show()
         else:
+            height_ratios = [1] * self.n_component
+            width_ratios = [1] * self.n_component
+
             fig, axs = plt.subplots(
                 self.n_component,
                 self.n_component,
                 figsize=(5 * self.n_component, 5 * self.n_component),
+                gridspec_kw={
+                    "height_ratios": height_ratios,
+                    "width_ratios": width_ratios,
+                },
             )
             fig.suptitle("Scores plot", fontsize=24, y=1, color=text_color)
 
@@ -540,7 +531,6 @@ class PrincipalComponentAnalysis:
                 for j in range(self.n_component):
                     ax = axs[i, j] if self.n_component > 1 else axs
                     if i != j:
-                        # Utilizza ax.scatter con array di dati
                         x_data = self.T[:, i]
                         y_data = self.T[:, j]
                         colors = self.objects_colors
@@ -596,8 +586,8 @@ class PrincipalComponentAnalysis:
         subplot_dimensions=[5, 5],
         text_color="black",
         components=None,
+        show_legend=True,  # Aggiunto parametro per mostrare la legenda
     ):
-        # Biplots
         if components is not None:
             i, j = components
             fig, ax = plt.subplots(
@@ -606,22 +596,11 @@ class PrincipalComponentAnalysis:
             fig.suptitle(
                 f"Biplot PC{i+1} vs PC{j+1}", fontsize=24, y=1, color=text_color
             )
-            x_range = self.T[:, i].max() - self.T[:, i].min()
-            y_range = self.T[:, j].max() - self.T[:, j].min()
-            x_arrow_scale = (
-                x_range * 0.1
-            )  # Fattore di scala per la lunghezza delle frecce sull'asse x
-            y_arrow_scale = (
-                y_range * 0.1
-            )  # Fattore di scala per la lunghezza delle frecce sull'asse y
-            head_width = 0.02  # Larghezza standard della testa delle frecce
-            head_length = 0.05  # Lunghezza standard della testa delle frecce
 
-            # Utilizza ax.scatter con array di dati
             x_data = self.T[:, i]
             y_data = self.T[:, j]
             colors = self.objects_colors
-            ax.scatter(x_data, y_data, c=colors, label=self.objects)
+            scatter = ax.scatter(x_data, y_data, c=colors, label=self.objects)
 
             if label_point:
                 for e in range(self.n_objects):
@@ -640,37 +619,38 @@ class PrincipalComponentAnalysis:
                 ax.arrow(
                     0,
                     0,
-                    self.W[d, i] * x_arrow_scale,
-                    self.W[d, j] * y_arrow_scale,
+                    self.W[d, i],
+                    self.W[d, j],
                     length_includes_head=True,
-                    head_width=head_width,
-                    head_length=head_length,
+                    width=0.01,
                     color=text_color,
                     alpha=0.3,
                 )
                 ax.annotate(
                     text=self.variables[d],
-                    xy=(
-                        self.W[d, i] * x_arrow_scale,
-                        self.W[d, j] * y_arrow_scale,
-                    ),
+                    xy=(self.W[d, i], self.W[d, j]),
                     ha=position[0],
                     va=position[1],
                     color=text_color,
                 )
             ax.set_xlabel(f"PC{i+1}")
             ax.set_ylabel(f"PC{j+1}")
-            handles, labels = ax.get_legend_handles_labels()
-            fig.legend(
-                handles,
-                labels,
-                loc="center left",
-                bbox_to_anchor=(1, 0.5),
-                labelcolor=text_color,
-            )
+
+            if show_legend:
+                handles, labels = scatter.legend_elements()
+                fig.legend(
+                    handles,
+                    labels,
+                    loc="center left",
+                    bbox_to_anchor=(1, 0.5),
+                    labelcolor=text_color,
+                )
             plt.tight_layout()
             plt.show()
         else:
+            height_ratios = [1] * self.n_component
+            width_ratios = [1] * self.n_component
+
             fig, axs = plt.subplots(
                 self.n_component,
                 self.n_component,
@@ -678,31 +658,27 @@ class PrincipalComponentAnalysis:
                     subplot_dimensions[0] * self.n_component,
                     subplot_dimensions[1] * self.n_component,
                 ),
+                gridspec_kw={
+                    "height_ratios": height_ratios,
+                    "width_ratios": width_ratios,
+                },
             )
             fig.suptitle("Biplots plot", fontsize=24, y=1, color=text_color)
+
+            all_handles = []
+            all_labels = []
 
             for i in range(self.n_component):
                 for j in range(self.n_component):
                     ax = axs[i, j] if self.n_component > 1 else axs
                     if i != j:
-                        x_range = self.T[:, i].max() - self.T[:, i].min()
-                        y_range = self.T[:, j].max() - self.T[:, j].min()
-                        x_arrow_scale = (
-                            x_range * 0.1
-                        )  # Fattore di scala per la lunghezza delle frecce sull'asse x
-                        y_arrow_scale = (
-                            y_range * 0.1
-                        )  # Fattore di scala per la lunghezza delle frecce sull'asse y
-                        head_width = 0.02  # Larghezza standard della testa delle frecce
-                        head_length = (
-                            0.05  # Lunghezza standard della testa delle frecce
-                        )
 
-                        # Utilizza ax.scatter con array di dati
                         x_data = self.T[:, i]
                         y_data = self.T[:, j]
                         colors = self.objects_colors
-                        ax.scatter(x_data, y_data, c=colors, label=self.objects)
+                        scatter = ax.scatter(
+                            x_data, y_data, c=colors, label=self.objects
+                        )
 
                         if label_point:
                             for e in range(self.n_objects):
@@ -721,19 +697,18 @@ class PrincipalComponentAnalysis:
                             ax.arrow(
                                 0,
                                 0,
-                                self.W[d, i] * x_arrow_scale,
-                                self.W[d, j] * y_arrow_scale,
+                                self.W[d, i],
+                                self.W[d, j],
                                 length_includes_head=True,
-                                head_width=head_width,
-                                head_length=head_length,
+                                width=0.01,
                                 color=text_color,
                                 alpha=0.3,
                             )
                             ax.annotate(
                                 text=self.variables[d],
                                 xy=(
-                                    self.W[d, i] * x_arrow_scale,
-                                    self.W[d, j] * y_arrow_scale,
+                                    self.W[d, i],
+                                    self.W[d, j],
                                 ),
                                 ha=position[0],
                                 va=position[1],
@@ -741,6 +716,10 @@ class PrincipalComponentAnalysis:
                             )
                         ax.set_xlabel(f"PC{i+1}")
                         ax.set_ylabel(f"PC{j+1}")
+
+                        handles, labels = scatter.legend_elements()
+                        all_handles.extend(handles)
+                        all_labels.extend(labels)
                     else:
                         ax.text(
                             0.5,
@@ -765,13 +744,13 @@ class PrincipalComponentAnalysis:
                             )
                         )
 
-            handles, labels = ax.get_legend_handles_labels()
-            fig.legend(
-                handles,
-                labels,
-                loc="center left",
-                bbox_to_anchor=(1, 0.5),
-                labelcolor=text_color,
-            )
+            if show_legend:
+                fig.legend(
+                    all_handles,
+                    all_labels,
+                    loc="center left",
+                    bbox_to_anchor=(1, 0.5),
+                    labelcolor=text_color,
+                )
             plt.tight_layout()
             plt.show()
