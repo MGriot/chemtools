@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import pandas as pd
 import numpy as np
 from chemtools.exploration import PrincipalComponentAnalysis
@@ -13,6 +18,7 @@ data = {
     "Variabile6": [9.0, 8.1, 7.2, 6.3],
 }
 
+
 # Creazione del DataFrame
 df = pd.DataFrame(data)
 
@@ -23,12 +29,13 @@ print(df)
 # Preparazione dei dati per la PCA (escludendo la colonna 'Nome Oggetto')
 X = df.drop("Nome Oggetto", axis=1)
 X = X.to_numpy()
-pca = PrincipalComponentAnalysis(X)
-pca.fit()
-# pca.plot_correlation_matrix()
+pca = PrincipalComponentAnalysis()
+pca.fit(X)
+pca.plot_correlation_matrix()
 # pca.plot_correlation_matrix()
 # pca.plot_eigenvalue()
-pca.reduction(int(input("how many PC?")))
-pca.plot_loadings()
-pca.plot_biplot()
+# pca.reduction(int(input("how many PC?")))
+# pca.plot_loadings()
+# pca.plot_biplot()
 # pca.plot_scores()
+# pca.save("pca.txt")

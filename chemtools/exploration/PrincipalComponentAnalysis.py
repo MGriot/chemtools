@@ -22,10 +22,14 @@ from chemtools.utility import heatmap
 from chemtools.utility import annotate_heatmap
 from chemtools.utility.set_names import set_objects_names, set_variables_names
 from chemtools.utility import random_colorHEX
+from chemtools.base import BaseModel
 
 
-class PrincipalComponentAnalysis:
-    def __init__(self, X, variables_names=None, objects_names=None):
+class PrincipalComponentAnalysis(BaseModel):
+    def __init__(self):
+        self.model_name = "Principal Component Analysis"
+
+    def fit(self, X, variables_names=None, objects_names=None):
         self.X = X
         self.variables = set_variables_names(variables_names, X)
         self.objects = set_objects_names(objects_names, X)
@@ -33,8 +37,6 @@ class PrincipalComponentAnalysis:
         self.n_objects = self.X.shape[0]
         self.variables_colors = self.change_variables_colors()
         self.objects_colors = self.change_objects_colors()
-
-    def fit(self):
         try:
             self.mean = np.mean(self.X, axis=0)
             self.std = np.std(self.X, axis=0)
