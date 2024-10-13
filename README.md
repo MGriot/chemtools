@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="doc\img\icon.png" alt="Icon">
+</div>
+
 # chemtools
 
 **chemtools** is a Python library designed to simplify chemometric analyses. It provides a user-friendly interface for performing various operations, including:
