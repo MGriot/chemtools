@@ -21,18 +21,9 @@ def random_colorRGB(n):
 
 
 def random_colorHEX(n):
-    """Generate random HEX color
-
-    Args:
-        n (number): Number of color that you want.
-
-    Returns:
-        list: List of colors
-    """
-    colors = []
-    for _ in range(n):
-        hexadecimal = "#" + "".join(
-            [random.choice("ABCDEF0123456789") for _ in range(6)]
-        )
-        colors.append(hexadecimal)
-    return colors
+    """Generates a list of n random HEX color codes."""
+    color_list = [
+        "#" + "".join([random.choice("0123456789ABCDEF") for j in range(6)])
+        for i in range(n)
+    ]
+    return color_list

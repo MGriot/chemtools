@@ -27,11 +27,43 @@ from chemtools.base import BaseModel
 
 
 class MultipleCorrespondenceAnalysis(BaseModel):
+    """
+    Performs Multiple Correspondence Analysis (MCA) on a contingency table.
+
+    Attributes:
+        model_name (str): Name of the model.
+        X (np.ndarray): Contingency table (input data).
+        variables (np.ndarray): Names of the variables.
+        objects (np.ndarray): Names of the objects.
+        n_variables (int): Number of variables.
+        n_objects (int): Number of objects.
+        variables_colors (list): List of colors for the variables.
+        objects_colors (list): List of colors for the objects.
+        correspondence_matrix (np.ndarray): Normalized contingency table.
+        row_profiles (np.ndarray): Probability of observing each variable given an object.
+        col_profiles (np.ndarray): Probability of observing each object given a variable.
+        V (np.ndarray): Eigenvalues of the decomposition.
+        L (np.ndarray): Left singular vectors (object coordinates in factor space).
+        G (np.ndarray): Right singular vectors (variable coordinates in factor space).
+        order (np.ndarray): Indices that order eigenvalues in descending order.
+        V_ordered (np.ndarray): Ordered eigenvalues.
+        L_ordered (np.ndarray): Object coordinates ordered according to eigenvalues.
+        PC_index (np.ndarray): Names of the principal components.
+    """
+
     def __init__(self):
         self.model_name = "Multiple Correspondence Analysis"
 
     def fit(self, X, variables_names=None, objects_names=None):
-        # 1. Contingency Table (Assuming X is already a contingency table)
+        """
+        Fits the MCA model to the data.
+
+        Args:
+            X (np.ndarray): Contingency table.
+            variables_names (list, optional): List of variable names. Defaults to None.
+            objects_names (list, optional): List of object names. Defaults to None.
+        """
+        # 1. Contingency Table
         self.X = X
         self.variables = set_variables_names(variables_names, X)
         self.objects = set_objects_names(objects_names, X)
@@ -52,7 +84,7 @@ class MultipleCorrespondenceAnalysis(BaseModel):
             self.correspondence_matrix, axis=0, keepdims=True
         )
 
-        # 4. Apply SVD (Singular Value Decomposition) on the centered matrix
+        # 4. Centering the matrix
         row_sums = np.sum(self.correspondence_matrix, axis=1)
         col_sums = np.sum(self.correspondence_matrix, axis=0)
         expected_freqs = np.outer(row_sums, col_sums) / grand_total
@@ -60,17 +92,22 @@ class MultipleCorrespondenceAnalysis(BaseModel):
             expected_freqs
         )
 
-        # 5. Get Eigenvalues and Eigenvectors
+        # 5. Apply SVD
         U, s, V = np.linalg.svd(centered_matrix)
-        self.V = s**2  # Eigenvalues are squared singular values
-        self.L = U  # Left singular vectors correspond to row (object) coordinates
+
+        # 6.  Eigenvalues and Eigenvectors
+        self.V = s**2
+        self.L = U
+        self.G = V * s[:, None]  # Calculate variable coordinates
         self.order = np.argsort(self.V)[::-1]
         self.V_ordered = self.V[self.order]
         self.L_ordered = self.L[:, self.order]
         self.PC_index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
 
     def change_variables_colors(self):
+        """Generates random colors for the variables."""
         return random_colorHEX(self.n_variables)
 
     def change_objects_colors(self):
+        """Generates random colors for the objects."""
         return random_colorHEX(self.n_objects)

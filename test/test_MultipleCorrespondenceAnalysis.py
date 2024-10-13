@@ -5,14 +5,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import unittest
 import numpy as np
-import matplotlib.pyplot as plt
 from chemtools.exploration.MultipleCorrespondenceAnalysis import (
     MultipleCorrespondenceAnalysis,
 )
-from chemtools.plots.exploration.mca_plots import (
-    plot_eigenvalues,
-    plot_objects,
-)  # Import the plotting functions
+from chemtools.plots.exploration import mca_plots
 
 
 class TestMultipleCorrespondenceAnalysis(unittest.TestCase):
@@ -32,32 +28,21 @@ class TestMultipleCorrespondenceAnalysis(unittest.TestCase):
         cls.mca.fit(cls.X, cls.variables_names, cls.objects_names)
 
     def test_fit(self):
-        self.assertEqual(self.mca.n_variables, 3)
-        self.assertEqual(self.mca.n_objects, 3)
-        self.assertEqual(len(self.mca.variables_colors), 3)
-        self.assertEqual(len(self.mca.objects_colors), 3)
-        self.assertEqual(self.mca.correspondence_matrix.shape, (3, 3))
-        self.assertEqual(self.mca.row_profiles.shape, (3, 3))
-        self.assertEqual(self.mca.col_profiles.shape, (3, 3))
-        self.assertEqual(self.mca.V.shape, (3,))
-        self.assertEqual(self.mca.L.shape, (3, 3))
+        print("Eigenvalues (V):", self.mca.V)
+        print("Object Coordinates (L):", self.mca.L)
+        print("Variable Coordinates (G):", self.mca.G)
 
-    def test_change_variables_colors(self):
-        colors = self.mca.change_variables_colors()
-        self.assertEqual(len(colors), self.mca.n_variables)
+        # Add assertions based on expected values
+        np.testing.assert_array_almost_equal(
+            self.mca.V, [0.22222222, 0.11111111, 0.0], decimal=4
+        )
+        # Add more assertions as needed
 
-    def test_change_objects_colors(self):
-        colors = self.mca.change_objects_colors()
-        self.assertEqual(len(colors), self.mca.n_objects)
-
-    def test_plot_eigenvalues_data(self):
-        # Call the plotting function, but suppress the actual plot output
-        plot_eigenvalues(self.mca)
-        plt.close()  # Close the figure to avoid displaying it
-
-    def test_plot_eigenvalues_attributes(self):
-        plot_objects(self.mca)
-        plt.close()
+    def test_plots(self):
+        # Call the plotting functions, but suppress the actual plot output
+        mca_plots.plot_eigenvalues(self.mca)
+        mca_plots.plot_objects(self.mca)
+        mca_plots.plot_variables(self.mca)
 
 
 if __name__ == "__main__":

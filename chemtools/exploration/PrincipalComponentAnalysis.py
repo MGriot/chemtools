@@ -10,8 +10,6 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import f, norm
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 
 from chemtools.preprocessing import autoscaling
 from chemtools.preprocessing.matrix_standard_deviation import matrix_standard_deviation

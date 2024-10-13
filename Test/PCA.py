@@ -37,12 +37,12 @@ pca.fit(X, variables_names=variables, objects_names=objects)
 
 # Now use the plotting functions from pca_plots
 pca_plots.plot_correlation_matrix(pca)
-pca_plots.plot_eigenvalue(pca)
+# pca_plots.plot_eigenvalue(pca)
 
 # ... (Call other plotting functions as needed)
 
-# pca.reduction(int(input("how many PC?")))
-# pca_plots.plot_loadings(pca)
-# pca_plots.plot_biplot(pca)
-# pca_plots.plot_scores(pca)
+pca.reduction(int(input("how many PC?")))
+pca_plots.plot_loadings(pca)
+pca_plots.plot_biplot(pca)
+pca_plots.plot_scores(pca)
 # pca.save("pca.txt")
