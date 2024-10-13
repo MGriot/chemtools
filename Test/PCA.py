@@ -6,8 +6,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pandas as pd
 import numpy as np
 from chemtools.exploration import PrincipalComponentAnalysis
+from chemtools.plots.exploration import pca_plots  # Import the plotting functions
 
-# Creazione di un database con nomi degli oggetti e titoli delle variabili
+# Create a database with object names and variable titles
 data = {
     "Nome Oggetto": ["Oggetto1", "Oggetto2", "Oggetto3", "Oggetto4"],
     "Variabile1": [1.2, 2.3, 3.1, 4.5],
@@ -18,24 +19,30 @@ data = {
     "Variabile6": [9.0, 8.1, 7.2, 6.3],
 }
 
-
-# Creazione del DataFrame
+# Create the DataFrame
 df = pd.DataFrame(data)
 
-# Visualizzazione del DataFrame
-print("Database creato:")
+# Display the DataFrame
+print("Created Database:")
 print(df)
 
-# Preparazione dei dati per la PCA (escludendo la colonna 'Nome Oggetto')
+# Prepare the data for PCA (excluding the 'Nome Oggetto' column)
 X = df.drop("Nome Oggetto", axis=1)
+variables = X.columns.tolist()  # Get variable names
+objects = df["Nome Oggetto"].tolist()  # Get object names
 X = X.to_numpy()
+
 pca = PrincipalComponentAnalysis()
-pca.fit(X)
-pca.plot_correlation_matrix()
-# pca.plot_correlation_matrix()
-# pca.plot_eigenvalue()
+pca.fit(X, variables_names=variables, objects_names=objects)
+
+# Now use the plotting functions from pca_plots
+pca_plots.plot_correlation_matrix(pca)
+pca_plots.plot_eigenvalue(pca)
+
+# ... (Call other plotting functions as needed)
+
 # pca.reduction(int(input("how many PC?")))
-# pca.plot_loadings()
-# pca.plot_biplot()
-# pca.plot_scores()
+# pca_plots.plot_loadings(pca)
+# pca_plots.plot_biplot(pca)
+# pca_plots.plot_scores(pca)
 # pca.save("pca.txt")
