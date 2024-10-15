@@ -23,6 +23,47 @@ from chemtools.base import BaseModel
 
 
 class PrincipalComponentAnalysis(BaseModel):
+    """
+    A class to perform Principal Component Analysis (PCA) on a dataset.
+
+    This class provides methods to fit the PCA model to the data, reduce its dimensionality,
+    and compute statistical metrics related to the analysis. It also manages the internal
+    state of the PCA, including the mean, standard deviation, and eigenvalues of the data.
+
+    Attributes:
+        model_name (str): The name of the model.
+        X (ndarray): The input data.
+        variables (list): Names of the variables.
+        objects (list): Names of the objects.
+        n_variables (int): Number of variables in the dataset.
+        n_objects (int): Number of objects in the dataset.
+        variables_colors (list): Colors assigned to variables for visualization.
+        objects_colors (list): Colors assigned to objects for visualization.
+        mean (ndarray): Mean of the input data.
+        std (ndarray): Standard deviation of the input data.
+        X_autoscaled (ndarray): Autoscaled version of the input data.
+        correlation_matrix (ndarray): Correlation matrix of the autoscaled data.
+        V (ndarray): Eigenvalues of the correlation matrix.
+        L (ndarray): Eigenvectors of the correlation matrix.
+        order (ndarray): Order of eigenvalues.
+        V_ordered (ndarray): Ordered eigenvalues.
+        L_ordered (ndarray): Ordered eigenvectors.
+        PC_index (ndarray): Index labels for principal components.
+        n_component (int): Number of components retained after reduction.
+        V_reduced (ndarray): Reduced eigenvalues.
+        W (ndarray): Reduced eigenvectors.
+        T (ndarray): Transformed data in the PCA space.
+
+    Methods:
+        __init__: Initializes the PCA model.
+        fit: Fits the PCA model to the provided data.
+        reduction: Reduces the dimensionality of the dataset.
+        statistics: Computes statistical metrics for the PCA.
+        hotellings_t2_critical_value: Calculates the critical value for Hotelling's T-squared.
+        change_variables_colors: Generates colors for the variables.
+        change_objects_colors: Generates colors for the objects.
+    """
+
     def __init__(self):
         self.model_name = "Principal Component Analysis"
 
@@ -58,12 +99,40 @@ class PrincipalComponentAnalysis(BaseModel):
             print(f"Unknown error: {e}")
 
     def reduction(self, n_components):
+        """
+        Reduce the dimensionality of the dataset using principal component analysis.
+
+        This method selects a specified number of principal components to represent the
+        original data, effectively reducing its dimensionality while preserving as much
+        variance as possible. It updates the internal attributes to reflect the reduced
+        components and their corresponding values.
+
+        Args:
+            n_components (int): The number of principal components to retain.
+
+        Returns:
+            None
+        """
         self.n_component = n_components
         self.V_reduced = self.V_ordered[:n_components]
         self.W = self.L_ordered[:, :n_components]
         self.T = np.dot(self.X_autoscaled, self.W)
 
     def statistics(self, alpha=0.05):
+        """
+        Calculate statistical metrics for the principal component analysis.
+
+        This method computes the reconstructed data, error metrics, and critical values
+        based on the principal components. It provides insights into the quality of the
+        PCA model and helps in assessing the significance of the components.
+
+        Args:
+            alpha (float): Significance level for the critical value calculation.
+                        Default is 0.05.
+
+        Returns:
+            None
+        """
         self.X_reconstructed = np.dot(self.T, self.W.T)
         self.E = self.X_autoscaled - self.X_reconstructed
         self.T2 = np.diag(
@@ -76,6 +145,19 @@ class PrincipalComponentAnalysis(BaseModel):
         self.Qcon = self.E
         self.T2_critical_value = self.hotellings_t2_critical_value(alpha=alpha)
 
+    def transform(self, X_new):
+        """
+        Projects new data onto the principal component space.
+
+        Args:
+            X_new (ndarray): The new data to transform (shape: n_samples x n_variables).
+
+        Returns:
+            ndarray: The transformed data in the PCA space (shape: n_samples x n_components).
+        """
+        X_new_autoscaled = (X_new - self.mean) / self.std
+        return np.dot(X_new_autoscaled, self.W)
+
     def hotellings_t2_critical_value(self, alpha=0.05):
         p = self.n_variables
         n = self.n_objects
@@ -87,3 +169,7 @@ class PrincipalComponentAnalysis(BaseModel):
 
     def change_objects_colors(self):
         return random_colorHEX(self.n_objects)
+
+    def _get_summary_data(self):
+        """Returns a dictionary of data for the summary."""
+        return None

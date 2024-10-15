@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from matplotlib.patches import Ellipse
 import numpy as np
 
 from chemtools.utility import heatmap
@@ -186,7 +187,6 @@ def plot_average_eigenvalue_criterion(pca_object, ax=None):
         ax.grid(True)
     else:
         fig = ax.get_figure()
-
 
     ax.axvline(
         x=np.argmax(pca_object.V_ordered < pca_object.V_ordered.mean()) - 0.5,
@@ -931,3 +931,80 @@ def plot_biplot(
             )
         plt.tight_layout()
         plt.show()
+
+
+def plot_classes_pca(
+    pca_models, class_labels, new_data_point=None, colors=None, ellipse_std=2
+):
+    """Plots multiple classes in PCA space with centroids,
+       class boundaries, and an optional new data point.
+
+    Args:
+        pca_models (list): A list of fitted PCA models, one for each class.
+        class_labels (list): A list of class labels corresponding to the PCA models.
+        new_data_point (ndarray, optional): The new data point to visualize
+                                           (shape: 1 x n_variables). Defaults to None.
+        colors (list, optional): A list of colors to use for each class. Defaults to None.
+        ellipse_std (float, optional): The number of standard deviations to use for
+                                      the ellipse radius. Defaults to 2.
+    """
+
+    if colors is None:
+        colors = plt.cm.get_cmap("viridis", len(pca_models)).colors
+
+    fig, ax = plt.subplots()
+
+    for i, pca in enumerate(pca_models):
+        class_scores = pca.T
+        # Use 'color' keyword argument for scatter plots:
+        ax.scatter(
+            class_scores[:, 0],
+            class_scores[:, 1],
+            color=colors[i],
+            label=class_labels[i],
+        )
+
+        centroid = np.mean(class_scores, axis=0)
+        ax.plot(
+            centroid[0],
+            centroid[1],
+            marker="*",
+            markersize=10,
+            color="black",
+            markeredgecolor="white",
+        )
+
+        cov = np.cov(class_scores, rowvar=False)
+        eigenvalues, eigenvectors = np.linalg.eigh(cov)
+        angle = np.degrees(np.arctan2(*eigenvectors[:, 0][::-1]))
+        width, height = 2 * ellipse_std * np.sqrt(eigenvalues)
+        ellipse = Ellipse(
+            xy=centroid,
+            width=width,
+            height=height,
+            angle=angle,
+            edgecolor=colors[i],
+            facecolor="none",
+            linewidth=2,
+        )
+        ax.add_patch(ellipse)
+
+        # Project and plot the new data point (if provided)
+        if new_data_point is not None:
+            # Transform the new data point using the CURRENT class's PCA
+            new_data_projection = pca.transform(new_data_point)
+            # Use 'color' keyword argument here as well:
+            ax.scatter(
+                new_data_projection[:, 0],
+                new_data_projection[:, 1],
+                color=colors[i],
+                marker="o",
+                s=100,
+                label=f"New Data (Proj. on {class_labels[i]})",
+            )
+
+    ax.set_xlabel("PC1")
+    ax.set_ylabel("PC2")
+    ax.set_title("Class Separation in PCA Space")
+    plt.legend()
+    plt.show()
