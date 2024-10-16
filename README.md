@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="doc\img\icon.png" alt="Icon">
+  <img src="doc\img\icon.jpg" alt="Icon">
 </div>
 
 # chemtools
