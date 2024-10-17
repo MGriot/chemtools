@@ -20,23 +20,35 @@ def reorder_array(X):
 
 def sort_arrays(x, y):
     """
-    Ordina due array in base ai valori del primo.
-    
-    Parametri:
-    x : array
-        Array da utilizzare come base per l'ordinamento
-    y : array
-        Secondo array da ordinare
-    
-    Restituisce:
-    sorted_x : array
-        Primo array ordinato
-    sorted_y : array
-        Secondo array ordinato in base all'ordinamento del primo
+    Sorts the rows of matrix `x` and vector `y` based on the
+    ascending order of the non-constant (or non-one) column of `x`.
+
+    Args:
+        x (numpy.ndarray): A 2D array (matrix).
+        y (numpy.ndarray): A 1D array (vector) with the same
+                           number of rows as `x`.
+
+    Returns:
+        tuple: A tuple containing the sorted `x` and `y` arrays.
+               If all columns of `x` are constant or one,
+               returns the original arrays.
+
+    Raises:
+        ValueError: If the number of rows in `x` and `y` don't match.
     """
-    # Creare un array di indici ordinati in base ai valori di x
-    sorted_indices = np.argsort(x)
-    # Utilizzare gli indici ordinati per riordinare entrambi gli array
-    sorted_x = x[sorted_indices]
-    sorted_y = y[sorted_indices]
-    return sorted_x, sorted_y
+
+    x = np.asarray(x)
+    y = np.asarray(y)
+
+    if x.shape[0] != y.shape[0]:
+        raise ValueError("Input arrays 'x' and 'y' must have the same number of rows.")
+
+    # Find the non-constant column (skip if all elements are 1 or constant)
+    for col_index in range(x.shape[1]):
+        if len(set(x[:, col_index])) > 1:
+            # Found a non-constant column
+            sorted_indices = np.argsort(x[:, col_index])
+            return x[sorted_indices], y[sorted_indices]
+
+    # No non-constant columns found, return original arrays
+    return x, y

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def confidence_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two):
+def confidence_band(number_data, X, x_mean, y_pred, SSxx, t_two):
     """
     Calcola la banda di confidenza per una regressione lineare.
 
@@ -37,11 +37,8 @@ def confidence_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two):
     """
 
     # Calcola la banda di confidenza superiore e inferiore utilizzando operazioni vettoriali
-    CI_Y_upper = y_pred_orig + t_two * np.sqrt(
-        1 / number_data + (x - x_mean) ** 2 / SSxx
-    )
-    CI_Y_lower = y_pred_orig - t_two * np.sqrt(
-        1 / number_data + (x - x_mean) ** 2 / SSxx
-    )
-
+    diff = X - x_mean
+    CI_term = t_two * np.sqrt(1 / number_data + np.sum((diff**2 / SSxx), axis=1))
+    CI_Y_upper = y_pred + CI_term
+    CI_Y_lower = y_pred - CI_term
     return CI_Y_upper, CI_Y_lower

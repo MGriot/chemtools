@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def prediction_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two):
+def prediction_band(number_data, X, x_mean, y_pred_orig, SSxx, t_two):
     """
     Calcola la banda di predizione per una regressione lineare.
 
@@ -37,11 +37,8 @@ def prediction_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two):
     """
 
     # Calcola la banda di predizione superiore e inferiore utilizzando operazioni vettoriali
-    PI_Y_upper = y_pred_orig + t_two * np.sqrt(
-        1 + 1 / number_data + (x - x_mean) ** 2 / SSxx
-    )
-    PI_Y_lower = y_pred_orig - t_two * np.sqrt(
-        1 + 1 / number_data + (x - x_mean) ** 2 / SSxx
-    )
-
+    diff = X - x_mean
+    PI_term = t_two * np.sqrt(1 + 1 / number_data + np.sum((diff**2 / SSxx), axis=1))
+    PI_Y_upper = y_pred_orig + PI_term
+    PI_Y_lower = y_pred_orig - PI_term
     return PI_Y_upper, PI_Y_lower

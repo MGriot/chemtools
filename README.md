@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="doc\img\icon.jpg" alt="Icon">
+  <img src="https://github.com/MGriot/chemtools/blob/main/doc/img/icon.png" alt="Icon">
 </div>
 
 # chemtools
