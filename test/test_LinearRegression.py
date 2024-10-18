@@ -6,7 +6,7 @@ import statsmodels.api as sm
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from chemtools.regression.LinearRegression import OLSRegression, WLSRegression
-from chemtools.plots.regression import ols_plots
+from chemtools.plots.regression import regression_plots
 
 x = np.array([0, 1, 2, 3, 4, 5, 6])
 y = np.array([0, 2, 3, 5, 6, 8, 10])
@@ -21,9 +21,12 @@ print(model.summary)
 
 
 # --- Plots ---
-# ols_plots.plot_residuals(model)
-# ols_plots.plot_data(model)
-# ols_plots.plot_regression_line(model)
+regression_plots.plot_residuals(model)
+regression_plots.plot_data(model)
+regression_plots.plot_regression_line(model)
+regression_plots.plot_confidence_band(model)
+regression_plots.plot_prediction_band(model)
+regression_plots.plot_regression_results(model)
 # ... (The confidence and prediction bands won't work directly with LinearRegression
 #     as it doesn't calculate them by default. You would need to implement those
 #     calculations or use a different library like statsmodels)

@@ -66,6 +66,8 @@ class PrincipalComponentAnalysis(BaseModel):
 
     def __init__(self):
         self.model_name = "Principal Component Analysis"
+        self.method = "PCA"  # Set the method name for the summary
+        self.notes = []  # Add this line to initialize notes
 
     def fit(self, X, variables_names=None, objects_names=None):
         self.X = X
@@ -172,4 +174,18 @@ class PrincipalComponentAnalysis(BaseModel):
 
     def _get_summary_data(self):
         """Returns a dictionary of data for the summary."""
-        return None
+        summary = {
+            "general": {
+                "No. Variables": f"{self.n_variables}",
+                "No. Objects": f"{self.n_objects}",
+            },
+            "eigenvalues": {
+                self.PC_index[i]: [
+                    f"{val:.2f}",
+                    f"{self.V_ordered[i] / np.sum(self.V_ordered) * 100:.2f}%",
+                    f"{np.cumsum(self.V_ordered)[i] / np.sum(self.V_ordered) * 100:.2f}%",
+                ]
+                for i, val in enumerate(self.V_ordered)
+            },
+        }
+        return summary
