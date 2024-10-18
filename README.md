@@ -4,7 +4,16 @@
 
 # chemtools
 
-**chemtools** is a Python library designed to simplify chemometric analyses. It provides a user-friendly interface for performing various operations, including:
+**chemtools** is a Python library designed to simplify chemometric analyses. 
+
+## Inspiration 
+
+This project draws heavy inspiration from the following sources:
+
+* **[Statsmodels](https://www.statsmodels.org/stable/index.html):** ror statistical calculations and modeling.
+* **[Scikit-learn](https://scikit-learn.org/1.5/index.html):** utilized for machine learning functionalities.
+
+It provides a user-friendly interface for performing various operations, including:
 
 **1. Data Preprocessing:**
 - Autoscaling

@@ -18,15 +18,16 @@ weights = np.array([1, 1, 0.5, 1, 0, 1, 0.9])
 model = OLSRegression(fit_intercept=True)
 model.fit(X=x, y=y)  # Fit the model with your data
 print(model.summary)
+print(model.predict(x_new))
 
 
 # --- Plots ---
-regression_plots.plot_residuals(model)
-regression_plots.plot_data(model)
-regression_plots.plot_regression_line(model)
-regression_plots.plot_confidence_band(model)
-regression_plots.plot_prediction_band(model)
-regression_plots.plot_regression_results(model)
+# regression_plots.plot_residuals(model)
+# regression_plots.plot_data(model)
+# regression_plots.plot_regression_line(model)
+# regression_plots.plot_confidence_band(model)
+# regression_plots.plot_prediction_band(model)
+# regression_plots.plot_regression_results(model)
 # ... (The confidence and prediction bands won't work directly with LinearRegression
 #     as it doesn't calculate them by default. You would need to implement those
 #     calculations or use a different library like statsmodels)
@@ -42,7 +43,7 @@ regression_plots.plot_regression_results(model)
 # predictions_wls = model_wls.predict(X)
 # model_wls.summary()
 
-x = np.array([[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1]])
-mod = sm.OLS(y, x)
-res = mod.fit()
-print(res.summary())
+# x = np.array([[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1]])
+# mod = sm.OLS(y, x)
+# res = mod.fit()
+# print(res.summary())
