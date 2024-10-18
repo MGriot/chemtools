@@ -80,20 +80,23 @@ predictions = model.predict(new_X)
 
 This submodule offers functions to visualize regression results, including:
 
-* `plot_residuals`: Plots residuals against observations to check for patterns and assess model assumptions.
-  ![Residual Plot](/doc/img/regression/residuals.png) 
+`plot_residuals`: Plots residuals against observations to check for patterns and assess model assumptions.
+![Residual Plot](/doc/img/regression/residuals.png) 
 
-* `plot_data`: Creates a scatter plot of the input data.
-  ![Data Plot](/doc/img/regression/data.png)
-* `plot_regression_line`: Plots the regression line along with the data points.
-  ![Regression Line Plot](/doc/img/regression/regression line.png)
+`plot_data`: Creates a scatter plot of the input data.
+![Data Plot](/doc/img/regression/data.png)
 
-* `plot_confidence_band`: Visualizes the confidence band around the regression line, indicating the uncertainty in the estimated relationship.
-  ![Confidence Band Plot](/doc/img/regression/confidence band.png)
-* `plot_prediction_band`: Displays the prediction band, which represents the range where future predictions are likely to fall.
-  ![Prediction Band Plot](/doc/img/regression/prediction band.png)
-* `plot_regression_results`: Provides a comprehensive visualization of regression results, allowing customization of what to include in the plot (data points, regression line, confidence band, prediction band).
-  ![all Plot](/doc/img/regression/all.png)
+`plot_regression_line`: Plots the regression line along with the data points.
+![Regression Line Plot](/doc/img/regression/regression line.png)
+
+`plot_confidence_band`: Visualizes the confidence band around the regression line, indicating the uncertainty in the estimated relationship.
+![Confidence Band Plot](/doc/img/regression/confidence band.png)
+
+`plot_prediction_band`: Displays the prediction band, which represents the range where future predictions are likely to fall.
+![Prediction Band Plot](/doc/img/regression/prediction band.png)
+
+`plot_regression_results`: Provides a comprehensive visualization of regression results, allowing customization of what to include in the plot (data points, regression line, confidence band, prediction band).
+![all Plot](/doc/img/regression/all.png)
 
 These plotting functions support both Matplotlib and Plotly libraries, giving users flexibility in choosing their preferred visualization tool.
 
