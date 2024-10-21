@@ -54,7 +54,7 @@ class ExtendedPrincipalComponentAnalysis(BaseModel):
         order (np.ndarray): Order of the eigenvalues.
         V_ordered (np.ndarray): Ordered eigenvalues.
         L_ordered (np.ndarray): Ordered eigenvectors.
-        PC_index (np.ndarray): Principal component indices.
+        index (np.ndarray): Principal component indices.
         n_components (int): Number of principal components to retain.
         V_reduced (np.ndarray): Reduced eigenvalues.
         W (np.ndarray): Matrix of eigenvectors for the reduced components.
@@ -119,7 +119,7 @@ class ExtendedPrincipalComponentAnalysis(BaseModel):
             self.order = np.argsort(self.V)[::-1]
             self.V_ordered = self.V[self.order]
             self.L_ordered = self.L[:, self.order]
-            self.PC_index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
+            self.index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
         except np.linalg.LinAlgError as e:
             print(f"Error during the calculation of eigenvalues and eigenvectors: {e}")
         except Exception as e:

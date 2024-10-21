@@ -77,8 +77,57 @@ predictions = model.predict(new_X)
 **Note:** The `omega` argument should be the covariance matrix representing the error structure.
 
 ### 2. Regression Plots (`regression_plots.py`)
+This submodule offers functions to visualize regression results using either Matplotlib or Plotly. Before using the plotting functions, you need to create an instance of the RegressionPlots class, passing your fitted regression model (OLSRegression, WLSRegression, or GLSRegression object) to its constructor.
 
-This submodule offers functions to visualize regression results, including:
+Here's an example using Matplotlib:
+```python
+from chemtools.regression.LinearRegression import OLSRegression
+from chemtools.plots.regression.regression_plots import RegressionPlots
+
+# Assuming X, y, and new_X are defined as before
+model = OLSRegression()
+model.fit(X, y)
+
+# Create a RegressionPlots object, passing your fitted model
+regression_plotter = RegressionPlots(model, library="matplotlib") 
+
+# Plot residuals
+regression_plotter.plot_residuals()
+
+# Plot data points
+regression_plotter.plot_data(xlabel="Feature Value", ylabel="Target Variable")
+
+# Plot regression line
+regression_plotter.plot_regression_line(show_equation=True)
+
+# Plot confidence band
+regression_plotter.plot_confidence_band()
+
+# Plot prediction band
+regression_plotter.plot_prediction_band()
+
+# Plot a comprehensive view of the regression results
+regression_plotter.plot_regression_results(
+    show_data=True,
+    show_regression_line=True,
+    show_confidence_band=True,
+    show_prediction_band=True,
+    show_equation=True,
+)
+```
+Plotly Example:
+```python
+from chemtools.regression.LinearRegression import OLSRegression
+from chemtools.plots.regression.regression_plots import RegressionPlots
+
+model = OLSRegression()
+model.fit(X, y)
+
+regression_plotter = RegressionPlots(model, library="plotly") 
+
+# Now you can use the same plotting functions as in the Matplotlib example,
+# and they will generate interactive Plotly plots instead.
+```
 
 * `plot_residuals`: Plots residuals against observations to check for patterns and assess model assumptions.
   ![Residual Plot](/doc/img/regression/residuals.png) 
@@ -90,7 +139,7 @@ This submodule offers functions to visualize regression results, including:
   ![Regression Line Plot](/doc/img/regression/regression line.png)
 
 * `plot_confidence_band`: Visualizes the confidence band around the regression line, indicating the uncertainty in the estimated relationship.
-  ![Confidence Band Plot](/doc/img/regression/confidence band.png)
+![Confidence Plot](/doc/img/regression/confidence band.png)
 
 * `plot_prediction_band`: Displays the prediction band, which represents the range where future predictions are likely to fall.
   ![Prediction Band Plot](/doc/img/regression/prediction band.png)
@@ -99,10 +148,19 @@ This submodule offers functions to visualize regression results, including:
   ![all Plot](/doc/img/regression/all.png)
 
 These plotting functions support both Matplotlib and Plotly libraries, giving users flexibility in choosing their preferred visualization tool.
+Remember to replace placeholders like xlabel, ylabel, confidence_band_color, etc., with your desired values.
 
 ### 3. Summary Output
 
-The `LinearRegression` models provide a well-formatted summary output containing key regression statistics and diagnostics. Here's an example of what the summary looks like:
+The 'LinearRegression' models provide a well-formatted summary output containing key regression statistics and diagnostics. You can print this summary using the 'print(model.summary())' method.
+```python
+from chemtools.regression.LinearRegression import OLSRegression
+
+model = OLSRegression()
+model.fit(X, y)
+
+print(model.summary()) # Print the summary
+```
 
 ```
 ==========================================================================================

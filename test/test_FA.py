@@ -5,8 +5,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import pandas as pd
 import numpy as np
-from chemtools.exploration import PrincipalComponentAnalysis
-from chemtools.plots.exploration.pca_plots import PCAplots
+from chemtools.dimensional_reduction import FactorAnalysis
+from chemtools.plots.dimensional_reduction import DimensionalityReductionPlot
+
 
 # Create a database with object names and variable titles
 data = {
@@ -32,20 +33,10 @@ variables = X.columns.tolist()  # Get variable names
 objects = df["Nome Oggetto"].tolist()  # Get object names
 X = X.to_numpy()
 
-pca = PrincipalComponentAnalysis()
-pca.fit(X, variables_names=variables, objects_names=objects)
+fa = FactorAnalysis()
+fa.fit(X, variables_names=variables, objects_names=objects)
+plot = DimensionalityReductionPlot(fa)
+plot.plot_eigenvalues()  # Use desired criteria
 
-plots = PCAplots(pca)
 
-# Now use the plotting functions from pca_plots
-plots.plot_correlation_matrix()
-plots.plot_eigenvalues()
-
-# ... (Call other plotting functions as needed)
-
-pca.reduction(int(input("how many PC?")))
-plots.plot_loadings()
-plots.plot_biplot()
-plots.plot_scores()
-# pca.save("pca.txt")
-print(pca.summary)
+print(fa.summary)

@@ -112,6 +112,21 @@ class BaseModel(ABC):  # Make BaseModel an Abstract Base Class
                     "  ".join(f"{str(value):<{col_width}}" for value in row) + "\n"
                 )
             summary_string += "-" * b
+            # Additional Tables Section
+        if "tables" in summary_data:
+            for table_name, table_data in summary_data["tables"].items():
+                summary_string += f"\n{table_name}:\n"
+                summary_string += "-" * b + "\n"
+
+                # Calculate column widths for this table
+                num_cols = len(table_data[0])
+                col_width = b // num_cols
+
+                for row in table_data:
+                    summary_string += (
+                        "  ".join(f"{str(value):<{col_width}}" for value in row) + "\n"
+                    )
+                summary_string += "-" * b + "\n"
 
             # --- Add new section for additional statistics ---
         if "additional_stats" in summary_data:

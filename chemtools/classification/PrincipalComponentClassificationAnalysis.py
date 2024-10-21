@@ -25,6 +25,7 @@ from chemtools.base import BaseModel
 
 class PrincipalComponentAnalysis(BaseModel):
     # ... (Existing code remains unchanged) ...
+    pass
 
 
 class PrincipalComponentClassificationAnalysis(BaseModel):
@@ -105,10 +106,12 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
         self.n_components = n_components
         self.T = self.pca_model.T
 
-        Y_dummy = pd.get_dummies(self.y).to_numpy() 
+        Y_dummy = pd.get_dummies(self.y).to_numpy()
         Rxx = np.corrcoef(self.T, rowvar=False)
         Ryy = np.corrcoef(Y_dummy, rowvar=False)
-        Rxy = np.corrcoef(self.T, Y_dummy, rowvar=False)[:self.n_components, self.n_components:]
+        Rxy = np.corrcoef(self.T, Y_dummy, rowvar=False)[
+            : self.n_components, self.n_components :
+        ]
 
         A = np.linalg.solve(Rxx, Rxy @ np.linalg.solve(Ryy, Rxy.T))
         eigenvalues, eigenvectors = np.linalg.eig(A)
@@ -117,8 +120,8 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
         eigenvalues = eigenvalues[order]
         eigenvectors = eigenvectors[:, order]
 
-        self.Wx = eigenvectors[:, :self.n_components]
-        self.U = self.T @ self.Wx  
+        self.Wx = eigenvectors[:, : self.n_components]
+        self.U = self.T @ self.Wx
 
     def transform(self, X_test):
         """
@@ -134,8 +137,10 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
         Returns:
             ndarray: The transformed data in the CCA space.
         """
-        T_test = self.pca_model.transform(X_test)  # Assuming your PCA model has a transform method
-        U_test = self.cca_model.transform(T_test) 
+        T_test = self.pca_model.transform(
+            X_test
+        )  # Assuming your PCA model has a transform method
+        U_test = self.cca_model.transform(T_test)
         return U_test
 
     def change_variables_colors(self):

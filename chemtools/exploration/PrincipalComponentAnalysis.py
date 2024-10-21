@@ -93,6 +93,7 @@ class PrincipalComponentAnalysis(BaseModel):
             self.V_ordered = self.V[self.order]
             self.L_ordered = self.L[:, self.order]
             self.PC_index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
+            self.index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
         except np.linalg.LinAlgError as e:
             print(f"Error during the calculation of eigenvalues and eigenvectors: {e}")
         except ValueError as e:

@@ -58,7 +58,7 @@ class LinearRegression(BaseModel):
         self.object_order = np.arange(1, self.objects_number + 1)
         self.x_mean = np.mean(self.X, axis=0)
         self.y_mean = np.mean(self.y)
-        self.alpha = 0.05
+        self.alpha = alpha
         self.dof = self.objects_number - self.X.shape[1]
         self.y_pred = self.predict(self.X, new_data=False)
         self.residuals = self.y.reshape(-1, 1) - self.y_pred.reshape(-1, 1)
@@ -88,8 +88,8 @@ class LinearRegression(BaseModel):
                 (self.objects_number - 1) / self.dof * self.SSres / self.SSyy
             )
         else:
-            self.r2 = self._uncentered_r_squared(self.y, self.y_pred)
-            self.adjusted_r_squared = self._uncentered_adjusted_r_squared(
+            self.r2 = uncentered_r_squared(self.y, self.y_pred)
+            self.adjusted_r_squared = uncentered_adjusted_r_squared(
                 self.y, self.y_pred, self.k
             )
 
@@ -98,7 +98,22 @@ class LinearRegression(BaseModel):
         self.se_params = np.sqrt(np.diag(self.cov_matrix))
         self.t_params = self.coefficients / self.se_params
         self.f_statistic = (self.SSexp / self.dof_model) / (self.SSres / self.dof)
-        self.f_pvalue = 1 - stats.f.cdf(self.f_statistic, self.dof_model, self.dof)
+        # Handle F-statistic and p-value differently based on intercept:
+        if self.fit_intercept:
+            self.dof_model = self.k
+            self.f_statistic = (self.SSexp / self.dof_model) / (self.SSres / self.dof)
+            self.f_pvalue = 1 - stats.f.cdf(self.f_statistic, self.dof_model, self.dof)
+        else:
+            # Calculate F-statistic for model without intercept
+            y_mean = np.mean(self.y)
+            SS_total = np.sum((self.y - y_mean) ** 2)
+            self.dof_model = self.k  # Degrees of freedom for the model
+            self.f_statistic = (self.SSexp / self.dof_model) / (
+                (SS_total - self.SSexp) / (self.objects_number - self.dof_model)
+            )
+            self.f_pvalue = 1 - stats.f.cdf(
+                self.f_statistic, self.dof_model, self.objects_number - self.dof_model
+            )
         self.p_params = 2 * (1 - stats.t.cdf(np.abs(self.t_params), self.dof))
         self.margin_of_error = self.t_two * self.se_params
         self.conf_int_lower = self.coefficients - self.margin_of_error
@@ -196,9 +211,13 @@ class LinearRegression(BaseModel):
         }
         # --- Add additional statistics to the summary dictionary ---
         summary["additional_stats"] = {
-            "Omnibus:": f"{self.omnibus:.3f}" if not np.isnan(self.omnibus) else "nan",
+            "Omnibus:": (
+                f"{float(self.omnibus):.3f}" if not np.isnan(self.omnibus) else "nan"
+            ),
             "Prob(Omnibus):": (
-                f"{self.prob_omnibus:.3f}" if not np.isnan(self.prob_omnibus) else "nan"
+                f"{float(self.prob_omnibus):.3f}"
+                if not np.isnan(self.prob_omnibus)
+                else "nan"
             ),
             "Skew:": (
                 f"{self.skewness[0]:.3f}"

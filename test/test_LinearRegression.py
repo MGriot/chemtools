@@ -6,16 +6,25 @@ import statsmodels.api as sm
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from chemtools.regression.LinearRegression import OLSRegression, WLSRegression
-from chemtools.plots.regression import regression_plots
+from chemtools.plots.regression.regression_plots import RegressionPlots
 
-x = np.array([0, 1, 2, 3, 4, 5, 6])
-y = np.array([0, 2, 3, 5, 6, 8, 10])
+
+# Seed for reproducibility
+np.random.seed(0)
+
+# Define x as a sequence of integers
+x = np.arange(100)
+
+# Define y with a linear relationship and some noise
+y = 2 * x + np.random.normal(scale=50, size=x.shape)
+# x = np.array([0, 1, 2, 3, 4, 5, 6])
+# y = np.array([0, 2, 3, 5, 6, 8, 10])
 x_new = np.array([10])
 weights = np.array([1, 1, 0.5, 1, 0, 1, 0.9])
 
 # Example usage:
 # Assuming X and y are your data
-model = OLSRegression(fit_intercept=True)
+model = OLSRegression(fit_intercept=False)
 model.fit(X=x, y=y)  # Fit the model with your data
 print(model.summary)
 print(model.predict(x_new))
@@ -24,7 +33,10 @@ print(model.predict(x_new))
 # --- Plots ---
 # regression_plots.plot_residuals(model)
 # regression_plots.plot_data(model)
-# regression_plots.plot_regression_line(model)
+# plot = RegressionPlots(model, library="plotly")
+plot = RegressionPlots(model)
+plot.plot_regression_line()
+
 # regression_plots.plot_confidence_band(model)
 # regression_plots.plot_prediction_band(model)
 # regression_plots.plot_regression_results(model)
@@ -44,6 +56,6 @@ print(model.predict(x_new))
 # model_wls.summary()
 
 # x = np.array([[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1]])
-# mod = sm.OLS(y, x)
-# res = mod.fit()
-# print(res.summary())
+mod = sm.OLS(y, x)
+res = mod.fit()
+print(res.summary())

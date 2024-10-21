@@ -1,22 +1,21 @@
 import matplotlib.pyplot as plt
+import numpy as np
+import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.patches import Ellipse
 import numpy as np
 
 from chemtools.plots.Plotter import Plotter
+from chemtools.dimensional_reduction import FactorAnalysis
+from chemtools.exploration import PrincipalComponentAnalysis
 
 
-class PCAplots(Plotter):
-    """Class to generate various plots related to Principal Component Analysis (PCA).
+class DimensionalityReductionPlot(Plotter):
+    """Class to generate plots for dimensionality reduction models."""
 
-    Args:
-        pca_object (PrincipalComponentAnalysis): The fitted PCA object.
-        **kwargs: Keyword arguments passed to the Plotter class.
-    """
-
-    def __init__(self, pca_object, **kwargs):
+    def __init__(self, dim_reduction_model, **kwargs):
         super().__init__(**kwargs)
-        self.pca_object = pca_object
+        self.dim_reduction_model = dim_reduction_model
 
     def plot_correlation_matrix(self, cmap="coolwarm", threshold=None):
         """Plots the correlation matrix of the data used in the PCA.
@@ -27,38 +26,39 @@ class PCAplots(Plotter):
                 the midpoint of the colormap is used. Defaults to None.
         """
         fig, ax = self._create_figure(figsize=(10, 10))
-        im = ax.imshow(self.pca_object.correlation_matrix, cmap=cmap)
+        im = ax.imshow(self.dim_reduction_model.correlation_matrix, cmap=cmap)
         cbar = ax.figure.colorbar(im, ax=ax, cmap=cmap, label="Correlation value")
-        ax.set_xticks(np.arange(len(self.pca_object.variables)))
-        ax.set_yticks(np.arange(len(self.pca_object.variables)))
-        ax.set_xticklabels(self.pca_object.variables)
-        ax.set_yticklabels(self.pca_object.variables)
+        ax.set_xticks(np.arange(len(self.dim_reduction_model.variables)))
+        ax.set_yticks(np.arange(len(self.dim_reduction_model.variables)))
+        ax.set_xticklabels(self.dim_reduction_model.variables)
+        ax.set_yticklabels(self.dim_reduction_model.variables)
         plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
 
         # Calculate the midpoint of the colormap if threshold is None
         if threshold is None:
             norm = plt.Normalize(
-                vmin=self.pca_object.correlation_matrix.min(),
-                vmax=self.pca_object.correlation_matrix.max(),
+                vmin=self.dim_reduction_model.correlation_matrix.min(),
+                vmax=self.dim_reduction_model.correlation_matrix.max(),
             )
             midpoint = (
-                self.pca_object.correlation_matrix.max()
-                + self.pca_object.correlation_matrix.min()
+                self.dim_reduction_model.correlation_matrix.max()
+                + self.dim_reduction_model.correlation_matrix.min()
             ) / 2
             threshold = norm(midpoint)
 
         # Add correlation values as text
-        for i in range(len(self.pca_object.variables)):
-            for j in range(len(self.pca_object.variables)):
+        for i in range(len(self.dim_reduction_model.variables)):
+            for j in range(len(self.dim_reduction_model.variables)):
                 color = (
                     "black"
-                    if abs(self.pca_object.correlation_matrix[i, j]) < threshold
+                    if abs(self.dim_reduction_model.correlation_matrix[i, j])
+                    < threshold
                     else "white"
                 )
                 text = ax.text(
                     j,
                     i,
-                    f"{self.pca_object.correlation_matrix[i, j]:.2f}",
+                    f"{self.dim_reduction_model.correlation_matrix[i, j]:.2f}",
                     ha="center",
                     va="center",
                     color=color,
@@ -81,14 +81,14 @@ class PCAplots(Plotter):
         """
         fig, ax = self._create_figure(figsize=(8, 6))
         ax.plot(
-            self.pca_object.V_ordered,
+            self.dim_reduction_model.V_ordered,
             marker="o",
             linestyle="-",
             color="b",
             label="Eigenvalues",
         )  # Plot eigenvalues
-        ax.set_xticks(range(len(self.pca_object.PC_index)))
-        ax.set_xticklabels(self.pca_object.PC_index)
+        ax.set_xticks(range(len(self.dim_reduction_model.index)))
+        ax.set_xticklabels(self.dim_reduction_model.index)
         ax.grid(True)
 
         all_criteria = [
@@ -124,9 +124,16 @@ class PCAplots(Plotter):
                     self._plot_broken_stick(ax)
                 else:
                     raise ValueError(f"Invalid criterion: {criterion}")
+                # Set x-axis label based on model type
+        if isinstance(self.dim_reduction_model, PrincipalComponentAnalysis):
+            xlabel = r"$PC_i$"
+        elif isinstance(self.dim_reduction_model, FactorAnalysis):
+            xlabel = r"$F_i$"
+        else:
+            xlabel = r"Component $i$"
         self._set_labels(
             ax,
-            xlabel=r"$PC_i$",
+            xlabel=xlabel,
             ylabel="Eigenvalue",
             title="Eigenvalues with Selected Criteria",
         )
@@ -135,7 +142,9 @@ class PCAplots(Plotter):
 
     def _plot_eigenvalues_greater_than_one(self, ax):
         """Highlights eigenvalues greater than one on the plot."""
-        num_eigenvalues_greater_than_one = np.argmax(self.pca_object.V_ordered < 1)
+        num_eigenvalues_greater_than_one = np.argmax(
+            self.dim_reduction_model.V_ordered < 1
+        )
         ax.axvline(
             x=num_eigenvalues_greater_than_one - 0.5,
             color="brown",
@@ -146,10 +155,11 @@ class PCAplots(Plotter):
     def _plot_eigenvalues_variance(self, ax):
         """Plots the percentage of variance explained by each principal component."""
         variance_explained = (
-            self.pca_object.V_ordered / self.pca_object.V_ordered.sum()
+            self.dim_reduction_model.V_ordered
+            / self.dim_reduction_model.V_ordered.sum()
         ) * 100
         ax.bar(
-            x=self.pca_object.PC_index,
+            x=self.dim_reduction_model.index,
             height=variance_explained,
             fill=False,
             edgecolor="darkorange",
@@ -159,10 +169,14 @@ class PCAplots(Plotter):
     def _plot_cumulative_variance(self, ax):
         """Plots the cumulative percentage of variance explained by the principal components."""
         cumulative_variance = (
-            np.cumsum(self.pca_object.V_ordered / self.pca_object.V_ordered.sum()) * 100
+            np.cumsum(
+                self.dim_reduction_model.V_ordered
+                / self.dim_reduction_model.V_ordered.sum()
+            )
+            * 100
         )
         ax.bar(
-            x=self.pca_object.PC_index,
+            x=self.dim_reduction_model.index,
             height=cumulative_variance,
             fill=False,
             edgecolor="black",
@@ -174,7 +188,10 @@ class PCAplots(Plotter):
     def _plot_average_eigenvalue_criterion(self, ax):
         """Highlights eigenvalues greater than the average eigenvalue."""
         ax.axvline(
-            x=np.argmax(self.pca_object.V_ordered < self.pca_object.V_ordered.mean())
+            x=np.argmax(
+                self.dim_reduction_model.V_ordered
+                < self.dim_reduction_model.V_ordered.mean()
+            )
             - 0.5,
             color="red",
             alpha=0.5,
@@ -184,24 +201,29 @@ class PCAplots(Plotter):
 
     def _plot_KP_criterion(self, ax):
         """Indicates the Kaiser-Piggott (KP) criterion on the plot."""
-        rank = np.linalg.matrix_rank(self.pca_object.correlation_matrix)
+        rank = np.linalg.matrix_rank(self.dim_reduction_model.correlation_matrix)
         sum_term = sum(
-            self.pca_object.V[m] / self.pca_object.V.sum() - 1 / self.pca_object.V.size
+            self.dim_reduction_model.V[m] / self.dim_reduction_model.V.sum()
+            - 1 / self.dim_reduction_model.V.size
             for m in range(rank)
         )
         x = (
             round(
                 1
-                + (self.pca_object.V.size - 1)
+                + (self.dim_reduction_model.V.size - 1)
                 * (
                     1
                     - (
                         (
                             sum_term
-                            + (self.pca_object.V.size - rank)
-                            ** (1 / self.pca_object.V.size)
+                            + (self.dim_reduction_model.V.size - rank)
+                            ** (1 / self.dim_reduction_model.V.size)
                         )
-                        / (2 * (self.pca_object.V.size - 1) / self.pca_object.V.size)
+                        / (
+                            2
+                            * (self.dim_reduction_model.V.size - 1)
+                            / self.dim_reduction_model.V.size
+                        )
                     )
                 )
             )
@@ -217,22 +239,27 @@ class PCAplots(Plotter):
 
     def _plot_KL_criterion(self, ax):
         """Marks the KL criterion for component selection on the plot."""
-        rank = np.linalg.matrix_rank(self.pca_object.correlation_matrix)
+        rank = np.linalg.matrix_rank(self.dim_reduction_model.correlation_matrix)
         sum_term = sum(
-            self.pca_object.V[m] / self.pca_object.V.sum() - 1 / self.pca_object.V.size
+            self.dim_reduction_model.V[m] / self.dim_reduction_model.V.sum()
+            - 1 / self.dim_reduction_model.V.size
             for m in range(rank)
         )
         x = (
             round(
-                self.pca_object.V.size
+                self.dim_reduction_model.V.size
                 ** (
                     1
                     - (
                         sum_term
-                        + (self.pca_object.V.size - rank)
-                        ** (1 / self.pca_object.V.size)
+                        + (self.dim_reduction_model.V.size - rank)
+                        ** (1 / self.dim_reduction_model.V.size)
                     )
-                    / (2 * (self.pca_object.V.size - 1) / self.pca_object.V.size)
+                    / (
+                        2
+                        * (self.dim_reduction_model.V.size - 1)
+                        / self.dim_reduction_model.V.size
+                    )
                 )
             )
             - 1
@@ -249,7 +276,8 @@ class PCAplots(Plotter):
         """Marks the CAEC (Cumulative Average Eigenvalue Criterion) on the plot."""
         ax.axvline(
             x=np.argmax(
-                self.pca_object.V_ordered < 0.7 * self.pca_object.V_ordered.mean()
+                self.dim_reduction_model.V_ordered
+                < 0.7 * self.dim_reduction_model.V_ordered.mean()
             )
             - 0.5,
             color="blue",
@@ -260,9 +288,11 @@ class PCAplots(Plotter):
 
     def _plot_broken_stick(self, ax):
         """Plots the broken stick criterion for selecting the number of PCs."""
-        n = self.pca_object.V_ordered.shape[0]
+        n = self.dim_reduction_model.V_ordered.shape[0]
         dm = (100 / n) * np.cumsum(1 / np.arange(1, n + 1)[::-1])
-        ax.plot(self.pca_object.PC_index, dm, color="lightgreen", label="Broken Stick")
+        ax.plot(
+            self.dim_reduction_model.index, dm, color="lightgreen", label="Broken Stick"
+        )
 
     def plot_hotteling_t2_vs_q(self, show_legend=True):
         """Plots the Hotelling's T2 statistic versus the Q statistic (Squared Prediction Error).
@@ -273,12 +303,12 @@ class PCAplots(Plotter):
         """
         fig, ax = self._create_figure(figsize=(8, 6))
 
-        for i in range(len(self.pca_object.Q)):
+        for i in range(len(self.dim_reduction_model.Q)):
             ax.plot(
-                self.pca_object.Q[i],
-                self.pca_object.T2[i],
+                self.dim_reduction_model.Q[i],
+                self.dim_reduction_model.T2[i],
                 "o",
-                label=self.pca_object.objects[i],
+                label=self.dim_reduction_model.objects[i],
             )
 
         self._set_labels(
@@ -298,10 +328,10 @@ class PCAplots(Plotter):
     def plot_pci_contribution(self):
         """Plots the contribution of each variable to each principal component."""
         fig, ax = self._create_figure(figsize=(10, 6))
-        for i in range(self.pca_object.W.shape[1]):
+        for i in range(self.dim_reduction_model.W.shape[1]):
             ax.plot(
-                np.arange(self.pca_object.n_variables),
-                self.pca_object.W[:, i],
+                np.arange(self.dim_reduction_model.n_variables),
+                self.dim_reduction_model.W[:, i],
                 marker="o",
                 markerfacecolor="none",
                 label=f"PC$_{i+1}$",
@@ -315,8 +345,8 @@ class PCAplots(Plotter):
         )
 
         plt.xticks(
-            np.arange(self.pca_object.n_variables),
-            self.pca_object.variables,
+            np.arange(self.dim_reduction_model.n_variables),
+            self.dim_reduction_model.variables,
             rotation=45,
             ha="right",
             rotation_mode="anchor",
@@ -351,33 +381,36 @@ class PCAplots(Plotter):
             color=self.theme_color,
         )
 
-        x_data = self.pca_object.W[:, i]
-        y_data = self.pca_object.W[:, j]
-        colors = self.pca_object.variables_colors
-        scatter = ax.scatter(x_data, y_data, c=colors, label=self.pca_object.variables)
+        x_data = self.dim_reduction_model.W[:, i]
+        y_data = self.dim_reduction_model.W[:, j]
+        colors = self.dim_reduction_model.variables_colors
+        scatter = ax.scatter(
+            x_data, y_data, c=colors, label=self.dim_reduction_model.variables
+        )
 
         if show_arrows:
-            for d in range(self.pca_object.n_variables):
+            for d in range(self.dim_reduction_model.n_variables):
                 ax.arrow(
                     0,
                     0,
-                    self.pca_object.W[d, i],
-                    self.pca_object.W[d, j],
+                    self.dim_reduction_model.W[d, i],
+                    self.dim_reduction_model.W[d, j],
                     length_includes_head=True,
                     width=0.01,
                     color=self.theme_color,
                     alpha=0.3,
                 )
 
-        for d in range(self.pca_object.n_variables):
+        for d in range(self.dim_reduction_model.n_variables):
             position = (
                 ["left", "bottom"]
-                if self.pca_object.W[d, i] > self.pca_object.W[:, i].mean()
+                if self.dim_reduction_model.W[d, i]
+                > self.dim_reduction_model.W[:, i].mean()
                 else ["right", "top"]
             )
             ax.annotate(
-                text=self.pca_object.variables[d],
-                xy=(self.pca_object.W[d, i], self.pca_object.W[d, j]),
+                text=self.dim_reduction_model.variables[d],
+                xy=(self.dim_reduction_model.W[d, i], self.dim_reduction_model.W[d, j]),
                 ha=position[0],
                 va=position[1],
                 color=self.theme_color,
@@ -398,15 +431,15 @@ class PCAplots(Plotter):
 
     def _plot_loadings_matrix(self, show_arrows=True):
         """Plots loadings for all pairs of components in a matrix."""
-        height_ratios = [1] * self.pca_object.n_component
-        width_ratios = [1] * self.pca_object.n_component
+        height_ratios = [1] * self.dim_reduction_model.n_component
+        width_ratios = [1] * self.dim_reduction_model.n_component
 
         fig, axs = plt.subplots(
-            self.pca_object.n_component,
-            self.pca_object.n_component,
+            self.dim_reduction_model.n_component,
+            self.dim_reduction_model.n_component,
             figsize=(
-                5 * self.pca_object.n_component,
-                5 * self.pca_object.n_component,
+                5 * self.dim_reduction_model.n_component,
+                5 * self.dim_reduction_model.n_component,
             ),
             gridspec_kw={
                 "height_ratios": height_ratios,
@@ -415,9 +448,9 @@ class PCAplots(Plotter):
         )
         fig.suptitle("Loadings plot", fontsize=24, y=1, color=self.theme_color)
 
-        for i in range(self.pca_object.n_component):
-            for j in range(self.pca_object.n_component):
-                ax = axs[i, j] if self.pca_object.n_component > 1 else axs
+        for i in range(self.dim_reduction_model.n_component):
+            for j in range(self.dim_reduction_model.n_component):
+                ax = axs[i, j] if self.dim_reduction_model.n_component > 1 else axs
                 if i != j:
                     self._plot_loadings_on_axis(ax, i, j, show_arrows)
                 else:
@@ -437,33 +470,34 @@ class PCAplots(Plotter):
 
     def _plot_loadings_on_axis(self, ax, i, j, show_arrows=True):
         """Plots loadings for a specific pair of components on a given axis."""
-        x_data = self.pca_object.W[:, i]
-        y_data = self.pca_object.W[:, j]
-        colors = self.pca_object.variables_colors
-        ax.scatter(x_data, y_data, c=colors, label=self.pca_object.variables)
+        x_data = self.dim_reduction_model.W[:, i]
+        y_data = self.dim_reduction_model.W[:, j]
+        colors = self.dim_reduction_model.variables_colors
+        ax.scatter(x_data, y_data, c=colors, label=self.dim_reduction_model.variables)
 
         if show_arrows:
-            for d in range(self.pca_object.n_variables):
+            for d in range(self.dim_reduction_model.n_variables):
                 ax.arrow(
                     0,
                     0,
-                    self.pca_object.W[d, i],
-                    self.pca_object.W[d, j],
+                    self.dim_reduction_model.W[d, i],
+                    self.dim_reduction_model.W[d, j],
                     length_includes_head=True,
                     width=0.01,
                     color=self.theme_color,
                     alpha=0.3,
                 )
 
-        for d in range(self.pca_object.n_variables):
+        for d in range(self.dim_reduction_model.n_variables):
             position = (
                 ["left", "bottom"]
-                if self.pca_object.W[d, i] > self.pca_object.W[:, i].mean()
+                if self.dim_reduction_model.W[d, i]
+                > self.dim_reduction_model.W[:, i].mean()
                 else ["right", "top"]
             )
             ax.annotate(
-                text=self.pca_object.variables[d],
-                xy=(self.pca_object.W[d, i], self.pca_object.W[d, j]),
+                text=self.dim_reduction_model.variables[d],
+                xy=(self.dim_reduction_model.W[d, i], self.dim_reduction_model.W[d, j]),
                 ha=position[0],
                 va=position[1],
                 color=self.theme_color,
@@ -516,16 +550,21 @@ class PCAplots(Plotter):
             color=self.theme_color,
         )
 
-        x_data = self.pca_object.T[:, i]
-        y_data = self.pca_object.T[:, j]
-        colors = self.pca_object.objects_colors
-        scatter = ax.scatter(x_data, y_data, c=colors, label=self.pca_object.objects)
+        x_data = self.dim_reduction_model.T[:, i]
+        y_data = self.dim_reduction_model.T[:, j]
+        colors = self.dim_reduction_model.objects_colors
+        scatter = ax.scatter(
+            x_data, y_data, c=colors, label=self.dim_reduction_model.objects
+        )
 
         if label_points:
-            for d in range(self.pca_object.n_objects):
+            for d in range(self.dim_reduction_model.n_objects):
                 ax.annotate(
-                    text=self.pca_object.objects[d][0],
-                    xy=(self.pca_object.T[d, i], self.pca_object.T[d, j]),
+                    text=self.dim_reduction_model.objects[d][0],
+                    xy=(
+                        self.dim_reduction_model.T[d, i],
+                        self.dim_reduction_model.T[d, j],
+                    ),
                     color=self.theme_color,
                 )
 
@@ -544,15 +583,15 @@ class PCAplots(Plotter):
 
     def _plot_scores_matrix(self, label_points=False):
         """Plots scores for all pairs of components in a matrix."""
-        height_ratios = [1] * self.pca_object.n_component
-        width_ratios = [1] * self.pca_object.n_component
+        height_ratios = [1] * self.dim_reduction_model.n_component
+        width_ratios = [1] * self.dim_reduction_model.n_component
 
         fig, axs = plt.subplots(
-            self.pca_object.n_component,
-            self.pca_object.n_component,
+            self.dim_reduction_model.n_component,
+            self.dim_reduction_model.n_component,
             figsize=(
-                5 * self.pca_object.n_component,
-                5 * self.pca_object.n_component,
+                5 * self.dim_reduction_model.n_component,
+                5 * self.dim_reduction_model.n_component,
             ),
             gridspec_kw={
                 "height_ratios": height_ratios,
@@ -561,9 +600,9 @@ class PCAplots(Plotter):
         )
         fig.suptitle("Scores plot", fontsize=24, y=1, color=self.theme_color)
 
-        for i in range(self.pca_object.n_component):
-            for j in range(self.pca_object.n_component):
-                ax = axs[i, j] if self.pca_object.n_component > 1 else axs
+        for i in range(self.dim_reduction_model.n_component):
+            for j in range(self.dim_reduction_model.n_component):
+                ax = axs[i, j] if self.dim_reduction_model.n_component > 1 else axs
                 if i != j:
                     self._plot_scores_on_axis(ax, i, j, label_points)
                 else:
@@ -582,16 +621,19 @@ class PCAplots(Plotter):
 
     def _plot_scores_on_axis(self, ax, i, j, label_points=False):
         """Plots scores for a specific pair of components on a given axis."""
-        x_data = self.pca_object.T[:, i]
-        y_data = self.pca_object.T[:, j]
-        colors = self.pca_object.objects_colors
-        ax.scatter(x_data, y_data, c=colors, label=self.pca_object.objects)
+        x_data = self.dim_reduction_model.T[:, i]
+        y_data = self.dim_reduction_model.T[:, j]
+        colors = self.dim_reduction_model.objects_colors
+        ax.scatter(x_data, y_data, c=colors, label=self.dim_reduction_model.objects)
 
         if label_points:
-            for d in range(self.pca_object.n_objects):
+            for d in range(self.dim_reduction_model.n_objects):
                 ax.annotate(
-                    text=self.pca_object.objects[d][0],
-                    xy=(self.pca_object.T[d, i], self.pca_object.T[d, j]),
+                    text=self.dim_reduction_model.objects[d][0],
+                    xy=(
+                        self.dim_reduction_model.T[d, i],
+                        self.dim_reduction_model.T[d, j],
+                    ),
                     color=self.theme_color,
                 )
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
@@ -655,25 +697,30 @@ class PCAplots(Plotter):
             color=self.theme_color,
         )
 
-        x_data = self.pca_object.T[:, i]
-        y_data = self.pca_object.T[:, j]
-        colors = self.pca_object.objects_colors
-        scatter = ax.scatter(x_data, y_data, c=colors, label=self.pca_object.objects)
+        x_data = self.dim_reduction_model.T[:, i]
+        y_data = self.dim_reduction_model.T[:, j]
+        colors = self.dim_reduction_model.objects_colors
+        scatter = ax.scatter(
+            x_data, y_data, c=colors, label=self.dim_reduction_model.objects
+        )
 
         if label_points:
-            for e in range(self.pca_object.n_objects):
+            for e in range(self.dim_reduction_model.n_objects):
                 ax.annotate(
-                    text=self.pca_object.objects[e],
-                    xy=(self.pca_object.T[e, i], self.pca_object.T[e, j]),
+                    text=self.dim_reduction_model.objects[e],
+                    xy=(
+                        self.dim_reduction_model.T[e, i],
+                        self.dim_reduction_model.T[e, j],
+                    ),
                     color=self.theme_color,
                 )
 
-        for d in range(self.pca_object.n_variables):
+        for d in range(self.dim_reduction_model.n_variables):
             ax.arrow(
                 0,
                 0,
-                self.pca_object.W[d, i],
-                self.pca_object.W[d, j],
+                self.dim_reduction_model.W[d, i],
+                self.dim_reduction_model.W[d, j],
                 length_includes_head=True,
                 width=0.01,
                 color=self.theme_color,
@@ -681,12 +728,13 @@ class PCAplots(Plotter):
             )
             position = (
                 ["left", "bottom"]
-                if self.pca_object.W[d, i] > self.pca_object.W[:, i].mean()
+                if self.dim_reduction_model.W[d, i]
+                > self.dim_reduction_model.W[:, i].mean()
                 else ["right", "top"]
             )
             ax.annotate(
-                text=self.pca_object.variables[d],
-                xy=(self.pca_object.W[d, i], self.pca_object.W[d, j]),
+                text=self.dim_reduction_model.variables[d],
+                xy=(self.dim_reduction_model.W[d, i], self.dim_reduction_model.W[d, j]),
                 ha=position[0],
                 va=position[1],
                 color=self.theme_color,
@@ -711,15 +759,15 @@ class PCAplots(Plotter):
         self, label_points=False, subplot_dimensions=(5, 5), show_legend=True
     ):
         """Plots biplots for all pairs of components in a matrix."""
-        height_ratios = [1] * self.pca_object.n_component
-        width_ratios = [1] * self.pca_object.n_component
+        height_ratios = [1] * self.dim_reduction_model.n_component
+        width_ratios = [1] * self.dim_reduction_model.n_component
 
         fig, axs = plt.subplots(
-            self.pca_object.n_component,
-            self.pca_object.n_component,
+            self.dim_reduction_model.n_component,
+            self.dim_reduction_model.n_component,
             figsize=(
-                subplot_dimensions[0] * self.pca_object.n_component,
-                subplot_dimensions[1] * self.pca_object.n_component,
+                subplot_dimensions[0] * self.dim_reduction_model.n_component,
+                subplot_dimensions[1] * self.dim_reduction_model.n_component,
             ),
             gridspec_kw={
                 "height_ratios": height_ratios,
@@ -731,9 +779,9 @@ class PCAplots(Plotter):
         all_handles = []
         all_labels = []
 
-        for i in range(self.pca_object.n_component):
-            for j in range(self.pca_object.n_component):
-                ax = axs[i, j] if self.pca_object.n_component > 1 else axs
+        for i in range(self.dim_reduction_model.n_component):
+            for j in range(self.dim_reduction_model.n_component):
+                ax = axs[i, j] if self.dim_reduction_model.n_component > 1 else axs
                 if i != j:
                     (
                         handles,
@@ -760,27 +808,29 @@ class PCAplots(Plotter):
 
     def _plot_biplot_on_axis(self, ax, i, j, label_points=False):
         """Plots a biplot for a specific pair of components on a given axis."""
-        x_data = self.pca_object.T[:, i]
-        y_data = self.pca_object.T[:, j]
-        colors = self.pca_object.objects_colors
+        x_data = self.dim_reduction_model.T[:, i]
+        y_data = self.dim_reduction_model.T[:, j]
+        colors = self.dim_reduction_model.objects_colors
         scatter = ax.scatter(
-            x_data, y_data, c=colors, label=self.pca_object.objects
+            x_data, y_data, c=colors, label=self.dim_reduction_model.objects
         )  # Assign scatter to a variable
 
         if label_points:
-            for e in range(self.pca_object.n_objects):
+            for e in range(self.dim_reduction_model.n_objects):
                 ax.annotate(
-                    text=self.pca_object.objects[e],
-                    xy=(self.pca_object.T[e, i], self.pca_object.T[e, j]),
+                    text=self.dim_reduction_model.objects[e],
+                    xy=(
+                        self.dim_reduction_model.T[e, i],
+                        self.dim_reduction_model.T[e, j],
+                    ),
                     color=self.theme_color,
                 )
-
-        for d in range(self.pca_object.n_variables):
+        for d in range(self.dim_reduction_model.n_variables):
             ax.arrow(
                 0,
                 0,
-                self.pca_object.W[d, i],
-                self.pca_object.W[d, j],
+                self.dim_reduction_model.W[d, i],
+                self.dim_reduction_model.W[d, j],
                 length_includes_head=True,
                 width=0.01,
                 color=self.theme_color,
@@ -788,22 +838,19 @@ class PCAplots(Plotter):
             )
             position = (
                 ["left", "bottom"]
-                if self.pca_object.W[d, i] > self.pca_object.W[:, i].mean()
+                if self.dim_reduction_model.W[d, i]
+                > self.dim_reduction_model.W[:, i].mean()
                 else ["right", "top"]
             )
             ax.annotate(
-                text=self.pca_object.variables[d],
-                xy=(self.pca_object.W[d, i], self.pca_object.W[d, j]),
+                text=self.dim_reduction_model.variables[d],
+                xy=(self.dim_reduction_model.W[d, i], self.dim_reduction_model.W[d, j]),
                 ha=position[0],
                 va=position[1],
                 color=self.theme_color,
             )
-
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
-        handles, labels = (
-            scatter.legend_elements()
-        )  # Get handles and labels from the scatter
-        return handles, labels  # Return handles and labels
+        return scatter.legend_elements()  # Return handles and labels for the legend
 
     def _plot_empty_biplot_on_axis(self, ax, i):
         """Plots an empty space for diagonal cells in the biplot matrix."""
@@ -825,73 +872,51 @@ class PCAplots(Plotter):
             )
         )
 
-    def plot_classes_pca(
-        self, class_labels, new_data_point=None, colors=None, ellipse_std=2
-    ):
-        """Plots multiple classes in PCA space with centroids,
-        class boundaries, and an optional new data point.
+    def plot_explained_variance_ellipse(self, components=(0, 1), confidence_level=0.95):
+        """Plots the explained variance ellipse on the scores plot of specified components.
 
         Args:
-            class_labels (list): A list of class labels corresponding to the PCA models.
-            new_data_point (ndarray, optional): The new data point to visualize
-                                            (shape: 1 x n_variables). Defaults to None.
-            colors (list, optional): A list of colors to use for each class. Defaults to None.
-            ellipse_std (float, optional): The number of standard deviations to use for
-                                        the ellipse radius. Defaults to 2.
+            components (tuple, optional): The components to plot. Defaults to (0, 1).
+            confidence_level (float, optional): The confidence level for the ellipse.
+                Defaults to 0.95.
         """
-        pca_models = self.pca_object
-        if color is None:
-            colors = plt.cm.get_cmap("viridis", len(pca_models)).colors
+        i, j = components
+        fig, ax = plt.subplots(figsize=(5, 5))
 
-        fig, ax = self._create_figure()
-
-        for i, pca in enumerate(pca_models):
-            class_scores = pca.T
-            ax.scatter(
-                class_scores[:, 0],
-                class_scores[:, 1],
-                color=colors[i],
-                label=class_labels[i],
-            )
-
-            centroid = np.mean(class_scores, axis=0)
-            ax.plot(
-                centroid[0],
-                centroid[1],
-                marker="*",
-                markersize=10,
-                color="black",
-                markeredgecolor="white",
-            )
-
-            cov = np.cov(class_scores, rowvar=False)
-            eigenvalues, eigenvectors = np.linalg.eigh(cov)
-            angle = np.degrees(np.arctan2(*eigenvectors[:, 0][::-1]))
-            width, height = 2 * ellipse_std * np.sqrt(eigenvalues)
-            ellipse = Ellipse(
-                xy=centroid,
-                width=width,
-                height=height,
-                angle=angle,
-                edgecolor=colors[i],
-                facecolor="none",
-                linewidth=2,
-            )
-            ax.add_patch(ellipse)
-
-            if new_data_point is not None:
-                new_data_projection = pca.transform(new_data_point)
-                ax.scatter(
-                    new_data_projection[:, 0],
-                    new_data_projection[:, 1],
-                    color=colors[i],
-                    marker="o",
-                    s=100,
-                    label=f"New Data (Proj. on {class_labels[i]})",
-                )
-
-        self._set_labels(
-            ax, xlabel="PC1", ylabel="PC2", title="Class Separation in PCA Space"
+        # Plot scores
+        x_data = self.dim_reduction_model.T[:, i]
+        y_data = self.dim_reduction_model.T[:, j]
+        colors = self.dim_reduction_model.objects_colors
+        scatter = ax.scatter(
+            x_data, y_data, c=colors, label=self.dim_reduction_model.objects
         )
-        plt.legend()
+
+        # Calculate ellipse parameters
+        covariance_matrix = np.cov(x_data, y_data)
+        eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
+        angle = np.degrees(np.arctan2(eigenvectors[1, 0], eigenvectors[0, 0]))
+        width = 2 * np.sqrt(eigenvalues[0] * 2 * np.log(1 / (1 - confidence_level)))
+        height = 2 * np.sqrt(eigenvalues[1] * 2 * np.log(1 / (1 - confidence_level)))
+
+        # Plot ellipse
+        ellipse = Ellipse(
+            (np.mean(x_data), np.mean(y_data)),
+            width,
+            height,
+            angle,
+            facecolor="none",
+            edgecolor="black",
+            linestyle="--",
+            label=f"{confidence_level * 100:.1f}% Explained Variance",
+        )
+        ax.add_patch(ellipse)
+
+        # Set labels and legend
+        self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
+        handles, labels = scatter.legend_elements()
+        handles.append(ellipse)
+        labels.append(f"{confidence_level * 100:.1f}% Explained Variance")
+        plt.legend(handles, labels, loc="best")
+
+        plt.tight_layout()
         plt.show()
