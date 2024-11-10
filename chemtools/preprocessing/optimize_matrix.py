@@ -9,13 +9,13 @@ def handle_nan_values(X, method="mean", axis=None, index=None):
     Handle NaN values in the matrix by replacing or removing them.
 
     Args:
-        X (numpy.ndarray, pd.DataFrame, pl.DataFrame): Input matrix or dataframe.
+        X (numpy.ndarray, pd.DataFrame): Input matrix or dataframe.
         method (str): Method to replace NaN values. Can be 'zero', 'mean', 'median', 'remove'.
         axis (int, optional): Axis along which to apply the method. 0 for columns, 1 for rows. If None, apply to all.
         index (int, optional): Specific row or column index to apply the method. If None, apply to all.
 
     Returns:
-        numpy.ndarray, pd.DataFrame, pl.DataFrame: Matrix or dataframe with NaN values handled.
+        numpy.ndarray, pd.DataFrame: Matrix or dataframe with NaN values handled.
 
     Examples:
         # Apply to a specific column
@@ -119,7 +119,8 @@ def handle_nan_values(X, method="mean", axis=None, index=None):
         return (
             pd.DataFrame(X_handled, columns=X.columns)
             if isinstance(X, pd.DataFrame)
-            else pl.DataFrame(X_handled)
+            # else pl.DataFrame(X_handled)
+            else X_handled # pl.DataFrame(X_handled)
         )
     else:
         return X_handled
@@ -130,7 +131,7 @@ def one_hot_encode(data, column, axis=0, labels=None):
     One-hot encode a specific column or row in the dataframe or numpy array.
 
     Args:
-        data (pd.DataFrame, pl.DataFrame, np.ndarray): Input dataframe or numpy array.
+        data (pd.DataFrame, np.ndarray): Input dataframe or numpy array.
         column (str or int): Column name or index to one-hot encode.
         axis (int, optional): Axis along which to apply the encoding. 0 for columns, 1 for rows. Default is 0.
         labels (list, optional): List of labels for the new columns or rows. Default is None.
@@ -199,7 +200,7 @@ def one_hot_encode(data, column, axis=0, labels=None):
 
     else:
         raise TypeError(
-            "Input data must be a pandas DataFrame, polars DataFrame, or numpy array."
+            "Input data must be a pandas DataFrame, or numpy array."
         )
 
 
