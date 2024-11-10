@@ -3,6 +3,7 @@ from scipy import stats
 from scipy.stats import t
 from datetime import datetime
 import warnings
+from typing import Optional, Union, Tuple
 
 from chemtools.base.base_models import BaseModel  # Assuming this is your base class
 from .confidence_band import confidence_band
@@ -34,16 +35,7 @@ class LinearRegression(BaseModel):
         """Fit the model to the data."""
         raise NotImplementedError("Subclasses must implement the 'fit' method.")
 
-    def predict(self, X, new_data=True):
-        """Predict using the fitted model."""
-        if new_data is True and self.fit_intercept is True:
-            # Make sure X is 2-dimensional before stacking
-            if len(X.shape) == 1:
-                X = X.reshape(-1, 1)
-            X = np.hstack((np.ones((X.shape[0], 1)), X))
-        return X.dot(self.coefficients)
-
-    def predict(self, X, new_data=True):
+    def predict(self, X: np.ndarray, new_data: bool = True) -> np.ndarray:
         """Predict using the fitted model."""
         if new_data is True and self.fit_intercept is True:
             # Make sure X is 2-dimensional before stacking
@@ -317,7 +309,9 @@ class WLSRegression(LinearRegression):
     def fit(self, X, y):
         """Fit the WLS model."""
         W = np.diag(self.weights)
-        self.coefficients = np.linalg.inv(X.T @ W @ X) @ X.T @ W @ y
+        self.coefficients = np.linalg.solve(X.T @ W @ X, X.T @ W @ y).reshape(
+            -1
+        )  # Use solve()
         self._calculate_statistics()
 
 
@@ -337,7 +331,7 @@ class GLSRegression(LinearRegression):
         """Fit the GLS model."""
         super().fit(X, y)
         Omega_inv = np.linalg.inv(self.omega)
-        self.coefficients = (
-            np.linalg.inv(self.X.T @ Omega_inv @ self.X) @ self.X.T @ Omega_inv @ self.y
-        )
+        self.coefficients = np.linalg.solve(
+            self.X.T @ Omega_inv @ self.X, self.X.T @ Omega_inv @ self.y
+        ).reshape(-1)
         self._calculate_statistics()
