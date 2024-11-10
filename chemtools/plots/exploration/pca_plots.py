@@ -840,7 +840,7 @@ class PCAplots(Plotter):
                                         the ellipse radius. Defaults to 2.
         """
         pca_models = self.pca_object
-        if color is None:
+        if colors is None:
             colors = plt.cm.get_cmap("viridis", len(pca_models)).colors
 
         fig, ax = self._create_figure()

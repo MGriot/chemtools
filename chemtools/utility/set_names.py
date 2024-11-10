@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def set_variables_names(variables_names, X):
     """Sets the names of the variables."""
     if variables_names is not None:

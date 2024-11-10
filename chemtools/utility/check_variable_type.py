@@ -1,4 +1,5 @@
 # https://stackoverflow.com/questions/14808945/check-if-variable-is-dataframe
+import pandas as pd
 
 
 def check_variable_type(x):

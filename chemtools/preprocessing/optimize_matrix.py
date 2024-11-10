@@ -47,8 +47,6 @@ def handle_nan_values(X, method="mean", axis=None, index=None):
     # is_dataframe = isinstance(X, (pd.DataFrame, pl.DataFrame))
     is_dataframe = isinstance(X, (pd.DataFrame))
     if is_dataframe:
-        # if isinstance(X, pl.DataFrame):
-        # X = X.to_pandas()
         X_np = X.to_numpy()
     else:
         X_np = X
