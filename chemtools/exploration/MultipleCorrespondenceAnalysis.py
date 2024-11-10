@@ -19,6 +19,7 @@ Example usage:
 """
 
 import numpy as np
+import pandas as pd
 
 from chemtools.utility import reorder_array
 from chemtools.utility import random_colorHEX
@@ -111,3 +112,27 @@ class MultipleCorrespondenceAnalysis(BaseModel):
     def change_objects_colors(self):
         """Generates random colors for the objects."""
         return random_colorHEX(self.n_objects)
+
+    def _get_summary_data(self, X, explained_variance):
+        """
+        Calculates summary data for the MCA model.
+
+        Args:
+            X (np.ndarray): The data matrix.
+            explained_variance (np.ndarray): Explained variance for each component.
+
+        Returns:
+            pd.DataFrame: A DataFrame containing the summary data.
+        """
+        n_components = X.shape[1]
+        columns = ["Variable", "PC"] + [f"PC{i+1}" for i in range(n_components)]
+        summary_data = []
+
+        for i, var in enumerate(self.variables):
+            row = [var, ""] + list(X[i, :])
+            summary_data.append(row)
+
+        summary_df = pd.DataFrame(summary_data, columns=columns)
+        summary_df["Explained Variance"] = explained_variance
+
+        return summary_df
