@@ -27,7 +27,7 @@ from scipy.stats import norm
 from chemtools.utility import reorder_array
 from chemtools.utility import random_colorHEX
 from chemtools.utility.set_names import set_objects_names, set_variables_names
-from chemtools.base import BaseModel
+from chemtools.base.base_models import BaseModel
 
 
 class ExtendedPrincipalComponentAnalysis(BaseModel):
