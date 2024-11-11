@@ -1,1 +1,3 @@
-from .base_models import BaseModel
+"""
+This module provides base classes for chemometrics models.
+"""

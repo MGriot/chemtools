@@ -18,14 +18,10 @@ from chemtools.preprocessing import correlation_matrix
 from chemtools.preprocessing import diagonalized_matrix
 from chemtools.utility import reorder_array
 
-from chemtools.utility.set_names import set_objects_names, set_variables_names
+from chemtools.utility.set_names import initialize_names_and_counts, set_variables_names, set_objects_names
 from chemtools.utility import random_colorHEX
-from chemtools.base import BaseModel
-
-
-class PrincipalComponentAnalysis(BaseModel):
-    # ... (Existing code remains unchanged) ...
-    pass
+from chemtools.base.base_models import BaseModel
+from chemtools.exploration import PrincipalComponentAnalysis
 
 
 class PrincipalComponentClassificationAnalysis(BaseModel):
@@ -93,10 +89,9 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
         """
         self.X = X
         self.y = y
-        self.variables = set_variables_names(variables_names, X)
-        self.objects = set_objects_names(objects_names, X)
-        self.n_variables = self.X.shape[1]
-        self.n_objects = self.X.shape[0]
+        self.variables, self.objects, self.n_variables, self.n_objects = initialize_names_and_counts(
+            X, variables_names, objects_names
+        )
         self.variables_colors = self.change_variables_colors()
         self.objects_colors = self.change_objects_colors()
 
@@ -140,7 +135,7 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
         T_test = self.pca_model.transform(
             X_test
         )  # Assuming your PCA model has a transform method
-        U_test = self.cca_model.transform(T_test)
+        U_test = self.pca_model.transform(T_test)
         return U_test
 
     def change_variables_colors(self):
