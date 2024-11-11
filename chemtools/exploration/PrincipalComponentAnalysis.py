@@ -19,7 +19,7 @@ from chemtools.utility import reorder_array
 
 from chemtools.utility.set_names import set_objects_names, set_variables_names
 from chemtools.utility import random_colorHEX
-from chemtools.base.base_models import BaseModel
+from chemtools.base import BaseModel
 
 
 class PrincipalComponentAnalysis(BaseModel):
