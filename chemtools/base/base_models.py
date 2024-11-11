@@ -34,6 +34,17 @@ class BaseModel(ABC):  # Make BaseModel an Abstract Base Class
         """
         pass
 
+    def _create_general_summary(self, n_variables, n_objects, **kwargs):
+        """Creates a general summary dictionary."""
+        summary = {
+            "general": {
+                "No. Variables": f"{n_variables}",
+                "No. Objects": f"{n_objects}",
+            },
+        }
+        summary["general"].update(kwargs)
+        return summary
+
     @property
     def summary(self):
         """

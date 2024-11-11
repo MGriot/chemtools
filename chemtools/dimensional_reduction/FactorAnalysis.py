@@ -187,72 +187,6 @@ class FactorAnalysis(DimensionalityReduction):
     def _get_summary_data(self):
         """Returns a dictionary of data for the summary."""
 
-        summary = {
-            "general": {
-                "No. Variables": f"{self.n_variables}",
-                "No. Objects": f"{self.n_objects}",
-                "No. Components": f"{self.n_components}",
-            },
-            "communalities": {
-                var: f"{comm:.2f}"
-                for var, comm in zip(self.variables, self.communalities)
-            },
-        }
-        return summary
-
-    def _varimax_rotation(self, A):
-        """Performs Varimax rotation on a matrix.
-
-        Args:
-            A (ndarray): The matrix to rotate.
-
-        Returns:
-            ndarray: The rotated matrix.
-        """
-        p, k = A.shape
-        R = np.eye(k)
-        d = 0
-        for _ in range(200):
-            A_rot = np.dot(A, R)
-            u, _, vt = np.linalg.svd(
-                np.dot(
-                    A_rot.T,
-                    np.power(A_rot, 3)
-                    - np.dot(A_rot, np.diag(np.sum(A_rot**2, axis=0))),
-                )
-            )
-            R = np.dot(u, vt)
-            d_old = d
-            d = np.sum(np.diag(np.dot(A_rot.T, A_rot)))
-            if np.abs(d - d_old) < 1e-6:
-                break
-        return np.dot(A, R)
-
-    def _quartimax_rotation(self, A):
-        """Performs Quartimax rotation on a matrix.
-
-        Args:
-            A (ndarray): The matrix to rotate.
-
-        Returns:
-            ndarray: The rotated matrix.
-        """
-        p, k = A.shape
-        R = np.eye(k)
-        d = 0
-        for _ in range(200):
-            A_rot = np.dot(A, R)
-            u, _, vt = np.linalg.svd(np.dot(A_rot**3, A_rot.T))
-            R = np.dot(u, vt)
-            d_old = d
-            d = np.sum(np.diag(np.dot(A_rot, A_rot.T)))
-            if np.abs(d - d_old) < 1e-6:
-                break
-        return np.dot(A, R)
-
-    def _get_summary_data(self):
-        """Returns a dictionary of data for the summary."""
-
         # Prepare loadings for display
         loadings_output = {f"Factor{i+1}": [] for i in range(self.n_components)}
         for i in range(self.n_variables):
@@ -279,12 +213,8 @@ class FactorAnalysis(DimensionalityReduction):
             [var, f"{uniq:.2f}"] for var, uniq in zip(self.variables, self.res_var)
         )
 
-        summary = {
-            "general": {
-                "No. Variables": f"{self.n_variables}",
-                "No. Objects": f"{self.n_objects}",
-                "No. Components": f"{self.n_components}",
-            },
-            "tables": {"Loadings": loadings_table},
-        }
+        summary = self._create_general_summary(
+            self.n_variables, self.n_objects, No_Components=f"{self.n_components}"
+        )
+        summary["tables"] = {"Loadings": loadings_table}
         return summary

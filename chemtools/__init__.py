@@ -1,8 +1,9 @@
-# ---------------------------------------------------------
-# Author: MGriot
-# Date: 21/08/2024
-#
-# This code is protected by copyright and cannot be 
-# copied, modified, or used without the explicit 
-# permission of the author. All rights reserved.
-# ---------------------------------------------------------
+"""
+chemtools is a Python library for chemometrics.
+It provides tools for data exploration, preprocessing,
+regression, classification, and dimensional reduction.
+"""
+
+__version__ = "0.1.0"
+__author__ = "Matteo Griot"
+__credits__ = "Matteo Griot"
