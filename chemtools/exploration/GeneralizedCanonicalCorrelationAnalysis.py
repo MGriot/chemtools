@@ -127,3 +127,26 @@ class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
     def change_variables_colors(self):
         """Generates random colors for the variables."""
         return [random_colorHEX(n_var) for n_var in self.n_variables]
+
+
+    def transform(self, *Xs_new):
+        """
+        Transforms the new datasets into the GCCA space.
+
+        Args:
+            *Xs_new: Variable length argument list of new datasets.
+
+        Returns:
+            list: List of transformed datasets.
+        """
+        # Mean-center the new datasets using the means from the fitted datasets
+        Xs_new_meaned = [
+            X_new - np.mean(X, axis=0) for X_new, X in zip(Xs_new, self.Xs)
+        ]
+
+        # Project the new datasets onto the canonical variates
+        transformed_datasets = [
+            X_new_meaned.dot(L) for X_new_meaned, L in zip(Xs_new_meaned, self.Ls)
+        ]
+
+        return transformed_datasets

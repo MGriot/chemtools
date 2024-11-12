@@ -18,7 +18,11 @@ from chemtools.preprocessing import correlation_matrix
 from chemtools.preprocessing import diagonalized_matrix
 from chemtools.utility import reorder_array
 
-from chemtools.utility.set_names import initialize_names_and_counts, set_variables_names, set_objects_names
+from chemtools.utility.set_names import (
+    initialize_names_and_counts,
+    set_variables_names,
+    set_objects_names,
+)
 from chemtools.utility import random_colorHEX
 from chemtools.base.base_models import BaseModel
 from chemtools.exploration import PrincipalComponentAnalysis
@@ -89,8 +93,8 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
         """
         self.X = X
         self.y = y
-        self.variables, self.objects, self.n_variables, self.n_objects = initialize_names_and_counts(
-            X, variables_names, objects_names
+        self.variables, self.objects, self.n_variables, self.n_objects = (
+            initialize_names_and_counts(X, variables_names, objects_names)
         )
         self.variables_colors = self.change_variables_colors()
         self.objects_colors = self.change_objects_colors()
