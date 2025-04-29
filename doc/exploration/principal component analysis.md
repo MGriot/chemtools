@@ -1,60 +1,90 @@
 # Principal Component Analysis (PCA)
 
->Si prende come riferimento il manuale di todeschini e PCA_toolbox per matlab.
+Principal Component Analysis (PCA) is a dimensionality reduction technique that transforms high-dimensional data into a new coordinate system while preserving maximum variance.
 
-## chemtools: Principal Component Analysis Module
+## Overview
 
-This module provides tools for performing Principal Component Analysis (PCA), a powerful dimensionality reduction technique. It includes the `PrincipalComponentAnalysis` class for data fitting and transformation, along with various plotting utilities in `pca_plots.py` to visualize the results.
+The PCA module in chemtools provides comprehensive functionality for:
+- Data preprocessing and autoscaling
+- Principal component calculation
+- Variance analysis
+- Score and loading computation
+- Statistical validation
 
-### 1. Principal Component Analysis Class (`PrincipalComponentAnalysis.py`)
+## Usage
 
-The `PrincipalComponentAnalysis` class is the core component of this module, allowing users to apply PCA to their datasets. 
+```python
+from chemtools.exploration import PrincipalComponentAnalysis
+from chemtools.plots.exploration import PCAplots
 
-**Key Features:**
+# Create and fit the model
+pca = PrincipalComponentAnalysis()
+pca.fit(X, variables_names=variables, objects_names=objects)
 
-* **Data Preprocessing:** Automatically handles data preprocessing by autoscaling the input data (mean-centering and scaling to unit variance).
-* **Eigenvalue and Eigenvector Calculation:** Computes the eigenvalues and eigenvectors of the correlation matrix, representing the principal components and their contributions.
-* **Dimensionality Reduction:** Reduces the dataset's dimensionality by selecting a specified number of principal components based on various criteria.
-* **Statistical Metrics:** Calculates essential statistical metrics like Hotelling's T-squared and Q statistics (Squared Prediction Error) for assessing model performance.
-* **Data Transformation:** Projects new data points onto the reduced principal component space for further analysis.
+# Initialize plots with desired settings
+plots = PCAplots(pca, library="matplotlib", theme="light", style_preset="default")
 
-**Workflow:**
+# Generate various plots
+plots.plot_correlation_matrix()
+plots.plot_eigenvalues()
+plots.plot_loadings()
+plots.plot_biplot()
+plots.plot_scores()
+```
 
-1. **Initialization:** Create a `PrincipalComponentAnalysis` object.
-2. **Data Fitting:** Utilize the `fit()` method to fit the PCA model to your dataset. You can provide optional variable names and object names for clarity.
-3. **Dimensionality Reduction:** Employ the `reduction()` method to reduce the dataset's dimensionality to a desired number of principal components.
-4. **Statistical Analysis:** Use the `statistics()` method to calculate various statistical metrics for assessing the quality of the PCA and interpreting the results.
-5. **New Data Projection:**  Apply the `transform()` method to project new data points onto the principal component space defined by the fitted model.
+## Key Features
 
-### 2. PCA Plots (`pca_plots.py`)
+### 1. Model Fitting and Transformation
+- Automatic data preprocessing
+- Eigenvalue decomposition
+- Dimensionality reduction
+- Data projection
 
-The `pca_plots.py` module provides numerous plotting functions for visually exploring PCA results. Here's an overview:
+### 2. Component Selection Criteria
+- Kaiser criterion (eigenvalues > 1)
+- Percentage of explained variance
+- Scree plot analysis
+- Average eigenvalue criterion
+- Cumulative percentage criterion
 
-**Data Visualization:**
+### 3. Statistical Analysis
+- Hotelling's T² statistic
+- Q residuals
+- Confidence intervals
+- Contribution plots
 
-* **`plot_correlation_matrix`:** Visualizes the correlation matrix of the input data, highlighting relationships between variables.
-* **`plot_hotteling_t2_vs_q`:** Generates a scatter plot of Hotelling's T-squared against the Q statistic, aiding in outlier detection.
+### 4. Visualization
+- Correlation matrices
+- Eigenvalue plots
+- Score plots
+- Loading plots
+- Biplots
 
-**Component Selection Criteria:**
+## API Reference
 
-* **`plot_eigenvalues_greater_than_one`:**  Plots eigenvalues, marking those greater than 1 (Kaiser criterion) for component selection.
-* **`plot_eigenvalues_variance`:** Displays the percentage of variance explained by each principal component.
-* **`plot_cumulative_variance`:** Shows the cumulative variance explained as the number of components increases.
-* **`plot_average_eigenvalue_criterion`:** Visualizes the average eigenvalue criterion (AEC) for component selection.
-* **`plot_KP_criterion`:** Demonstrates the Kaiser-Piggott (KP) criterion for component selection.
-* **`plot_KL_criterion`:** Illustrates the KL criterion for component selection.
-* **`plot_CAEC_criterion`:** Depicts the cumulative average eigenvalue criterion (CAEC) for component selection.
-* **`plot_broken_stick`:**  Visualizes the broken stick criterion for component selection.
-* **`plot_eigenvalue`:** Generates a comprehensive plot combining various eigenvalue criteria for component selection.
+### PrincipalComponentAnalysis Class
 
-**Component Interpretation:**
+```python
+class PrincipalComponentAnalysis:
+    def __init__(self)
+    def fit(self, X, variables_names=None, objects_names=None)
+    def reduction(self, n_components)
+    def transform(self, X_new)
+    def statistics(self, alpha=0.05)
+```
 
-* **`plot_pci_contribution`:**  Displays the contributions of each variable to each principal component.
-* **`plot_loadings`:** Visualizes the loadings of the principal components, showing the relationship between variables and principal components.
-* **`plot_scores`:** Plots the scores of the principal components, representing the projection of the original data onto the principal component space.
-* **`plot_biplot`:** Creates a biplot, combining both loadings and scores to visualize relationships between variables and objects in the principal component space.
-* **`plot_classes_pca`:**  Specifically designed for visualizing class separation in PCA space, showing centroids, class boundaries (ellipses), and optional new data points.
+### PCAplots Class
 
----
+```python
+class PCAplots:
+    def plot_correlation_matrix()
+    def plot_eigenvalues()
+    def plot_loadings()
+    def plot_biplot()
+    def plot_scores()
+    def plot_hotteling_t2_vs_q()
+```
 
-This documentation provides a concise overview of the Principal Component Analysis module within `chemtools`. More detailed descriptions, parameters, and examples for each function and class are available in their respective docstrings within the code.
+## Examples
+
+See the `examples` directory for complete notebooks demonstrating PCA analysis workflows.

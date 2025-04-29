@@ -80,7 +80,7 @@ The library features a powerful plotting system that:
 
 ## How to Use
 
-Refer to the [documentation](doc/Documentation.md) for detailed information on how to use the library. 
+For detailed information on how to use the library, please refer to our [comprehensive documentation](doc/Documentation.md).
 
 ## Examples
 
