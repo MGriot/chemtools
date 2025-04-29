@@ -9,60 +9,226 @@ import numpy as np
 class Plotter:
     """Base class for plotting, providing shared settings and functionality."""
 
-    DEFAULT_THEME_COLOR = "#264653"
-    DEFAULT_ACCENT_COLOR = "#e76f51"
-    DEFAULT_PREDICTION_BAND_COLOR = "#2a9d8f"
-    DEFAULT_CONFIDENCE_BAND_COLOR = "#f4a261"
+    # Color themes
+    THEMES = {
+        "light": {
+            "bg_color": "#ffffff",
+            "text_color": "#2b2b2b",
+            "grid_color": "#e0e0e0",
+            "theme_color": "#264653",
+            "accent_color": "#e76f51",
+            "prediction_band": "#2a9d8f",
+            "confidence_band": "#f4a261",
+        },
+        "dark": {
+            "bg_color": "#2b2b2b",
+            "text_color": "#ffffff",
+            "grid_color": "#404040",
+            "theme_color": "#8ecae6",
+            "accent_color": "#ff6b6b",
+            "prediction_band": "#48cae4",
+            "confidence_band": "#ffd60a",
+        },
+    }
 
-    def __init__(self, library="matplotlib", theme_color=None, **kwargs):
+    # Add style presets as class attribute
+    STYLE_PRESETS = {
+        "matplotlib": {
+            "default": {
+                "grid.alpha": 0.5,
+                "axes.spines.top": True,
+                "axes.spines.right": True,
+            },
+            "minimal": {
+                "grid.alpha": 0,
+                "axes.spines.top": False,
+                "axes.spines.right": False,
+                "axes.grid": False,
+            },
+            "grid": {"grid.alpha": 0.7, "axes.grid": True, "grid.linewidth": 0.5},
+            "presentation": {
+                "font.size": 14,
+                "axes.labelsize": 16,
+                "axes.titlesize": 20,
+                "grid.alpha": 0.5,
+                "lines.linewidth": 3,
+            },
+        },
+        "plotly": {
+            "default": {
+                "xaxis": {"showgrid": True, "gridwidth": 1, "showline": True},
+                "yaxis": {"showgrid": True, "gridwidth": 1, "showline": True}
+            },
+            "minimal": {
+                "xaxis": {"showgrid": False, "showline": False, "zeroline": False},
+                "yaxis": {"showgrid": False, "showline": False, "zeroline": False}
+            },
+            "grid": {
+                "xaxis": {"showgrid": True, "gridwidth": 1, "showline": True},
+                "yaxis": {"showgrid": True, "gridwidth": 1, "showline": True}
+            },
+            "presentation": {
+                "xaxis": {
+                    "showgrid": True, 
+                    "gridwidth": 1,
+                    "showline": True,
+                    "title": {"font": {"size": 16}},
+                    "tickfont": {"size": 14}
+                },
+                "yaxis": {
+                    "showgrid": True,
+                    "gridwidth": 1,
+                    "showline": True,
+                    "title": {"font": {"size": 16}},
+                    "tickfont": {"size": 14}
+                }
+            }
+        }
+    }
+
+    def __init__(
+        self, library="matplotlib", theme="light", style_preset="default", **kwargs
+    ):
         """Initializes the Plotter with default settings."""
         self.library = library
-        self.theme_color = theme_color or self.DEFAULT_THEME_COLOR
-        self.accent_color = kwargs.get("accent_color", self.DEFAULT_ACCENT_COLOR)
+        self.theme = theme
+        self.style_preset = style_preset
+        self.colors = self.THEMES[theme]
+        self.watermark = kwargs.get("watermark", None)
 
+        # Initialize based on library
         if self.library == "matplotlib":
-            plt.rcParams.update(
-                {
-                    "font.family": "serif",
-                    "font.size": 12,
-                    "axes.labelsize": 12,
-                    "axes.titlesize": 14,
-                    "xtick.labelsize": 10,
-                    "ytick.labelsize": 10,
-                    "legend.fontsize": 10,
-                    "lines.linewidth": 2,
-                    "grid.linestyle": "--",
-                    "grid.alpha": 0.5,
-                }
+            self._init_matplotlib_style()
+        elif self.library == "plotly":
+            self._init_plotly_style()
+
+    def _init_matplotlib_style(self):
+        """Initialize matplotlib style settings."""
+        plt.style.use("default")  # Reset to default first
+
+        # Base style
+        base_style = {
+            "figure.facecolor": self.colors["bg_color"],
+            "axes.facecolor": self.colors["bg_color"],
+            "axes.edgecolor": self.colors["text_color"],
+            "axes.labelcolor": self.colors["text_color"],
+            "text.color": self.colors["text_color"],
+            "xtick.color": self.colors["text_color"],
+            "ytick.color": self.colors["text_color"],
+            "font.family": "serif",
+            "font.size": 12,
+            "axes.labelsize": 12,
+            "axes.titlesize": 14,
+            "grid.color": self.colors["grid_color"],
+            "grid.linestyle": "--",
+            "lines.linewidth": 2,
+            "savefig.dpi": 300,
+            "savefig.bbox": "tight",
+        }
+
+        # Apply preset-specific settings
+        preset_style = self.STYLE_PRESETS["matplotlib"].get(self.style_preset, {})
+
+        # Merge and update
+        plt.rcParams.update({**base_style, **preset_style})
+
+    def _init_plotly_style(self):
+        """Initialize plotly style settings."""
+        import plotly.io as pio
+        
+        template_name = f"chemtools_{self.theme}"
+        pio.templates[template_name] = pio.templates["plotly"]
+        
+        # Get preset settings
+        preset_settings = self.STYLE_PRESETS["plotly"].get(self.style_preset, {})
+        
+        # Update template with theme colors and settings
+        pio.templates[template_name].update({
+            "layout": {
+                "paper_bgcolor": self.colors["bg_color"],
+                "plot_bgcolor": self.colors["bg_color"],
+                "font": {
+                    "family": "serif",
+                    "size": 12,
+                    "color": self.colors["text_color"]
+                },
+                "xaxis": {
+                    "gridcolor": self.colors["grid_color"],
+                    "linecolor": self.colors["text_color"],
+                    **preset_settings.get("xaxis", {})
+                },
+                "yaxis": {
+                    "gridcolor": self.colors["grid_color"],
+                    "linecolor": self.colors["text_color"],
+                    **preset_settings.get("yaxis", {})
+                },
+                "title": {"font": {"size": 16}},
+                "showlegend": False
+            }
+        })
+        
+        self.plotly_template = template_name
+
+    def add_watermark(self, fig, text="ChemTools", alpha=0.1):
+        """Add watermark to the plot."""
+        if self.library == "matplotlib":
+            fig.text(
+                0.5,
+                0.5,
+                text,
+                fontsize=40,
+                color=self.colors["text_color"],
+                ha="center",
+                va="center",
+                alpha=alpha,
+                transform=fig.transFigure,
             )
         elif self.library == "plotly":
-            import plotly.io as pio
-            import plotly.express as px
-            import plotly.graph_objects as go
-
-            # Create a custom template based on the default "plotly" template
-            pio.templates["chemtools"] = pio.templates["plotly"]
-
-            # Update the template with your desired settings
-            pio.templates["chemtools"].update(
-                {
-                    "layout": {
-                        "font": {"family": "serif", "size": 12},
-                        "xaxis": {
-                            "title": {"font": {"size": 14}},
-                            "tickfont": {"size": 10},
-                        },
-                        "yaxis": {
-                            "title": {"font": {"size": 14}},
-                            "tickfont": {"size": 10},
-                        },
-                        "title": {"font": {"size": 16}},
-                        "showlegend": True,
-                        "legend": {"font": {"size": 10}},
-                        "margin": {"l": 60, "r": 10, "t": 70, "b": 50},
-                    }
-                }
+            fig.add_annotation(
+                text=text,
+                xref="paper",
+                yref="paper",
+                x=0.5,
+                y=0.5,
+                showarrow=False,
+                font=dict(size=40, color=self.colors["text_color"]),
+                opacity=alpha,
+                textangle=-30,
             )
+        return fig
+
+    def apply_style_preset(self, fig, preset=None):
+        """Apply predefined style presets to an existing figure."""
+        if preset is None:
+            preset = self.style_preset
+
+        if preset not in self.STYLE_PRESETS[self.library]:
+            return fig
+
+        if self.library == "matplotlib":
+            ax = fig.gca()
+            settings = self.STYLE_PRESETS["matplotlib"][preset]
+
+            # Apply settings to current axes
+            for key, value in settings.items():
+                if key.startswith("axes."):
+                    setter = key.replace("axes.", "set_")
+                    if hasattr(ax, setter):
+                        getattr(ax, setter)(value)
+
+            fig.tight_layout()
+
+        elif self.library == "plotly":
+            settings = self.STYLE_PRESETS["plotly"][preset]
+            fig.update_layout(**settings)
+            
+            # Update axes separately
+            if "xaxis" in settings:
+                fig.update_xaxes(**settings["xaxis"])
+            if "yaxis" in settings:
+                fig.update_yaxes(**settings["yaxis"])
+
+        return fig
 
     def _create_figure(self, **kwargs):
         """Creates a figure and axes based on the chosen library."""
@@ -71,7 +237,7 @@ class Plotter:
             return fig, ax
         elif self.library == "plotly":
             fig = px.scatter(**{k: v for k, v in kwargs.items() if k != "figsize"})
-            fig.update_layout(template="chemtools")
+            fig.update_layout(template=self.plotly_template)
             return fig
 
     def _set_labels(self, ax, xlabel=None, ylabel=None, title=None):
@@ -115,7 +281,7 @@ class Plotter:
                 "width": params["width"],
                 "height": params["height"],
                 "showlegend": False,
-                "template": "chemtools",
+                "template": self.plotly_template,
             }
             fig.update_layout(
                 **{k: v for k, v in layout_update.items() if v is not None}

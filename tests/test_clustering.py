@@ -8,12 +8,14 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from chemtools.clustering.HierarchicalClustering import HierarchicalClustering
 from chemtools.plots.clustering.plot_dendogram import DendrogramPlotter
 
+
 def show_figure(fig, library):
     """Helper function to display figures consistently."""
     if library == "plotly":
         fig.show()  # Opens in browser
     else:  # matplotlib
         plt.show(block=True)
+
 
 def test_hierarchical_clustering():
     # Generate sample data
@@ -24,20 +26,28 @@ def test_hierarchical_clustering():
     model = HierarchicalClustering(X)
     model.fit()
 
-    # Test with both backends
+    # Test with both backends and different presets
     for library in ["matplotlib", "plotly"]:
-        plotter = DendrogramPlotter(library=library)
-        fig = plotter.plot_dendrogram(
-            model,
-            figsize=(10, 7),      # works for both backends
-            width=800,            # works for both backends
-            height=600,           # works for both backends
-            title="Hierarchical Clustering Dendrogram",
-            orientation="top",
-            color_threshold=0.5,
-            labels=None          # optional: custom labels
-        )
-        show_figure(fig, library)
+        for preset in ["default", "minimal", "grid", "presentation"]:
+            plotter = DendrogramPlotter(
+                library=library, theme="light", style_preset=preset  # or "dark"
+            )
+
+            fig = plotter.plot_dendrogram(
+                model,
+                title=f"Dendrogram ({preset} style)",
+                orientation="top",
+                color_threshold=0.5,
+            )
+
+            # Show or save the figure
+            if library == "plotly":
+                fig.show()
+            else:
+                plt.show(block=False)
+                plt.pause(2)  # Show each style for 2 seconds
+                plt.close()
+
 
 if __name__ == "__main__":
     test_hierarchical_clustering()
