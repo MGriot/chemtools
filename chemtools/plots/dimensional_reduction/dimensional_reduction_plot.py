@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.patches import Ellipse
-import numpy as np
 
 from chemtools.plots.Plotter import Plotter
 from chemtools.dimensional_reduction import FactorAnalysis
@@ -11,85 +9,41 @@ from chemtools.exploration import PrincipalComponentAnalysis
 
 
 class DimensionalityReductionPlot(Plotter):
-    """Class to generate plots for dimensionality reduction models."""
+    """Class for dimensional reduction visualization."""
 
     def __init__(self, dim_reduction_model, **kwargs):
         super().__init__(**kwargs)
         self.dim_reduction_model = dim_reduction_model
 
     def plot_correlation_matrix(self, cmap="coolwarm", threshold=None):
-        """Plots the correlation matrix of the data used in the PCA.
-
-        Args:
-            cmap (str, optional): The colormap for the heatmap. Defaults to "coolwarm".
-            threshold (float, optional): The threshold for displaying text. If None,
-                the midpoint of the colormap is used. Defaults to None.
-        """
         fig, ax = self._create_figure(figsize=(10, 10))
+
+        # Update to use theme colors
         im = ax.imshow(self.dim_reduction_model.correlation_matrix, cmap=cmap)
-        cbar = ax.figure.colorbar(im, ax=ax, cmap=cmap, label="Correlation value")
-        ax.set_xticks(np.arange(len(self.dim_reduction_model.variables)))
-        ax.set_yticks(np.arange(len(self.dim_reduction_model.variables)))
-        ax.set_xticklabels(self.dim_reduction_model.variables)
-        ax.set_yticklabels(self.dim_reduction_model.variables)
-        plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
 
-        # Calculate the midpoint of the colormap if threshold is None
-        if threshold is None:
-            norm = plt.Normalize(
-                vmin=self.dim_reduction_model.correlation_matrix.min(),
-                vmax=self.dim_reduction_model.correlation_matrix.max(),
-            )
-            midpoint = (
-                self.dim_reduction_model.correlation_matrix.max()
-                + self.dim_reduction_model.correlation_matrix.min()
-            ) / 2
-            threshold = norm(midpoint)
+        # Add colorbar with themed text
+        cbar = ax.figure.colorbar(im, ax=ax)
+        cbar.ax.tick_params(colors=self.colors["text_color"])
 
-        # Add correlation values as text
-        for i in range(len(self.dim_reduction_model.variables)):
-            for j in range(len(self.dim_reduction_model.variables)):
-                color = (
-                    "black"
-                    if abs(self.dim_reduction_model.correlation_matrix[i, j])
-                    < threshold
-                    else "white"
-                )
-                text = ax.text(
-                    j,
-                    i,
-                    f"{self.dim_reduction_model.correlation_matrix[i, j]:.2f}",
-                    ha="center",
-                    va="center",
-                    color=color,
-                )
+        # Apply themed text colors
+        [t.set_color(self.colors["text_color"]) for t in ax.get_xticklabels()]
+        [t.set_color(self.colors["text_color"]) for t in ax.get_yticklabels()]
 
-        self._set_labels(ax, title="Correlation Matrix")
-        plt.tight_layout()
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def plot_eigenvalues(self, criteria=None):
-        """Plots the eigenvalues and highlights them based on the chosen criteria.
-
-        Args:
-            criteria (list, optional): A list of criteria to use for highlighting
-                                       eigenvalues. Options are: 'greater_than_one',
-                                       'variance', 'cumulative_variance',
-                                       'average_eigenvalue', 'kp', 'kl', 'caec',
-                                       'broken_stick'. If None, no highlighting is
-                                       applied. Defaults to None.
-        """
         fig, ax = self._create_figure(figsize=(8, 6))
         ax.plot(
             self.dim_reduction_model.V_ordered,
             marker="o",
             linestyle="-",
-            color="b",
+            color=self.colors["line_color"],
             label="Eigenvalues",
-        )  # Plot eigenvalues
+        )
         ax.set_xticks(range(len(self.dim_reduction_model.index)))
         ax.set_xticklabels(self.dim_reduction_model.index)
-        ax.grid(True)
+        ax.grid(True, color=self.colors["grid_color"])
 
         all_criteria = [
             "greater_than_one",
@@ -124,7 +78,7 @@ class DimensionalityReductionPlot(Plotter):
                     self._plot_broken_stick(ax)
                 else:
                     raise ValueError(f"Invalid criterion: {criterion}")
-                # Set x-axis label based on model type
+
         if isinstance(self.dim_reduction_model, PrincipalComponentAnalysis):
             xlabel = r"$PC_i$"
         elif isinstance(self.dim_reduction_model, FactorAnalysis):
@@ -137,23 +91,22 @@ class DimensionalityReductionPlot(Plotter):
             ylabel="Eigenvalue",
             title="Eigenvalues with Selected Criteria",
         )
-        ax.legend(loc="best")
-        plt.show()
+        ax.legend(loc="best", labelcolor=self.colors["text_color"])
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def _plot_eigenvalues_greater_than_one(self, ax):
-        """Highlights eigenvalues greater than one on the plot."""
         num_eigenvalues_greater_than_one = np.argmax(
             self.dim_reduction_model.V_ordered < 1
         )
         ax.axvline(
             x=num_eigenvalues_greater_than_one - 0.5,
-            color="brown",
+            color=self.colors["highlight_color"],
             linestyle="-",
             label="Eigenvalues > 1",
         )
 
     def _plot_eigenvalues_variance(self, ax):
-        """Plots the percentage of variance explained by each principal component."""
         variance_explained = (
             self.dim_reduction_model.V_ordered
             / self.dim_reduction_model.V_ordered.sum()
@@ -162,12 +115,11 @@ class DimensionalityReductionPlot(Plotter):
             x=self.dim_reduction_model.index,
             height=variance_explained,
             fill=False,
-            edgecolor="darkorange",
+            edgecolor=self.colors["bar_edge_color"],
             label="Variance Explained (%)",
         )
 
     def _plot_cumulative_variance(self, ax):
-        """Plots the cumulative percentage of variance explained by the principal components."""
         cumulative_variance = (
             np.cumsum(
                 self.dim_reduction_model.V_ordered
@@ -179,28 +131,26 @@ class DimensionalityReductionPlot(Plotter):
             x=self.dim_reduction_model.index,
             height=cumulative_variance,
             fill=False,
-            edgecolor="black",
+            edgecolor=self.colors["bar_edge_color"],
             linestyle="--",
             width=0.6,
             label="Cumulative Variance Explained (%)",
         )
 
     def _plot_average_eigenvalue_criterion(self, ax):
-        """Highlights eigenvalues greater than the average eigenvalue."""
         ax.axvline(
             x=np.argmax(
                 self.dim_reduction_model.V_ordered
                 < self.dim_reduction_model.V_ordered.mean()
             )
             - 0.5,
-            color="red",
+            color=self.colors["highlight_color"],
             alpha=0.5,
             linestyle="-",
             label="AEC (Average Eigenvalue)",
         )
 
     def _plot_KP_criterion(self, ax):
-        """Indicates the Kaiser-Piggott (KP) criterion on the plot."""
         rank = np.linalg.matrix_rank(self.dim_reduction_model.correlation_matrix)
         sum_term = sum(
             self.dim_reduction_model.V[m] / self.dim_reduction_model.V.sum()
@@ -231,14 +181,13 @@ class DimensionalityReductionPlot(Plotter):
         )
         ax.axvline(
             x=x,
-            color="purple",
+            color=self.colors["highlight_color"],
             alpha=0.5,
             linestyle="--",
             label="KP Criterion",
         )
 
     def _plot_KL_criterion(self, ax):
-        """Marks the KL criterion for component selection on the plot."""
         rank = np.linalg.matrix_rank(self.dim_reduction_model.correlation_matrix)
         sum_term = sum(
             self.dim_reduction_model.V[m] / self.dim_reduction_model.V.sum()
@@ -266,41 +215,36 @@ class DimensionalityReductionPlot(Plotter):
         )
         ax.axvline(
             x=x,
-            color="cyan",
+            color=self.colors["highlight_color"],
             alpha=0.5,
             linestyle="-",
             label="KL Criterion",
         )
 
     def _plot_CAEC_criterion(self, ax):
-        """Marks the CAEC (Cumulative Average Eigenvalue Criterion) on the plot."""
         ax.axvline(
             x=np.argmax(
                 self.dim_reduction_model.V_ordered
                 < 0.7 * self.dim_reduction_model.V_ordered.mean()
             )
             - 0.5,
-            color="blue",
+            color=self.colors["highlight_color"],
             alpha=0.5,
             linestyle="--",
             label="CAEC (70% of Avg. Eigenvalue)",
         )
 
     def _plot_broken_stick(self, ax):
-        """Plots the broken stick criterion for selecting the number of PCs."""
         n = self.dim_reduction_model.V_ordered.shape[0]
         dm = (100 / n) * np.cumsum(1 / np.arange(1, n + 1)[::-1])
         ax.plot(
-            self.dim_reduction_model.index, dm, color="lightgreen", label="Broken Stick"
+            self.dim_reduction_model.index,
+            dm,
+            color=self.colors["line_color"],
+            label="Broken Stick",
         )
 
     def plot_hotteling_t2_vs_q(self, show_legend=True):
-        """Plots the Hotelling's T2 statistic versus the Q statistic (Squared Prediction Error).
-
-        Args:
-            show_legend (bool, optional): Whether to display the legend.
-                                        Defaults to True.
-        """
         fig, ax = self._create_figure(figsize=(8, 6))
 
         for i in range(len(self.dim_reduction_model.Q)):
@@ -309,6 +253,7 @@ class DimensionalityReductionPlot(Plotter):
                 self.dim_reduction_model.T2[i],
                 "o",
                 label=self.dim_reduction_model.objects[i],
+                color=self.colors["scatter_color"],
             )
 
         self._set_labels(
@@ -317,16 +262,15 @@ class DimensionalityReductionPlot(Plotter):
             ylabel=r"$Hotelling's T^2$",
             title="Hotelling's T2 vs. Q",
         )
-        ax.grid(True)
+        ax.grid(True, color=self.colors["grid_color"])
 
         if show_legend:
-            ax.legend(loc="best")
+            ax.legend(loc="best", labelcolor=self.colors["text_color"])
 
-        plt.tight_layout()
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def plot_pci_contribution(self):
-        """Plots the contribution of each variable to each principal component."""
         fig, ax = self._create_figure(figsize=(10, 6))
         for i in range(self.dim_reduction_model.W.shape[1]):
             ax.plot(
@@ -335,6 +279,7 @@ class DimensionalityReductionPlot(Plotter):
                 marker="o",
                 markerfacecolor="none",
                 label=f"PC$_{i+1}$",
+                color=self.colors["line_color"],
             )
 
         self._set_labels(
@@ -350,21 +295,14 @@ class DimensionalityReductionPlot(Plotter):
             rotation=45,
             ha="right",
             rotation_mode="anchor",
+            color=self.colors["text_color"],
         )
-        ax.legend(labelcolor=self.theme_color)
-        ax.grid(True)
-        plt.tight_layout()
-        plt.show()
+        ax.legend(labelcolor=self.colors["text_color"])
+        ax.grid(True, color=self.colors["grid_color"])
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def plot_loadings(self, components=None, show_arrows=True):
-        """Plots the loadings of the principal components.
-
-        Args:
-            components (tuple, optional): The components to plot.
-                                        Defaults to None (all components).
-            show_arrows (bool, optional): Whether to display arrows for the loadings.
-                                        Defaults to True.
-        """
         if components is not None:
             i, j = components
             self._plot_loadings_single(i, j, show_arrows)
@@ -372,13 +310,12 @@ class DimensionalityReductionPlot(Plotter):
             self._plot_loadings_matrix(show_arrows)
 
     def _plot_loadings_single(self, i, j, show_arrows=True):
-        """Plots loadings for a single pair of components."""
         fig, ax = self._create_figure(figsize=(5, 5))
         fig.suptitle(
             f"Loadings plot PC{i+1} vs PC{j+1}",
             fontsize=24,
             y=1,
-            color=self.theme_color,
+            color=self.colors["text_color"],
         )
 
         x_data = self.dim_reduction_model.W[:, i]
@@ -397,7 +334,7 @@ class DimensionalityReductionPlot(Plotter):
                     self.dim_reduction_model.W[d, j],
                     length_includes_head=True,
                     width=0.01,
-                    color=self.theme_color,
+                    color=self.colors["arrow_color"],
                     alpha=0.3,
                 )
 
@@ -413,7 +350,7 @@ class DimensionalityReductionPlot(Plotter):
                 xy=(self.dim_reduction_model.W[d, i], self.dim_reduction_model.W[d, j]),
                 ha=position[0],
                 va=position[1],
-                color=self.theme_color,
+                color=self.colors["text_color"],
             )
 
         self._set_labels(ax, xlabel=rf"PC$_{i+1}$", ylabel=rf"PC$_{j+1}$")
@@ -424,13 +361,12 @@ class DimensionalityReductionPlot(Plotter):
             labels,
             loc="center left",
             bbox_to_anchor=(1, 0.5),
-            labelcolor=self.theme_color,
+            labelcolor=self.colors["text_color"],
         )
-        plt.tight_layout()
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def _plot_loadings_matrix(self, show_arrows=True):
-        """Plots loadings for all pairs of components in a matrix."""
         height_ratios = [1] * self.dim_reduction_model.n_component
         width_ratios = [1] * self.dim_reduction_model.n_component
 
@@ -446,7 +382,7 @@ class DimensionalityReductionPlot(Plotter):
                 "width_ratios": width_ratios,
             },
         )
-        fig.suptitle("Loadings plot", fontsize=24, y=1, color=self.theme_color)
+        fig.suptitle("Loadings plot", fontsize=24, y=1, color=self.colors["text_color"])
 
         for i in range(self.dim_reduction_model.n_component):
             for j in range(self.dim_reduction_model.n_component):
@@ -462,14 +398,14 @@ class DimensionalityReductionPlot(Plotter):
             labels,
             loc="center left",
             bbox_to_anchor=(1, 0.5),
-            labelcolor=self.theme_color,
+            labelcolor=self.colors["text_color"],
         )
         plt.tight_layout()
         plt.subplots_adjust(wspace=0.4, hspace=0.4)
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def _plot_loadings_on_axis(self, ax, i, j, show_arrows=True):
-        """Plots loadings for a specific pair of components on a given axis."""
         x_data = self.dim_reduction_model.W[:, i]
         y_data = self.dim_reduction_model.W[:, j]
         colors = self.dim_reduction_model.variables_colors
@@ -484,7 +420,7 @@ class DimensionalityReductionPlot(Plotter):
                     self.dim_reduction_model.W[d, j],
                     length_includes_head=True,
                     width=0.01,
-                    color=self.theme_color,
+                    color=self.colors["arrow_color"],
                     alpha=0.3,
                 )
 
@@ -500,13 +436,12 @@ class DimensionalityReductionPlot(Plotter):
                 xy=(self.dim_reduction_model.W[d, i], self.dim_reduction_model.W[d, j]),
                 ha=position[0],
                 va=position[1],
-                color=self.theme_color,
+                color=self.colors["text_color"],
             )
 
         self._set_labels(ax, xlabel=rf"PC$_{i+1}$", ylabel=rf"PC$_{j+1}$")
 
     def _plot_empty_loadings_on_axis(self, ax, i):
-        """Plots an empty space for diagonal cells in the loadings matrix."""
         ax.text(
             0.5,
             0.5,
@@ -514,7 +449,7 @@ class DimensionalityReductionPlot(Plotter):
             horizontalalignment="center",
             verticalalignment="center",
             fontsize=20,
-            color=self.theme_color,
+            color=self.colors["text_color"],
             transform=ax.transAxes,
         )
         ax.set_xticks([])
@@ -526,14 +461,6 @@ class DimensionalityReductionPlot(Plotter):
         )
 
     def plot_scores(self, components=None, label_points=False):
-        """Plots the scores of the principal components.
-
-        Args:
-            components (tuple, optional): The components to plot.
-                                        Defaults to None (all components).
-            label_points (bool, optional): Whether to label the points.
-                                        Defaults to False.
-        """
         if components is not None:
             i, j = components
             self._plot_scores_single(i, j, label_points)
@@ -541,13 +468,12 @@ class DimensionalityReductionPlot(Plotter):
             self._plot_scores_matrix(label_points)
 
     def _plot_scores_single(self, i, j, label_points=False):
-        """Plots scores for a single pair of components."""
         fig, ax = self._create_figure(figsize=(5, 5))
         fig.suptitle(
             f"Scores plot PC{i+1} vs PC{j+1}",
             fontsize=24,
             y=1,
-            color=self.theme_color,
+            color=self.colors["text_color"],
         )
 
         x_data = self.dim_reduction_model.T[:, i]
@@ -565,7 +491,7 @@ class DimensionalityReductionPlot(Plotter):
                         self.dim_reduction_model.T[d, i],
                         self.dim_reduction_model.T[d, j],
                     ),
-                    color=self.theme_color,
+                    color=self.colors["text_color"],
                 )
 
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
@@ -576,13 +502,12 @@ class DimensionalityReductionPlot(Plotter):
             labels,
             loc="center left",
             bbox_to_anchor=(1, 0.5),
-            labelcolor=self.theme_color,
+            labelcolor=self.colors["text_color"],
         )
-        plt.tight_layout()
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def _plot_scores_matrix(self, label_points=False):
-        """Plots scores for all pairs of components in a matrix."""
         height_ratios = [1] * self.dim_reduction_model.n_component
         width_ratios = [1] * self.dim_reduction_model.n_component
 
@@ -598,7 +523,7 @@ class DimensionalityReductionPlot(Plotter):
                 "width_ratios": width_ratios,
             },
         )
-        fig.suptitle("Scores plot", fontsize=24, y=1, color=self.theme_color)
+        fig.suptitle("Scores plot", fontsize=24, y=1, color=self.colors["text_color"])
 
         for i in range(self.dim_reduction_model.n_component):
             for j in range(self.dim_reduction_model.n_component):
@@ -614,13 +539,12 @@ class DimensionalityReductionPlot(Plotter):
             labels,
             loc="center left",
             bbox_to_anchor=(1, 0.5),
-            labelcolor=self.theme_color,
+            labelcolor=self.colors["text_color"],
         )
-        plt.tight_layout()
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def _plot_scores_on_axis(self, ax, i, j, label_points=False):
-        """Plots scores for a specific pair of components on a given axis."""
         x_data = self.dim_reduction_model.T[:, i]
         y_data = self.dim_reduction_model.T[:, j]
         colors = self.dim_reduction_model.objects_colors
@@ -634,12 +558,11 @@ class DimensionalityReductionPlot(Plotter):
                         self.dim_reduction_model.T[d, i],
                         self.dim_reduction_model.T[d, j],
                     ),
-                    color=self.theme_color,
+                    color=self.colors["text_color"],
                 )
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
 
     def _plot_empty_scores_on_axis(self, ax, i):
-        """Plots an empty space for diagonal cells in the scores matrix."""
         ax.text(
             0.5,
             0.5,
@@ -647,7 +570,7 @@ class DimensionalityReductionPlot(Plotter):
             horizontalalignment="center",
             verticalalignment="center",
             fontsize=20,
-            color=self.theme_color,
+            color=self.colors["text_color"],
             transform=ax.transAxes,
         )
         ax.set_xticks([])
@@ -665,18 +588,6 @@ class DimensionalityReductionPlot(Plotter):
         subplot_dimensions=(5, 5),
         show_legend=True,
     ):
-        """Plots a biplot, combining scores and loadings in one plot.
-
-        Args:
-            components (tuple, optional): The principal components to display.
-                                        Defaults to None (all components).
-            label_points (bool, optional): Whether to label the score points.
-                                        Defaults to False.
-            subplot_dimensions (tuple, optional): Dimensions of subplots.
-                                                Defaults to (5, 5).
-            show_legend (bool, optional): Whether to display the legend.
-                                        Defaults to True.
-        """
         if components is not None:
             i, j = components
             self._plot_biplot_single(
@@ -688,13 +599,12 @@ class DimensionalityReductionPlot(Plotter):
     def _plot_biplot_single(
         self, i, j, label_points=False, subplot_dimensions=(5, 5), show_legend=True
     ):
-        """Plots a biplot for a single pair of components."""
         fig, ax = self._create_figure(figsize=subplot_dimensions)
         fig.suptitle(
             f"Biplot PC{i+1} vs PC{j+1}",
             fontsize=24,
             y=1,
-            color=self.theme_color,
+            color=self.colors["text_color"],
         )
 
         x_data = self.dim_reduction_model.T[:, i]
@@ -712,7 +622,7 @@ class DimensionalityReductionPlot(Plotter):
                         self.dim_reduction_model.T[e, i],
                         self.dim_reduction_model.T[e, j],
                     ),
-                    color=self.theme_color,
+                    color=self.colors["text_color"],
                 )
 
         for d in range(self.dim_reduction_model.n_variables):
@@ -723,7 +633,7 @@ class DimensionalityReductionPlot(Plotter):
                 self.dim_reduction_model.W[d, j],
                 length_includes_head=True,
                 width=0.01,
-                color=self.theme_color,
+                color=self.colors["arrow_color"],
                 alpha=0.3,
             )
             position = (
@@ -737,7 +647,7 @@ class DimensionalityReductionPlot(Plotter):
                 xy=(self.dim_reduction_model.W[d, i], self.dim_reduction_model.W[d, j]),
                 ha=position[0],
                 va=position[1],
-                color=self.theme_color,
+                color=self.colors["text_color"],
             )
 
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
@@ -749,16 +659,15 @@ class DimensionalityReductionPlot(Plotter):
                 labels,
                 loc="center left",
                 bbox_to_anchor=(1, 0.5),
-                labelcolor=self.theme_color,
+                labelcolor=self.colors["text_color"],
             )
 
-        plt.tight_layout()
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def _plot_biplot_matrix(
         self, label_points=False, subplot_dimensions=(5, 5), show_legend=True
     ):
-        """Plots biplots for all pairs of components in a matrix."""
         height_ratios = [1] * self.dim_reduction_model.n_component
         width_ratios = [1] * self.dim_reduction_model.n_component
 
@@ -774,7 +683,7 @@ class DimensionalityReductionPlot(Plotter):
                 "width_ratios": width_ratios,
             },
         )
-        fig.suptitle("Biplots plot", fontsize=24, y=1, color=self.theme_color)
+        fig.suptitle("Biplots plot", fontsize=24, y=1, color=self.colors["text_color"])
 
         all_handles = []
         all_labels = []
@@ -786,9 +695,7 @@ class DimensionalityReductionPlot(Plotter):
                     (
                         handles,
                         labels,
-                    ) = self._plot_biplot_on_axis(
-                        ax, i, j, label_points
-                    )  # Get handles and labels
+                    ) = self._plot_biplot_on_axis(ax, i, j, label_points)
                     all_handles.extend(handles)
                     all_labels.extend(labels)
                 else:
@@ -800,20 +707,19 @@ class DimensionalityReductionPlot(Plotter):
                 all_labels,
                 loc="center left",
                 bbox_to_anchor=(1, 0.5),
-                labelcolor=self.theme_color,
+                labelcolor=self.colors["text_color"],
             )
 
-        plt.tight_layout()
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig
 
     def _plot_biplot_on_axis(self, ax, i, j, label_points=False):
-        """Plots a biplot for a specific pair of components on a given axis."""
         x_data = self.dim_reduction_model.T[:, i]
         y_data = self.dim_reduction_model.T[:, j]
         colors = self.dim_reduction_model.objects_colors
         scatter = ax.scatter(
             x_data, y_data, c=colors, label=self.dim_reduction_model.objects
-        )  # Assign scatter to a variable
+        )
 
         if label_points:
             for e in range(self.dim_reduction_model.n_objects):
@@ -823,7 +729,7 @@ class DimensionalityReductionPlot(Plotter):
                         self.dim_reduction_model.T[e, i],
                         self.dim_reduction_model.T[e, j],
                     ),
-                    color=self.theme_color,
+                    color=self.colors["text_color"],
                 )
         for d in range(self.dim_reduction_model.n_variables):
             ax.arrow(
@@ -833,7 +739,7 @@ class DimensionalityReductionPlot(Plotter):
                 self.dim_reduction_model.W[d, j],
                 length_includes_head=True,
                 width=0.01,
-                color=self.theme_color,
+                color=self.colors["arrow_color"],
                 alpha=0.3,
             )
             position = (
@@ -847,13 +753,12 @@ class DimensionalityReductionPlot(Plotter):
                 xy=(self.dim_reduction_model.W[d, i], self.dim_reduction_model.W[d, j]),
                 ha=position[0],
                 va=position[1],
-                color=self.theme_color,
+                color=self.colors["text_color"],
             )
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
-        return scatter.legend_elements()  # Return handles and labels for the legend
+        return scatter.legend_elements()
 
     def _plot_empty_biplot_on_axis(self, ax, i):
-        """Plots an empty space for diagonal cells in the biplot matrix."""
         ax.text(
             0.5,
             0.5,
@@ -861,7 +766,7 @@ class DimensionalityReductionPlot(Plotter):
             horizontalalignment="center",
             verticalalignment="center",
             fontsize=20,
-            color=self.theme_color,
+            color=self.colors["text_color"],
             transform=ax.transAxes,
         )
         ax.set_xticks([])
@@ -873,17 +778,9 @@ class DimensionalityReductionPlot(Plotter):
         )
 
     def plot_explained_variance_ellipse(self, components=(0, 1), confidence_level=0.95):
-        """Plots the explained variance ellipse on the scores plot of specified components.
-
-        Args:
-            components (tuple, optional): The components to plot. Defaults to (0, 1).
-            confidence_level (float, optional): The confidence level for the ellipse.
-                Defaults to 0.95.
-        """
         i, j = components
         fig, ax = plt.subplots(figsize=(5, 5))
 
-        # Plot scores
         x_data = self.dim_reduction_model.T[:, i]
         y_data = self.dim_reduction_model.T[:, j]
         colors = self.dim_reduction_model.objects_colors
@@ -891,32 +788,29 @@ class DimensionalityReductionPlot(Plotter):
             x_data, y_data, c=colors, label=self.dim_reduction_model.objects
         )
 
-        # Calculate ellipse parameters
         covariance_matrix = np.cov(x_data, y_data)
         eigenvalues, eigenvectors = np.linalg.eig(covariance_matrix)
         angle = np.degrees(np.arctan2(eigenvectors[1, 0], eigenvectors[0, 0]))
         width = 2 * np.sqrt(eigenvalues[0] * 2 * np.log(1 / (1 - confidence_level)))
         height = 2 * np.sqrt(eigenvalues[1] * 2 * np.log(1 / (1 - confidence_level)))
 
-        # Plot ellipse
         ellipse = Ellipse(
             (np.mean(x_data), np.mean(y_data)),
             width,
             height,
             angle,
             facecolor="none",
-            edgecolor="black",
+            edgecolor=self.colors["highlight_color"],
             linestyle="--",
             label=f"{confidence_level * 100:.1f}% Explained Variance",
         )
         ax.add_patch(ellipse)
 
-        # Set labels and legend
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
         handles, labels = scatter.legend_elements()
         handles.append(ellipse)
         labels.append(f"{confidence_level * 100:.1f}% Explained Variance")
-        plt.legend(handles, labels, loc="best")
+        plt.legend(handles, labels, loc="best", labelcolor=self.colors["text_color"])
 
-        plt.tight_layout()
-        plt.show()
+        fig = self.apply_style_preset(fig)
+        return fig

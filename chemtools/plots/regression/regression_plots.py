@@ -14,43 +14,33 @@ class RegressionPlots(Plotter):
     def plot_residuals(self, xlabel="Observations", ylabel="Residuals", **kwargs):
         """Plots the residuals of the regression."""
 
-        fig, ax = self._create_figure(figsize=(8, 6))  # Use _create_figure
-
         if self.library == "matplotlib":
+            fig, ax = self._create_figure(**kwargs)
             ax.scatter(
                 range(len(self.regression_object.residuals)),
                 self.regression_object.residuals,
-                color=self.theme_color,  # Use self.theme_color
+                color=self.colors["theme_color"],
                 alpha=0.7,
                 label="Residuals",
             )
-            ax.axhline(0, color=self.accent_color, linestyle="--", linewidth=1.5)
+            ax.axhline(
+                0, color=self.colors["accent_color"], linestyle="--", linewidth=1.5
+            )
             self._set_labels(ax, xlabel, ylabel, "Residuals vs. Observations")
             ax.grid(True)
             ax.legend(loc="best")
-            plt.show()
+            return self.apply_style_preset(fig)
 
         elif self.library == "plotly":
             fig = px.scatter(
                 x=range(len(self.regression_object.residuals)),
                 y=self.regression_object.residuals.ravel(),
-                color_discrete_sequence=[self.theme_color],
+                labels={"x": xlabel, "y": ylabel},
+                title="Residuals vs. Observations",
             )
-            fig.update_layout(
-                shapes=[
-                    dict(
-                        type="line",
-                        x0=0,
-                        x1=len(self.regression_object.residuals),
-                        y0=0,
-                        y1=0,
-                        line=dict(color=self.accent_color, dash="dash"),
-                    )
-                ],
-                xaxis_title=xlabel,
-                yaxis_title=ylabel,
-            )
-            fig.show()
+            fig.add_hline(y=0, line_dash="dash", line_color=self.colors["accent_color"])
+            fig = self.apply_style_preset(fig)
+            return fig
 
     def plot_data(self, xlabel="X", ylabel="y", **kwargs):
         """Plots the input data used for the regression.
@@ -62,29 +52,29 @@ class RegressionPlots(Plotter):
                       functions.
         """
 
-        fig, ax = self._create_figure(figsize=(8, 6))  # Assuming matplotlib
-
         if self.library == "matplotlib":
+            fig, ax = self._create_figure(**kwargs)
             ax.scatter(
                 self.regression_object.X_orig,
                 self.regression_object.y,
                 label="Data",
-                c=self.theme_color,
+                c=self.colors["theme_color"],
                 alpha=0.7,
             )
             self._set_labels(ax, xlabel, ylabel, "Data Points")
             ax.legend(loc="best")
             ax.grid(True)
-            plt.show()
+            return self.apply_style_preset(fig)
 
         elif self.library == "plotly":
             fig = px.scatter(
                 x=self.regression_object.X_orig.ravel(),
                 y=self.regression_object.y.ravel(),
-                color_discrete_sequence=[self.theme_color],
+                labels={"x": xlabel, "y": ylabel},
+                title="Data Points",
             )
-            fig.update_layout(xaxis_title=xlabel, yaxis_title=ylabel)
-            fig.show()
+            fig = self.apply_style_preset(fig)
+            return fig
 
     def plot_regression_line(
         self, xlabel="X", ylabel="y", show_equation=True, **kwargs
@@ -101,7 +91,7 @@ class RegressionPlots(Plotter):
         """
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(figsize=(8, 6))
+            fig, ax = self._create_figure(**kwargs)
             x_line = np.linspace(
                 self.regression_object.X_orig.min(),
                 self.regression_object.X_orig.max(),
@@ -112,32 +102,28 @@ class RegressionPlots(Plotter):
             ax.plot(
                 x_line,
                 y_line,
-                color=self.accent_color,
+                color=self.colors["accent_color"],
                 label="Regression Line",
             )
             ax.scatter(
                 self.regression_object.X_orig,
                 self.regression_object.y,
                 label="Data",
-                c=self.theme_color,
+                c=self.colors["theme_color"],
                 alpha=0.7,
             )
 
             if show_equation:
-                equation_str = self._generate_equation_string()  # Helper method
+                equation_str = self._generate_equation_string()
                 ax.plot([], [], " ", label=f"{equation_str}")
 
             self._set_labels(ax, xlabel, ylabel, "Regression Line")
             ax.legend(loc="best")
             ax.grid(True)
-            plt.show()
+            return self.apply_style_preset(fig)
 
         elif self.library == "plotly":
-            import plotly.express as px
-            import plotly.graph_objects as go
-
             fig = self._create_figure()
-
             x_line = np.linspace(
                 self.regression_object.X_orig.min(),
                 self.regression_object.X_orig.max(),
@@ -146,13 +132,12 @@ class RegressionPlots(Plotter):
             x_line = x_line.reshape(-1, 1)
             y_line = self.regression_object.predict(x_line)
 
-            fig = go.Figure()
             fig.add_trace(
                 go.Scatter(
                     x=x_line.flatten(),
                     y=y_line,
                     mode="lines",
-                    line=dict(color=self.accent_color),
+                    line=dict(color=self.colors["accent_color"]),
                     name="Regression Line",
                 )
             )
@@ -162,7 +147,7 @@ class RegressionPlots(Plotter):
                     y=self.regression_object.y,
                     mode="markers",
                     name="Data",
-                    marker=dict(color=self.theme_color),
+                    marker=dict(color=self.colors["theme_color"]),
                 )
             )
 
@@ -181,9 +166,9 @@ class RegressionPlots(Plotter):
                 xaxis_title=xlabel,
                 yaxis_title=ylabel,
                 title="Regression Line",
-                template="chemtools",
             )
-            fig.show()
+            fig = self.apply_style_preset(fig)
+            return fig
 
     def _generate_equation_string(self):
         """Helper method to generate the equation string."""
@@ -216,12 +201,11 @@ class RegressionPlots(Plotter):
             **kwargs: Additional keyword arguments for plotting.
         """
         confidence_band_color = (
-            confidence_band_color or self.DEFAULT_CONFIDENCE_BAND_COLOR
+            confidence_band_color or self.colors["confidence_band_color"]
         )
 
-        fig, ax = self._create_figure(figsize=(8, 6))
-
         if self.library == "matplotlib":
+            fig, ax = self._create_figure(**kwargs)
             ax.fill_between(
                 self.regression_object.X_orig.ravel(),
                 self.regression_object.lower_confidence_band.ravel(),
@@ -234,13 +218,13 @@ class RegressionPlots(Plotter):
                 self.regression_object.X_orig,
                 self.regression_object.y,
                 label="Data",
-                c=self.theme_color,
+                c=self.colors["theme_color"],
                 alpha=0.7,
             )
             self._set_labels(ax, xlabel, ylabel, "Confidence Band")
             ax.legend(loc="best")
             ax.grid(True)
-            plt.show()
+            return self.apply_style_preset(fig)
 
         elif self.library == "plotly":
             # ... Implement Plotly version if needed ...
@@ -259,12 +243,11 @@ class RegressionPlots(Plotter):
             **kwargs: Additional keyword arguments for plotting.
         """
         prediction_band_color = (
-            prediction_band_color or self.DEFAULT_PREDICTION_BAND_COLOR
+            prediction_band_color or self.colors["prediction_band_color"]
         )
 
-        fig, ax = self._create_figure(figsize=(8, 6))
-
         if self.library == "matplotlib":
+            fig, ax = self._create_figure(**kwargs)
             ax.fill_between(
                 self.regression_object.X_orig.ravel(),
                 self.regression_object.lower_prediction_band.ravel(),
@@ -277,13 +260,13 @@ class RegressionPlots(Plotter):
                 self.regression_object.X_orig,
                 self.regression_object.y,
                 label="Data",
-                c=self.theme_color,
+                c=self.colors["theme_color"],
                 alpha=0.7,
             )
             self._set_labels(ax, xlabel, ylabel, "Prediction Band")
             ax.legend(loc="best")
             ax.grid(True)
-            plt.show()
+            return self.apply_style_preset(fig)
 
         elif self.library == "plotly":
             # ... Implement Plotly version if needed ...
@@ -323,21 +306,20 @@ class RegressionPlots(Plotter):
             **kwargs: Additional keyword arguments for plotting.
         """
         confidence_band_color = (
-            confidence_band_color or self.DEFAULT_CONFIDENCE_BAND_COLOR
+            confidence_band_color or self.colors["confidence_band_color"]
         )
         prediction_band_color = (
-            prediction_band_color or self.DEFAULT_PREDICTION_BAND_COLOR
+            prediction_band_color or self.colors["prediction_band_color"]
         )
 
-        fig, ax = self._create_figure(figsize=(8, 6))
-
         if self.library == "matplotlib":
+            fig, ax = self._create_figure(**kwargs)
             if show_data:
                 ax.scatter(
                     self.regression_object.X_orig,
                     self.regression_object.y,
                     label="Data",
-                    c=self.theme_color,
+                    c=self.colors["theme_color"],
                     alpha=0.7,
                 )
 
@@ -352,7 +334,7 @@ class RegressionPlots(Plotter):
                 ax.plot(
                     x_line,
                     y_line,
-                    color=self.accent_color,
+                    color=self.colors["accent_color"],
                     label="Regression Line",
                 )
 
@@ -383,7 +365,7 @@ class RegressionPlots(Plotter):
             self._set_labels(ax, xlabel, ylabel, "Regression Results")
             ax.legend(loc="best")
             ax.grid(True)
-            plt.show()
+            return self.apply_style_preset(fig)
 
         elif self.library == "plotly":
             # ... Implement Plotly version if needed ...

@@ -65,13 +65,13 @@ class DendrogramPlotter(Plotter):
         params = self._process_common_params(**kwargs)
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(figsize=params['figsize'])
+            fig, ax = self._create_figure(figsize=params["figsize"])
             dendrogram(
                 linkage_matrix,
                 ax=ax,
-                orientation=params['orientation'],
-                labels=params['labels'],
-                color_threshold=params['color_threshold']
+                orientation=params["orientation"],
+                labels=params["labels"],
+                color_threshold=params["color_threshold"],
             )
             fig = self._apply_common_layout(fig, params)
             return fig
@@ -79,9 +79,10 @@ class DendrogramPlotter(Plotter):
         elif self.library == "plotly":
             fig = ff.create_dendrogram(
                 linkage_matrix,
-                orientation=params['orientation'],
-                labels=params['labels'],
-                color_threshold=params['color_threshold']
+                orientation=params["orientation"],
+                labels=params["labels"],
+                color_threshold=params["color_threshold"],
             )
             fig = self._apply_common_layout(fig, params)
+            fig = self.apply_style_preset(fig, self.style_preset)
             return fig

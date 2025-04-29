@@ -56,34 +56,68 @@ class Plotter:
         },
         "plotly": {
             "default": {
-                "xaxis": {"showgrid": True, "gridwidth": 1, "showline": True},
-                "yaxis": {"showgrid": True, "gridwidth": 1, "showline": True}
+                "layout": {
+                    "xaxis": {"showgrid": True, "showline": True, "gridwidth": 1},
+                    "yaxis": {"showgrid": True, "showline": True, "gridwidth": 1},
+                    "plot_bgcolor": None,  # Will use theme color
+                    "paper_bgcolor": None,  # Will use theme color
+                }
             },
             "minimal": {
-                "xaxis": {"showgrid": False, "showline": False, "zeroline": False},
-                "yaxis": {"showgrid": False, "showline": False, "zeroline": False}
+                "layout": {
+                    "xaxis": {
+                        "showgrid": False,
+                        "showline": False,
+                        "zeroline": False,
+                        "showticklabels": True,
+                    },
+                    "yaxis": {
+                        "showgrid": False,
+                        "showline": False,
+                        "zeroline": False,
+                        "showticklabels": True,
+                    },
+                }
             },
             "grid": {
-                "xaxis": {"showgrid": True, "gridwidth": 1, "showline": True},
-                "yaxis": {"showgrid": True, "gridwidth": 1, "showline": True}
+                "layout": {
+                    "xaxis": {
+                        "showgrid": True,
+                        "gridwidth": 1,
+                        "showline": True,
+                        "linewidth": 2,
+                    },
+                    "yaxis": {
+                        "showgrid": True,
+                        "gridwidth": 1,
+                        "showline": True,
+                        "linewidth": 2,
+                    },
+                }
             },
             "presentation": {
-                "xaxis": {
-                    "showgrid": True, 
-                    "gridwidth": 1,
-                    "showline": True,
-                    "title": {"font": {"size": 16}},
-                    "tickfont": {"size": 14}
-                },
-                "yaxis": {
-                    "showgrid": True,
-                    "gridwidth": 1,
-                    "showline": True,
-                    "title": {"font": {"size": 16}},
-                    "tickfont": {"size": 14}
+                "layout": {
+                    "xaxis": {
+                        "showgrid": True,
+                        "gridwidth": 1.5,
+                        "showline": True,
+                        "linewidth": 2,
+                        "tickfont": {"size": 14},
+                        "title": {"font": {"size": 16}},
+                    },
+                    "yaxis": {
+                        "showgrid": True,
+                        "gridwidth": 1.5,
+                        "showline": True,
+                        "linewidth": 2,
+                        "tickfont": {"size": 14},
+                        "title": {"font": {"size": 16}},
+                    },
+                    "font": {"size": 14},
+                    "title": {"font": {"size": 24}},
                 }
-            }
-        }
+            },
+        },
     }
 
     def __init__(
@@ -135,38 +169,40 @@ class Plotter:
     def _init_plotly_style(self):
         """Initialize plotly style settings."""
         import plotly.io as pio
-        
+
         template_name = f"chemtools_{self.theme}"
         pio.templates[template_name] = pio.templates["plotly"]
-        
+
         # Get preset settings
         preset_settings = self.STYLE_PRESETS["plotly"].get(self.style_preset, {})
-        
+
         # Update template with theme colors and settings
-        pio.templates[template_name].update({
-            "layout": {
-                "paper_bgcolor": self.colors["bg_color"],
-                "plot_bgcolor": self.colors["bg_color"],
-                "font": {
-                    "family": "serif",
-                    "size": 12,
-                    "color": self.colors["text_color"]
-                },
-                "xaxis": {
-                    "gridcolor": self.colors["grid_color"],
-                    "linecolor": self.colors["text_color"],
-                    **preset_settings.get("xaxis", {})
-                },
-                "yaxis": {
-                    "gridcolor": self.colors["grid_color"],
-                    "linecolor": self.colors["text_color"],
-                    **preset_settings.get("yaxis", {})
-                },
-                "title": {"font": {"size": 16}},
-                "showlegend": False
+        pio.templates[template_name].update(
+            {
+                "layout": {
+                    "paper_bgcolor": self.colors["bg_color"],
+                    "plot_bgcolor": self.colors["bg_color"],
+                    "font": {
+                        "family": "serif",
+                        "size": 12,
+                        "color": self.colors["text_color"],
+                    },
+                    "xaxis": {
+                        "gridcolor": self.colors["grid_color"],
+                        "linecolor": self.colors["text_color"],
+                        **preset_settings.get("xaxis", {}),
+                    },
+                    "yaxis": {
+                        "gridcolor": self.colors["grid_color"],
+                        "linecolor": self.colors["text_color"],
+                        **preset_settings.get("yaxis", {}),
+                    },
+                    "title": {"font": {"size": 16}},
+                    "showlegend": False,
+                }
             }
-        })
-        
+        )
+
         self.plotly_template = template_name
 
     def add_watermark(self, fig, text="ChemTools", alpha=0.1):
@@ -220,13 +256,33 @@ class Plotter:
 
         elif self.library == "plotly":
             settings = self.STYLE_PRESETS["plotly"][preset]
-            fig.update_layout(**settings)
-            
-            # Update axes separately
-            if "xaxis" in settings:
-                fig.update_xaxes(**settings["xaxis"])
-            if "yaxis" in settings:
-                fig.update_yaxes(**settings["yaxis"])
+
+            # Apply layout settings
+            if "layout" in settings:
+                layout_settings = settings["layout"]
+                # Add theme colors to layout settings
+                if "plot_bgcolor" in layout_settings:
+                    layout_settings["plot_bgcolor"] = self.colors["bg_color"]
+                if "paper_bgcolor" in layout_settings:
+                    layout_settings["paper_bgcolor"] = self.colors["bg_color"]
+                if (
+                    "xaxis" in layout_settings
+                    and "gridcolor" in layout_settings["xaxis"]
+                ):
+                    layout_settings["xaxis"]["gridcolor"] = self.colors["grid_color"]
+                if (
+                    "yaxis" in layout_settings
+                    and "gridcolor" in layout_settings["yaxis"]
+                ):
+                    layout_settings["yaxis"]["gridcolor"] = self.colors["grid_color"]
+
+                fig.update_layout(**layout_settings)
+
+            # Update trace colors based on theme
+            fig.update_traces(
+                line=dict(color=self.colors["theme_color"]),
+                selector=dict(type="scatter"),
+            )
 
         return fig
 
