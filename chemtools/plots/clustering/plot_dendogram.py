@@ -4,40 +4,44 @@ from scipy.cluster.hierarchy import dendrogram
 from ..Plotter import Plotter
 import plotly.figure_factory as ff
 
+
 class DendrogramPlotter(Plotter):
     """
     A plotter class for dendrogram visualization that supports both matplotlib and plotly.
     Inherits from the master Plotter class.
     """
-    
+
     def plot_dendrogram(self, model, **kwargs):
         """
         Plot a dendrogram from a fitted HierarchicalClustering model.
-        
+
         Parameters:
         -----------
         model : HierarchicalClustering
             Fitted hierarchical clustering model.
         **kwargs : dict
-            Additional keyword arguments:
-            - figsize : tuple, optional
-                Figure size (width, height)
+            Common parameters for both backends:
+            - figsize : tuple, optional (default=(10, 7))
+                Figure size as (width, height)
             - title : str, optional
                 Plot title
-            - orientation : str, optional
+            - orientation : str, optional (default='top')
                 'top', 'right', 'bottom', or 'left'
             - labels : list, optional
                 Leaf labels
-            
-        Returns:
-        --------
-        fig : Figure object
-            The generated figure object (matplotlib.Figure or plotly.graph_objects.Figure)
+            - color_threshold : float, optional
+                Color threshold for clusters
+            - height : int, optional (default=600)
+                Figure height in pixels
+            - width : int, optional (default=800)
+                Figure width in pixels
         """
-        if not hasattr(model, 'children_') or not hasattr(model, 'distances_'):
-            raise ValueError("Model doesn't appear to be a fitted HierarchicalClustering instance.")
+        if not hasattr(model, "children_") or not hasattr(model, "distances_"):
+            raise ValueError(
+                "Model doesn't appear to be a fitted HierarchicalClustering instance."
+            )
 
-        n_samples = len(getattr(model, 'labels_', []))
+        n_samples = len(getattr(model, "labels_", []))
         if n_samples == 0:
             raise ValueError("Model doesn't have any labels.")
 
@@ -53,30 +57,31 @@ class DendrogramPlotter(Plotter):
             counts[i] = current_count
 
         # Create linkage matrix
-        linkage_matrix = np.column_stack([
-            model.children_, model.distances_, counts
-        ]).astype(float)
+        linkage_matrix = np.column_stack(
+            [model.children_, model.distances_, counts]
+        ).astype(float)
+
+        # Process common parameters
+        params = self._process_common_params(**kwargs)
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(figsize=kwargs.get('figsize', (10, 7)))
+            fig, ax = self._create_figure(figsize=params['figsize'])
             dendrogram(
                 linkage_matrix,
                 ax=ax,
-                orientation=kwargs.get('orientation', 'top'),
-                labels=kwargs.get('labels', None),
-                color_threshold=kwargs.get('color_threshold', None)
+                orientation=params['orientation'],
+                labels=params['labels'],
+                color_threshold=params['color_threshold']
             )
-            if 'title' in kwargs:
-                ax.set_title(kwargs['title'])
+            fig = self._apply_common_layout(fig, params)
             return fig
 
         elif self.library == "plotly":
             fig = ff.create_dendrogram(
                 linkage_matrix,
-                orientation=kwargs.get('orientation', 'top'),
-                labels=kwargs.get('labels', None)
+                orientation=params['orientation'],
+                labels=params['labels'],
+                color_threshold=params['color_threshold']
             )
-            if 'title' in kwargs:
-                fig.update_layout(title=kwargs['title'])
-            fig.update_layout(template="chemtools")
+            fig = self._apply_common_layout(fig, params)
             return fig

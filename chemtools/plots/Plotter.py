@@ -35,7 +35,7 @@ class Plotter:
                     "grid.alpha": 0.5,
                 }
             )
-        elif self.library == "plotly":  # da capire come avere un tema
+        elif self.library == "plotly":
             import plotly.io as pio
             import plotly.express as px
             import plotly.graph_objects as go
@@ -48,8 +48,14 @@ class Plotter:
                 {
                     "layout": {
                         "font": {"family": "serif", "size": 12},
-                        "xaxis": {"titlefont": {"size": 14}, "tickfont": {"size": 10}},
-                        "yaxis": {"titlefont": {"size": 14}, "tickfont": {"size": 10}},
+                        "xaxis": {
+                            "title": {"font": {"size": 14}},
+                            "tickfont": {"size": 10},
+                        },
+                        "yaxis": {
+                            "title": {"font": {"size": 14}},
+                            "tickfont": {"size": 10},
+                        },
                         "title": {"font": {"size": 16}},
                         "showlegend": True,
                         "legend": {"font": {"size": 10}},
@@ -79,3 +85,39 @@ class Plotter:
                 ax.set_title(title)
         elif self.library == "plotly":
             ax.update_layout(xaxis_title=xlabel, yaxis_title=ylabel, title=title)
+
+    def _process_common_params(self, **kwargs):
+        """Process common parameters for both matplotlib and plotly."""
+        common_params = {
+            "figsize": kwargs.get("figsize", (10, 7)),
+            "title": kwargs.get("title", None),
+            "xlabel": kwargs.get("xlabel", None),
+            "ylabel": kwargs.get("ylabel", None),
+            "orientation": kwargs.get("orientation", "top"),
+            "color_threshold": kwargs.get("color_threshold", None),
+            "labels": kwargs.get("labels", None),
+            "height": kwargs.get("height", 600),
+            "width": kwargs.get("width", 800),
+        }
+        return common_params
+
+    def _apply_common_layout(self, fig, params):
+        """Apply common layout parameters to both matplotlib and plotly figures."""
+        if self.library == "matplotlib":
+            if params["title"]:
+                fig.suptitle(params["title"])
+            fig.set_size_inches(params["figsize"])
+        elif self.library == "plotly":
+            layout_update = {
+                "title": (
+                    {"text": params["title"], "x": 0.5} if params["title"] else None
+                ),
+                "width": params["width"],
+                "height": params["height"],
+                "showlegend": False,
+                "template": "chemtools",
+            }
+            fig.update_layout(
+                **{k: v for k, v in layout_update.items() if v is not None}
+            )
+        return fig
