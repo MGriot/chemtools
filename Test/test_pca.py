@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import pandas as pd
 import numpy as np
-from chemtools.exploration import PrincipalComponentAnalysis
+from chemtools.dimensional_reduction.PrincipalComponentAnalysis import PrincipalComponentAnalysis
 from chemtools.plots.exploration.pca_plots import PCAplots
 
 # Create a database with object names and variable titles

@@ -1,7 +1,10 @@
-from chemtools.dimensional_reduction.PrincipalComponentAnalysis import PrincipalComponentAnalysis
-from chemtools.dimensional_reduction.ExtendedPrincipalComponentAnalysis import ExtendedPrincipalComponentAnalysis
+from chemtools.dimensional_reduction.PrincipalComponentAnalysis import (
+    PrincipalComponentAnalysis,
+)
+from chemtools.dimensional_reduction.ExtendedPrincipalComponentAnalysis import (
+    ExtendedPrincipalComponentAnalysis,
+)
 from .MultipleCorrespondenceAnalysis import MultipleCorrespondenceAnalysis
-from .FactorAnalysisForMixedData import FactorAnalysisForMixedData
 from .GeneralizedCanonicalCorrelationAnalysis import (
     GeneralizedCanonicalCorrelationAnalysis,
 )
