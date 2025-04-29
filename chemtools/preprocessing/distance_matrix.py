@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns  # For heatmaps
+import seaborn as sns
 from scipy.spatial.distance import pdist, squareform
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union  # Add Union to the import
 
 
 class DistanceMatrix:

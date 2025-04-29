@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go  # Add this import
 from chemtools.plots.Plotter import Plotter
 
 
@@ -179,7 +180,7 @@ class RegressionPlots(Plotter):
                 start_idx = 1
             else:
                 start_idx = 0
-            for i in range(start_idx, len(self.regression_object.coefficients)):
+            for i in start_idx, len(self.regression_object.coefficients):
                 equation_str += f"{self.regression_object.coefficients[i]:.2f} x_{{{i - start_idx + 1}}}"
                 if i != len(self.regression_object.coefficients) - 1:
                     equation_str += " + "
