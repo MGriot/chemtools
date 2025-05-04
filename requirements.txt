@@ -14,6 +14,8 @@ pyparsing
 python-dateutil
 pytz
 scipy
+scikit-learn
+seaborn
 six
 statsmodels
 Tcl
