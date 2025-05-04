@@ -2,18 +2,18 @@
 chemtools.exploration.GeneralizedCanonicalCorrelationAnalysis
 -------------------------------------------------------------
 
-This module provides the GeneralizedCanonicalCorrelationAnalysis class for 
-performing Generalized Canonical Correlation Analysis (GCCA) on two or more 
-datasets. 
+This module provides the GeneralizedCanonicalCorrelationAnalysis class for
+performing Generalized Canonical Correlation Analysis (GCCA) on two or more
+datasets.
 
-GCCA is a statistical technique used to identify relationships between 
-multiple datasets. It finds linear combinations of variables in each 
+GCCA is a statistical technique used to identify relationships between
+multiple datasets. It finds linear combinations of variables in each
 dataset that maximize the correlation between them.
 
 Example usage:
 >>> from chemtools.exploration import GeneralizedCanonicalCorrelationAnalysis
 >>> # Assuming 'X1', 'X2', ... are your datasets
->>> gcca = GeneralizedCanonicalCorrelationAnalysis() 
+>>> gcca = GeneralizedCanonicalCorrelationAnalysis()
 >>> gcca.fit(X1, X2, ...)
 >>> # ... Access results and use plotting methods
 """
@@ -155,10 +155,10 @@ class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
         summary = self._create_general_summary(
             sum(self.n_variables),
             self.Xs[0].shape[0],
-            "No. Datasets": str(self.n_datasets),
+            **{"No. Datasets": str(self.n_datasets)},
         )
 
-        if hasattr(self, 'V'):
+        if hasattr(self, "V"):
             # Calculate proportion of variance explained
             total_variance = np.sum(self.V)
             prop_variance = self.V / total_variance * 100
