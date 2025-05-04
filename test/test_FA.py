@@ -1,10 +1,10 @@
 import sys
 import os
+import pandas as pd
+import numpy as np
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import pandas as pd
-import numpy as np
 from chemtools.dimensional_reduction import FactorAnalysis
 from chemtools.plots.dimensional_reduction import DimensionalityReductionPlot
 

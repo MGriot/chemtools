@@ -14,6 +14,14 @@ class DimensionalityReductionPlot(Plotter):
     def __init__(self, dim_reduction_model, **kwargs):
         super().__init__(**kwargs)
         self.dim_reduction_model = dim_reduction_model
+        # Default color scheme
+        self.colors = {
+            "line_color": "#1f77b4",  # Default blue color
+            "scatter_color": "#2ca02c",  # Default green color
+            "bar_color": "#ff7f0e",  # Default orange color
+            "text_color": "#000000",  # Black
+            "grid_color": "#cccccc",  # Light gray
+        }
 
     def plot_correlation_matrix(self, cmap="coolwarm", threshold=None):
         fig, ax = self._create_figure(figsize=(10, 10))
@@ -33,67 +41,19 @@ class DimensionalityReductionPlot(Plotter):
         return fig
 
     def plot_eigenvalues(self, criteria=None):
-        fig, ax = self._create_figure(figsize=(8, 6))
-        ax.plot(
+        plt.figure(figsize=(10, 6))
+        plt.plot(
+            range(1, len(self.dim_reduction_model.V_ordered) + 1),
             self.dim_reduction_model.V_ordered,
-            marker="o",
-            linestyle="-",
+            "bo-",
             color=self.colors["line_color"],
-            label="Eigenvalues",
+            linewidth=2,
         )
-        ax.set_xticks(range(len(self.dim_reduction_model.index)))
-        ax.set_xticklabels(self.dim_reduction_model.index)
-        ax.grid(True, color=self.colors["grid_color"])
-
-        all_criteria = [
-            "greater_than_one",
-            "variance",
-            "cumulative_variance",
-            "average_eigenvalue",
-            "kp",
-            "kl",
-            "caec",
-            "broken_stick",
-        ]
-
-        if criteria is None:
-            criteria = all_criteria
-        if criteria is not None:
-            for criterion in criteria:
-                if criterion == "greater_than_one":
-                    self._plot_eigenvalues_greater_than_one(ax)
-                elif criterion == "variance":
-                    self._plot_eigenvalues_variance(ax)
-                elif criterion == "cumulative_variance":
-                    self._plot_cumulative_variance(ax)
-                elif criterion == "average_eigenvalue":
-                    self._plot_average_eigenvalue_criterion(ax)
-                elif criterion == "kp":
-                    self._plot_KP_criterion(ax)
-                elif criterion == "kl":
-                    self._plot_KL_criterion(ax)
-                elif criterion == "caec":
-                    self._plot_CAEC_criterion(ax)
-                elif criterion == "broken_stick":
-                    self._plot_broken_stick(ax)
-                else:
-                    raise ValueError(f"Invalid criterion: {criterion}")
-
-        if isinstance(self.dim_reduction_model, PrincipalComponentAnalysis):
-            xlabel = r"$PC_i$"
-        elif isinstance(self.dim_reduction_model, FactorAnalysis):
-            xlabel = r"$F_i$"
-        else:
-            xlabel = r"Component $i$"
-        self._set_labels(
-            ax,
-            xlabel=xlabel,
-            ylabel="Eigenvalue",
-            title="Eigenvalues with Selected Criteria",
-        )
-        ax.legend(loc="best", labelcolor=self.colors["text_color"])
-        fig = self.apply_style_preset(fig)
-        return fig
+        plt.xlabel("Component Number")
+        plt.ylabel("Eigenvalue")
+        plt.title("Scree Plot")
+        plt.grid(True, color=self.colors["grid_color"])
+        plt.show()
 
     def _plot_eigenvalues_greater_than_one(self, ax):
         num_eigenvalues_greater_than_one = np.argmax(

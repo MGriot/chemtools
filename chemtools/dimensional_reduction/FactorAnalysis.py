@@ -20,10 +20,13 @@ from chemtools.preprocessing import correlation_matrix
 from chemtools.preprocessing import diagonalized_matrix
 from chemtools.utility import reorder_array
 
-from chemtools.utility.set_names import initialize_names_and_counts, set_objects_names, set_variables_names
+from chemtools.utility.set_names import (
+    initialize_names_and_counts,
+    set_objects_names,
+    set_variables_names,
+)
 from chemtools.utility import random_colorHEX
-from chemtools.base import BaseModel
-from chemtools.dimensional_reduction import DimensionalityReduction
+from .base import DimensionalityReduction
 
 
 class FactorAnalysis(DimensionalityReduction):
@@ -97,8 +100,8 @@ class FactorAnalysis(DimensionalityReduction):
             objects_names (list, optional): Names of the objects. Defaults to None.
         """
         self.X = X
-        self.variables, self.objects, self.n_variables, self.n_objects = initialize_names_and_counts(
-            X, variables_names, objects_names
+        self.variables, self.objects, self.n_variables, self.n_objects = (
+            initialize_names_and_counts(X, variables_names, objects_names)
         )
         self.variables_colors = self.change_variables_colors()
         self.objects_colors = self.change_objects_colors()
