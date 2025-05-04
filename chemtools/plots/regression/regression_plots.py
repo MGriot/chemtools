@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go  # Add this import
+import plotly.graph_objects as go
 from chemtools.plots.Plotter import Plotter
 
 
@@ -97,8 +97,7 @@ class RegressionPlots(Plotter):
                 self.regression_object.X_orig.min(),
                 self.regression_object.X_orig.max(),
                 num=100,
-            )
-            x_line = x_line.reshape(-1, 1)
+            ).reshape(-1, 1)
             y_line = self.regression_object.predict(x_line)
             ax.plot(
                 x_line,
@@ -116,7 +115,13 @@ class RegressionPlots(Plotter):
 
             if show_equation:
                 equation_str = self._generate_equation_string()
-                ax.plot([], [], " ", label=f"{equation_str}")
+                ax.text(
+                    0.05,
+                    0.95,
+                    equation_str,
+                    transform=ax.transAxes,
+                    verticalalignment="top",
+                )
 
             self._set_labels(ax, xlabel, ylabel, "Regression Line")
             ax.legend(loc="best")
@@ -124,28 +129,27 @@ class RegressionPlots(Plotter):
             return self.apply_style_preset(fig)
 
         elif self.library == "plotly":
-            fig = self._create_figure()
+            fig = go.Figure()
             x_line = np.linspace(
                 self.regression_object.X_orig.min(),
                 self.regression_object.X_orig.max(),
                 num=100,
-            )
-            x_line = x_line.reshape(-1, 1)
+            ).reshape(-1, 1)
             y_line = self.regression_object.predict(x_line)
 
             fig.add_trace(
                 go.Scatter(
                     x=x_line.flatten(),
-                    y=y_line,
+                    y=y_line.flatten(),
                     mode="lines",
-                    line=dict(color=self.colors["accent_color"]),
                     name="Regression Line",
+                    line=dict(color=self.colors["accent_color"]),
                 )
             )
             fig.add_trace(
                 go.Scatter(
-                    x=self.regression_object.X_orig,
-                    y=self.regression_object.y,
+                    x=self.regression_object.X_orig.flatten(),
+                    y=self.regression_object.y.flatten(),
                     mode="markers",
                     name="Data",
                     marker=dict(color=self.colors["theme_color"]),
@@ -168,25 +172,35 @@ class RegressionPlots(Plotter):
                 yaxis_title=ylabel,
                 title="Regression Line",
             )
-            fig = self.apply_style_preset(fig)
-            return fig
+            return self.apply_style_preset(fig)
 
     def _generate_equation_string(self):
         """Helper method to generate the equation string."""
+        coefficients = self.regression_object.coefficients
+        if not hasattr(coefficients, "__len__"):
+            coefficients = np.array([coefficients])
+
         equation_str = r"$y = "
-        if hasattr(self.regression_object.coefficients, "__len__"):
-            if self.regression_object.fit_intercept:
-                equation_str += f"{self.regression_object.coefficients[0]:.2f} + "
-                start_idx = 1
-            else:
-                start_idx = 0
-            for i in start_idx, len(self.regression_object.coefficients):
-                equation_str += f"{self.regression_object.coefficients[i]:.2f} x_{{{i - start_idx + 1}}}"
-                if i != len(self.regression_object.coefficients) - 1:
+
+        # Handle single coefficient case
+        if len(coefficients) == 1:
+            equation_str += f"{coefficients[0]:.2f}x$"
+            return equation_str
+
+        # Handle multiple coefficients
+        if self.regression_object.fit_intercept:
+            equation_str += f"{coefficients[0]:.2f} + "
+            for i in range(1, len(coefficients)):
+                equation_str += f"{coefficients[i]:.2f}x_{{{i}}}"
+                if i < len(coefficients) - 1:
                     equation_str += " + "
         else:
-            equation_str += f"{self.regression_object.coefficients:.2f} x"
-        equation_str += r"$"
+            for i in range(len(coefficients)):
+                equation_str += f"{coefficients[i]:.2f}x_{{{i+1}}}"
+                if i < len(coefficients) - 1:
+                    equation_str += " + "
+
+        equation_str += "$"
         return equation_str
 
     def plot_confidence_band(

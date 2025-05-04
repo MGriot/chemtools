@@ -3,6 +3,7 @@ import pandas as pd
 import sys
 import os
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from chemtools.regression.LinearRegression import OLSRegression, WLSRegression
@@ -17,45 +18,41 @@ x = np.arange(100)
 
 # Define y with a linear relationship and some noise
 y = 2 * x + np.random.normal(scale=50, size=x.shape)
-# x = np.array([0, 1, 2, 3, 4, 5, 6])
-# y = np.array([0, 2, 3, 5, 6, 8, 10])
 x_new = np.array([10])
 weights = np.array([1, 1, 0.5, 1, 0, 1, 0.9])
 
-# Example usage:
-# Assuming X and y are your data
+# Testing OLS Regression
 model = OLSRegression(fit_intercept=False)
 model.fit(X=x, y=y)  # Fit the model with your data
+print("=== OLS Model Summary ===")
 print(model.summary)
-print(model.predict(x_new))
+print("\nPrediction for x=10:", model.predict(x_new))
 
-
-# --- Plots ---
-# regression_plots.plot_residuals(model)
-# regression_plots.plot_data(model)
-# plot = RegressionPlots(model, library="plotly")
+# Testing plots
+print("\n=== Testing Plots ===")
 plot = RegressionPlots(model)
-plot.plot_regression_line()
 
-# regression_plots.plot_confidence_band(model)
-# regression_plots.plot_prediction_band(model)
-# regression_plots.plot_regression_results(model)
-# ... (The confidence and prediction bands won't work directly with LinearRegression
-#     as it doesn't calculate them by default. You would need to implement those
-#     calculations or use a different library like statsmodels)
+# Test each plot type
+print("1. Testing Residuals Plot")
+fig_residuals = plot.plot_residuals()
+plt.show()
 
-# --- Plotly Examples ---
-# ols_plots.plot_residuals(model, library="plotly")
-# ols_plots.plot_data(model, library="plotly")
-# ... (similarly for other plots)
+print("2. Testing Data Plot")
+fig_data = plot.plot_data()
+plt.show()
 
-# need to be implemented
-# model_wls = WLSRegression(weights=weights)
-# model_wls.fit(X=x, y=y)
-# predictions_wls = model_wls.predict(X)
-# model_wls.summary()
+print("3. Testing Regression Line Plot")
+fig_regression = plot.plot_regression_line()
+plt.show()
 
-# x = np.array([[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1]])
+# Test with Plotly
+print("\n=== Testing Plotly Plots ===")
+plot_plotly = RegressionPlots(model, library="plotly")
+fig_plotly = plot_plotly.plot_regression_line()
+fig_plotly.show()
+
+# Statsmodels comparison
+print("\n=== Statsmodels Results ===")
 mod = sm.OLS(y, x)
 res = mod.fit()
 print(res.summary())

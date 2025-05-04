@@ -82,16 +82,17 @@ class HarmonizedPaletteGenerator:
             elif self.style in ["light", "dark"]:
                 palette = self._generate_tinted()
             else:
-                palette = self._generate_fallback()
+                raise ValueError(f"Unknown style: {self.style}")
 
             palette = self._ensure_uniqueness(palette)
+            self.palette = palette[:self.n_colors]
+            return self.palette
 
         except Exception as e:
-            print(f"Error generating palette: {e}")
-            palette = self._generate_fallback()
-
-        self.palette = palette[: self.n_colors]
-        return self.palette
+            print(f"Warning: Failed to generate palette with {self.style} style: {e}")
+            print("Falling back to default color generation")
+            self.palette = self._generate_fallback()
+            return self.palette
 
     def _generate_husl(self) -> List[str]:
         hues = np.linspace(0, 360, self.n_colors, endpoint=False)
@@ -120,6 +121,18 @@ class HarmonizedPaletteGenerator:
             colors.append(hcl_to_hex(*color))
 
         return colors
+
+    def _generate_tinted(self) -> List[str]:
+        base_rgb = hex_to_rgb(self.kwargs["base_color"])
+        return [
+            rgb_to_hex(adjust_lightness(base_rgb, 0.5 + i * 0.25))
+            for i in range(self.n_colors)
+        ]
+
+    def _generate_fallback(self) -> List[str]:
+        # Simple fallback that generates distinct colors using HSL
+        hues = np.linspace(0, 360, self.n_colors, endpoint=False)
+        return [hcl_to_hex(h, 70, 60) for h in hues]
 
     def _ensure_uniqueness(self, palette: List[str]) -> List[str]:
         unique = list(set(palette))
