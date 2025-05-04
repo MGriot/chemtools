@@ -128,7 +128,6 @@ class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
         """Generates random colors for the variables."""
         return [random_colorHEX(n_var) for n_var in self.n_variables]
 
-
     def transform(self, *Xs_new):
         """
         Transforms the new datasets into the GCCA space.
@@ -150,3 +149,23 @@ class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
         ]
 
         return transformed_datasets
+
+    def _get_summary_data(self):
+        """Returns a dictionary containing summary data for the model."""
+        summary = self._create_general_summary(
+            sum(self.n_variables),
+            self.Xs[0].shape[0],
+            "No. Datasets": str(self.n_datasets),
+        )
+
+        if hasattr(self, 'V'):
+            # Calculate proportion of variance explained
+            total_variance = np.sum(self.V)
+            prop_variance = self.V / total_variance * 100
+
+            summary["additional_stats"] = {
+                f"Factor{i+1} Variance (%)": f"{var:.2f}"
+                for i, var in enumerate(prop_variance)
+            }
+
+        return summary

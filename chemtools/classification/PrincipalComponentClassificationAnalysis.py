@@ -147,3 +147,24 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
 
     def change_objects_colors(self):
         return random_colorHEX(self.n_objects)
+
+    def _get_summary_data(self):
+        """Returns a dictionary containing summary data for the model."""
+        summary = self._create_general_summary(
+            self.n_variables,
+            self.n_objects,
+            Components=f"{self.n_components}",
+        )
+
+        # Add additional statistics
+        if hasattr(self, "U"):
+            variance_explained = np.var(self.U, axis=0)
+            total_variance = np.sum(variance_explained)
+            prop_variance = variance_explained / total_variance * 100
+
+            summary["additional_stats"] = {
+                f"PC{i+1} Variance (%)": f"{var:.2f}"
+                for i, var in enumerate(prop_variance)
+            }
+
+        return summary
