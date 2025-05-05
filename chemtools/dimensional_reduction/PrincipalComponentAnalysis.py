@@ -52,6 +52,7 @@ class PrincipalComponentAnalysis(BaseModel):
         V_ordered (ndarray): Ordered eigenvalues (descending).
         L_ordered (ndarray): Ordered eigenvectors (corresponding to V_ordered).
         eigenvalues (ndarray): Ordered eigenvalues (same as V_ordered, for clarity/testing).
+        eigenvectors (ndarray): Ordered eigenvectors (same as L_ordered, for clarity/testing). # Added
         PC_index (ndarray): Index labels for principal components (e.g., 'PC1', 'PC2').
         index (ndarray): Index labels for principal components (same as PC_index).
         explained_variance_ratio (ndarray): The percentage of variance explained by each component.
@@ -101,6 +102,7 @@ class PrincipalComponentAnalysis(BaseModel):
         self.V_ordered = None
         self.L_ordered = None
         self.eigenvalues = None  # Added for clarity and testing
+        self.eigenvectors = None  # Added for clarity and testing
         self.PC_index = None
         self.index = None
         self.explained_variance_ratio = None  # Added
@@ -168,8 +170,9 @@ class PrincipalComponentAnalysis(BaseModel):
             self.V_ordered = self.V[self.order]
             self.L_ordered = self.L[:, self.order]
 
-            # Set eigenvalues attribute for testing/clarity
+            # Set eigenvalues and eigenvectors attributes for testing/clarity
             self.eigenvalues = self.V_ordered
+            self.eigenvectors = self.L_ordered  # Added
 
             # Set PC index labels
             self.PC_index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
