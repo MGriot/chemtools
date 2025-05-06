@@ -1,37 +1,58 @@
 import matplotlib.pyplot as plt
-import plotly.express as px
+import plotly.express as px  # Plotly imports remain for Plotter's dual capability
 import numpy as np
+import pandas as pd
+import scipy.stats as st
+from typing import List, Dict, Optional, Union, Tuple, Any
 
 
-# --- Master Plot Class ---
-
-
+# --- Master Plot Class (Modified) ---
 class Plotter:
     """Base class for plotting, providing shared settings and functionality."""
 
-    # Color themes
     THEMES = {
         "light": {
             "bg_color": "#ffffff",
             "text_color": "#2b2b2b",
             "grid_color": "#e0e0e0",
-            "theme_color": "#264653",
-            "accent_color": "#e76f51",
+            "detail_light_color": "#b4aea9",  # Formerly GREY_LIGHT
+            "detail_medium_color": "#7F7F7F",  # Formerly GREY50
+            "theme_color": "#264653",  # Primary color for plot elements
+            "accent_color": "#e76f51",  # Accent color for highlights
+            "category_color_scale": [
+                "#1B9E77",
+                "#D95F02",
+                "#7570B3",
+                "#E7298A",
+                "#66A61E",
+            ],
             "prediction_band": "#2a9d8f",
             "confidence_band": "#f4a261",
+            "annotation_fontsize_small": 9,
+            "annotation_fontsize_medium": 11,
         },
         "dark": {
             "bg_color": "#2b2b2b",
             "text_color": "#ffffff",
             "grid_color": "#404040",
+            "detail_light_color": "#666666",
+            "detail_medium_color": "#888888",  # Adjusted for better visibility on dark
             "theme_color": "#8ecae6",
             "accent_color": "#ff6b6b",
+            "category_color_scale": [
+                "#80b918",
+                "#ff99c8",
+                "#52b69a",
+                "#fca311",
+                "#adc178",
+            ],  # Dark theme appropriate scale
             "prediction_band": "#48cae4",
             "confidence_band": "#ffd60a",
+            "annotation_fontsize_small": 10,  # Slightly larger on dark themes for readability
+            "annotation_fontsize_medium": 12,
         },
     }
 
-    # Add style presets as class attribute
     STYLE_PRESETS = {
         "matplotlib": {
             "default": {
@@ -49,18 +70,19 @@ class Plotter:
             "presentation": {
                 "font.size": 14,
                 "axes.labelsize": 16,
-                "axes.titlesize": 20,
+                "axes.titlesize": 18,  # subplot title
+                "figure.titlesize": 22,  # main figure title
                 "grid.alpha": 0.5,
                 "lines.linewidth": 3,
             },
         },
-        "plotly": {
+        "plotly": {  # Plotly presets remain for completeness
             "default": {
                 "layout": {
                     "xaxis": {"showgrid": True, "showline": True, "gridwidth": 1},
                     "yaxis": {"showgrid": True, "showline": True, "gridwidth": 1},
-                    "plot_bgcolor": None,  # Will use theme color
-                    "paper_bgcolor": None,  # Will use theme color
+                    "plot_bgcolor": None,
+                    "paper_bgcolor": None,
                 }
             },
             "minimal": {
@@ -123,24 +145,22 @@ class Plotter:
     def __init__(
         self, library="matplotlib", theme="light", style_preset="default", **kwargs
     ):
-        """Initializes the Plotter with default settings."""
         self.library = library
         self.theme = theme
         self.style_preset = style_preset
-        self.colors = self.THEMES[theme]
+        self.colors = self.THEMES[theme]  # self.colors now contains the expanded theme
         self.watermark = kwargs.get("watermark", None)
+        self.user_figsize = kwargs.get(
+            "figsize", (10, 7)
+        )  # Retain user_figsize and provide default
 
-        # Initialize based on library
         if self.library == "matplotlib":
             self._init_matplotlib_style()
         elif self.library == "plotly":
             self._init_plotly_style()
 
     def _init_matplotlib_style(self):
-        """Initialize matplotlib style settings."""
-        plt.style.use("default")  # Reset to default first
-
-        # Base style
+        plt.style.use("default")
         base_style = {
             "figure.facecolor": self.colors["bg_color"],
             "axes.facecolor": self.colors["bg_color"],
@@ -152,61 +172,91 @@ class Plotter:
             "font.family": "serif",
             "font.size": 12,
             "axes.labelsize": 12,
-            "axes.titlesize": 14,
+            "axes.titlesize": 14,  # For ax.set_title()
+            "figure.titlesize": 16,
+            "figure.titleweight": "bold",  # For fig.suptitle()
             "grid.color": self.colors["grid_color"],
             "grid.linestyle": "--",
             "lines.linewidth": 2,
             "savefig.dpi": 300,
             "savefig.bbox": "tight",
         }
-
-        # Apply preset-specific settings
         preset_style = self.STYLE_PRESETS["matplotlib"].get(self.style_preset, {})
-
-        # Merge and update
+        # Preset can override base, e.g. presentation font sizes
         plt.rcParams.update({**base_style, **preset_style})
 
     def _init_plotly_style(self):
-        """Initialize plotly style settings."""
         import plotly.io as pio
 
         template_name = f"chemtools_{self.theme}"
-        pio.templates[template_name] = pio.templates["plotly"]
-
-        # Get preset settings
-        preset_settings = self.STYLE_PRESETS["plotly"].get(self.style_preset, {})
-
-        # Update template with theme colors and settings
-        pio.templates[template_name].update(
-            {
-                "layout": {
-                    "paper_bgcolor": self.colors["bg_color"],
-                    "plot_bgcolor": self.colors["bg_color"],
-                    "font": {
-                        "family": "serif",
-                        "size": 12,
-                        "color": self.colors["text_color"],
-                    },
-                    "xaxis": {
-                        "gridcolor": self.colors["grid_color"],
-                        "linecolor": self.colors["text_color"],
-                        **preset_settings.get("xaxis", {}),
-                    },
-                    "yaxis": {
-                        "gridcolor": self.colors["grid_color"],
-                        "linecolor": self.colors["text_color"],
-                        **preset_settings.get("yaxis", {}),
-                    },
-                    "title": {"font": {"size": 16}},
-                    "showlegend": False,
-                }
-            }
+        # Start with a copy of plotly's default, then update
+        base_template = pio.templates["plotly"]
+        new_template = dict(base_template)
+        preset_settings_layout = (
+            self.STYLE_PRESETS["plotly"].get(self.style_preset, {}).get("layout", {})
         )
 
+        new_template["layout"] = {
+            **new_template.get(
+                "layout", {}
+            ),  # Keep existing layout settings from base_template
+            "paper_bgcolor": self.colors["bg_color"],
+            "plot_bgcolor": self.colors["bg_color"],
+            "font": {
+                "family": "serif",
+                "size": 12,
+                "color": self.colors["text_color"],
+            },  # Base font for plotly
+            "xaxis": {
+                **new_template.get("layout", {}).get(
+                    "xaxis", {}
+                ),  # Keep existing xaxis settings
+                "gridcolor": self.colors["grid_color"],
+                "linecolor": self.colors["text_color"],
+                **preset_settings_layout.get("xaxis", {}),  # Apply preset specifics
+            },
+            "yaxis": {
+                **new_template.get("layout", {}).get(
+                    "yaxis", {}
+                ),  # Keep existing yaxis settings
+                "gridcolor": self.colors["grid_color"],
+                "linecolor": self.colors["text_color"],
+                **preset_settings_layout.get("yaxis", {}),  # Apply preset specifics
+            },
+            # Apply other general preset layout settings, ensuring they don't overwrite critical theme items unless intended
+            **{
+                k: v
+                for k, v in preset_settings_layout.items()
+                if k not in ["xaxis", "yaxis", "font", "paper_bgcolor", "plot_bgcolor"]
+            },
+            "title": {  # Ensure title settings from preset are merged correctly
+                **(
+                    new_template.get("layout", {}).get("title", {})
+                ),  # Base title settings
+                **(preset_settings_layout.get("title", {})),  # Preset title settings
+                # Ensure font color is from theme if not specified in preset
+                "font": {
+                    **(new_template.get("layout", {}).get("title", {}).get("font", {})),
+                    **(preset_settings_layout.get("title", {}).get("font", {})),
+                    "color": preset_settings_layout.get("title", {})
+                    .get("font", {})
+                    .get("color", self.colors["text_color"]),
+                },
+            },
+            "showlegend": False,
+        }
+        # Ensure base font settings from preset are also applied if they exist
+        if "font" in preset_settings_layout:
+            new_template["layout"]["font"] = {
+                **new_template["layout"]["font"],
+                **preset_settings_layout["font"],
+            }
+
+        pio.templates[template_name] = new_template
         self.plotly_template = template_name
 
     def add_watermark(self, fig, text="ChemTools", alpha=0.1):
-        """Add watermark to the plot."""
+        # Same as user provided
         if self.library == "matplotlib":
             fig.text(
                 0.5,
@@ -234,101 +284,122 @@ class Plotter:
         return fig
 
     def apply_style_preset(self, fig, preset=None):
-        """Apply predefined style presets to an existing figure."""
+        # Same as user provided
         if preset is None:
             preset = self.style_preset
-
         if preset not in self.STYLE_PRESETS[self.library]:
             return fig
-
         if self.library == "matplotlib":
-            ax = fig.gca()
-            settings = self.STYLE_PRESETS["matplotlib"][preset]
+            # This method is tricky for Matplotlib as styles are global.
+            # Re-initializing might be an option, or selective updates.
+            self._init_matplotlib_style()  # Re-apply global styles with the new preset
+            # Then, selectively update the existing figure's axes if possible/needed.
+            # This is a simplification; a full robust update would require more.
+            print(
+                f"Matplotlib style preset '{preset}' re-applied globally. You may need to redraw the figure for full effect on existing elements."
+            )
+            # Example: update existing ax based on new rcParams
+            for ax_item in fig.get_axes():
+                ax_item.set_facecolor(plt.rcParams["axes.facecolor"])
+                ax_item.spines["top"].set_visible(
+                    plt.rcParams.get("axes.spines.top", True)
+                )
+                ax_item.spines["right"].set_visible(
+                    plt.rcParams.get("axes.spines.right", True)
+                )
+                ax_item.grid(
+                    visible=plt.rcParams.get("axes.grid", False),
+                    alpha=plt.rcParams.get("grid.alpha", 0.5),
+                )
 
-            # Apply settings to current axes
-            for key, value in settings.items():
-                if key.startswith("axes."):
-                    setter = key.replace("axes.", "set_")
-                    if hasattr(ax, setter):
-                        getattr(ax, setter)(value)
-
-            fig.tight_layout()
-
+            fig.set_facecolor(plt.rcParams["figure.facecolor"])
+            fig.tight_layout()  # Re-apply tight_layout
         elif self.library == "plotly":
             settings = self.STYLE_PRESETS["plotly"][preset]
-
-            # Apply layout settings
             if "layout" in settings:
-                layout_settings = settings["layout"]
-                # Add theme colors to layout settings
-                if "plot_bgcolor" in layout_settings:
-                    layout_settings["plot_bgcolor"] = self.colors["bg_color"]
-                if "paper_bgcolor" in layout_settings:
-                    layout_settings["paper_bgcolor"] = self.colors["bg_color"]
-                if (
-                    "xaxis" in layout_settings
-                    and "gridcolor" in layout_settings["xaxis"]
-                ):
+                layout_settings = settings["layout"].copy()
+                # Merge with current theme to ensure bg colors etc., are from the *Plotter's theme*, not preset
+                layout_settings["plot_bgcolor"] = self.colors["bg_color"]
+                layout_settings["paper_bgcolor"] = self.colors["bg_color"]
+                if "xaxis" in layout_settings:
                     layout_settings["xaxis"]["gridcolor"] = self.colors["grid_color"]
-                if (
-                    "yaxis" in layout_settings
-                    and "gridcolor" in layout_settings["yaxis"]
-                ):
+                    layout_settings["xaxis"]["linecolor"] = self.colors["text_color"]
+                if "yaxis" in layout_settings:
                     layout_settings["yaxis"]["gridcolor"] = self.colors["grid_color"]
+                    layout_settings["yaxis"]["linecolor"] = self.colors["text_color"]
+                if "font" not in layout_settings:
+                    layout_settings["font"] = {}
+                layout_settings["font"]["color"] = self.colors["text_color"]
 
                 fig.update_layout(**layout_settings)
-
-            # Update trace colors based on theme
             fig.update_traces(
                 line=dict(color=self.colors["theme_color"]),
                 selector=dict(type="scatter"),
             )
-
         return fig
 
     def _create_figure(self, **kwargs):
-        """Creates a figure and axes based on the chosen library."""
+        # Uses self.user_figsize which is set in __init__
+        figsize_to_use = kwargs.pop("figsize", self.user_figsize)
         if self.library == "matplotlib":
-            fig, ax = plt.subplots(**kwargs)
+            fig_kwargs = {"figsize": figsize_to_use} if figsize_to_use else {}
+            fig, ax = plt.subplots(**fig_kwargs, **kwargs)
             return fig, ax
         elif self.library == "plotly":
-            fig = px.scatter(**{k: v for k, v in kwargs.items() if k != "figsize"})
+            # Plotly uses width/height. If figsize_to_use is a tuple, convert or expect width/height in kwargs.
+            # For now, assuming Plotly figures are sized by _apply_common_layout or direct width/height.
+            import plotly.graph_objects as go
+
+            fig = go.Figure(**kwargs)  # kwargs for go.Figure
             fig.update_layout(template=self.plotly_template)
             return fig
 
-    def _set_labels(self, ax, xlabel=None, ylabel=None, title=None):
-        """Sets labels for the plot axes and title."""
-        if self.library == "matplotlib":
+    def _set_labels(
+        self, ax_or_fig, xlabel=None, ylabel=None, title=None
+    ):  # Renamed param
+        if self.library == "matplotlib":  # ax_or_fig is ax
             if xlabel:
-                ax.set_xlabel(xlabel)
+                ax_or_fig.set_xlabel(xlabel, fontsize=plt.rcParams["axes.labelsize"])
             if ylabel:
-                ax.set_ylabel(ylabel)
+                ax_or_fig.set_ylabel(ylabel, fontsize=plt.rcParams["axes.labelsize"])
             if title:
-                ax.set_title(title)
-        elif self.library == "plotly":
-            ax.update_layout(xaxis_title=xlabel, yaxis_title=ylabel, title=title)
+                ax_or_fig.set_title(
+                    title, fontsize=plt.rcParams["axes.titlesize"]
+                )  # Subplot title
+        elif self.library == "plotly":  # ax_or_fig is fig
+            ax_or_fig.update_layout(
+                xaxis_title=xlabel, yaxis_title=ylabel, title=title
+            )  # Main title for Plotly
 
     def _process_common_params(self, **kwargs):
-        """Process common parameters for both matplotlib and plotly."""
+        # Using self.user_figsize as a default for "figsize" if not in kwargs
         common_params = {
-            "figsize": kwargs.get("figsize", (10, 7)),
+            "figsize": kwargs.get("figsize", self.user_figsize),
             "title": kwargs.get("title", None),
             "xlabel": kwargs.get("xlabel", None),
             "ylabel": kwargs.get("ylabel", None),
             "orientation": kwargs.get("orientation", "top"),
             "color_threshold": kwargs.get("color_threshold", None),
             "labels": kwargs.get("labels", None),
-            "height": kwargs.get("height", 600),
-            "width": kwargs.get("width", 800),
+            "height": kwargs.get(
+                "height", self.user_figsize[1] * 80 if self.user_figsize else 600
+            ),  # Approx conversion
+            "width": kwargs.get(
+                "width", self.user_figsize[0] * 80 if self.user_figsize else 800
+            ),  # Approx conversion
         }
         return common_params
 
     def _apply_common_layout(self, fig, params):
-        """Apply common layout parameters to both matplotlib and plotly figures."""
         if self.library == "matplotlib":
-            if params["title"]:
-                fig.suptitle(params["title"])
-            fig.set_size_inches(params["figsize"])
+            if params["title"]:  # This is for fig.suptitle
+                fig.suptitle(
+                    params["title"],
+                    fontsize=plt.rcParams["figure.titlesize"],
+                    weight=plt.rcParams["figure.titleweight"],
+                )
+            if params["figsize"]:  # Ensure figure size is set
+                fig.set_size_inches(params["figsize"])
         elif self.library == "plotly":
             layout_update = {
                 "title": (
