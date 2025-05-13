@@ -212,12 +212,10 @@ class RegressionPlots(Plotter):
             xlabel (str, optional): Label for the x-axis. Defaults to "X".
             ylabel (str, optional): Label for the y-axis. Defaults to "y".
             confidence_band_color (str, optional): Color of the confidence band.
-                                   Defaults to DEFAULT_CONFIDENCE_BAND_COLOR.
+                                   If None, uses theme's confidence_band color.
             **kwargs: Additional keyword arguments for plotting.
         """
-        confidence_band_color = (
-            confidence_band_color or self.colors["confidence_band_color"]
-        )
+        confidence_band_color = confidence_band_color or self.colors["confidence_band"]
 
         if self.library == "matplotlib":
             fig, ax = self._create_figure(**kwargs)
@@ -254,12 +252,10 @@ class RegressionPlots(Plotter):
             xlabel (str, optional): Label for the x-axis. Defaults to "X".
             ylabel (str, optional): Label for the y-axis. Defaults to "y".
             prediction_band_color (str, optional): Color of the prediction band.
-                                     Defaults to DEFAULT_PREDICTION_BAND_COLOR.
+                                   If None, uses theme's prediction_band color.
             **kwargs: Additional keyword arguments for plotting.
         """
-        prediction_band_color = (
-            prediction_band_color or self.colors["prediction_band_color"]
-        )
+        prediction_band_color = prediction_band_color or self.colors["prediction_band"]
 
         if self.library == "matplotlib":
             fig, ax = self._create_figure(**kwargs)
@@ -320,12 +316,8 @@ class RegressionPlots(Plotter):
                                                     Defaults to default.
             **kwargs: Additional keyword arguments for plotting.
         """
-        confidence_band_color = (
-            confidence_band_color or self.colors["confidence_band_color"]
-        )
-        prediction_band_color = (
-            prediction_band_color or self.colors["prediction_band_color"]
-        )
+        confidence_band_color = confidence_band_color or self.colors["confidence_band"]
+        prediction_band_color = prediction_band_color or self.colors["prediction_band"]
 
         if self.library == "matplotlib":
             fig, ax = self._create_figure(**kwargs)

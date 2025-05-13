@@ -284,41 +284,35 @@ class Plotter:
         return fig
 
     def apply_style_preset(self, fig, preset=None):
-        # Same as user provided
         if preset is None:
             preset = self.style_preset
         if preset not in self.STYLE_PRESETS[self.library]:
             return fig
         if self.library == "matplotlib":
-            # This method is tricky for Matplotlib as styles are global.
-            # Re-initializing might be an option, or selective updates.
-            self._init_matplotlib_style()  # Re-apply global styles with the new preset
-            # Then, selectively update the existing figure's axes if possible/needed.
-            # This is a simplification; a full robust update would require more.
-            print(
-                f"Matplotlib style preset '{preset}' re-applied globally. You may need to redraw the figure for full effect on existing elements."
-            )
-            # Example: update existing ax based on new rcParams
+            # Update only specific axes properties instead of re-initializing style
             for ax_item in fig.get_axes():
-                ax_item.set_facecolor(plt.rcParams["axes.facecolor"])
-                ax_item.spines["top"].set_visible(
-                    plt.rcParams.get("axes.spines.top", True)
-                )
-                ax_item.spines["right"].set_visible(
-                    plt.rcParams.get("axes.spines.right", True)
-                )
-                ax_item.grid(
-                    visible=plt.rcParams.get("axes.grid", False),
-                    alpha=plt.rcParams.get("grid.alpha", 0.5),
-                )
+                preset_style = self.STYLE_PRESETS["matplotlib"][preset]
+                # Update grid settings
+                if "axes.grid" in preset_style:
+                    ax_item.grid(preset_style["axes.grid"])
+                # Update spine visibility
+                if "axes.spines.top" in preset_style:
+                    ax_item.spines["top"].set_visible(preset_style["axes.spines.top"])
+                if "axes.spines.right" in preset_style:
+                    ax_item.spines["right"].set_visible(
+                        preset_style["axes.spines.right"]
+                    )
+                # Update grid alpha if specified
+                if "grid.alpha" in preset_style and ax_item.grid():
+                    ax_item.grid(True, alpha=preset_style["grid.alpha"])
 
             fig.set_facecolor(plt.rcParams["figure.facecolor"])
-            fig.tight_layout()  # Re-apply tight_layout
+            fig.tight_layout()
         elif self.library == "plotly":
+            # Existing Plotly code remains the same
             settings = self.STYLE_PRESETS["plotly"][preset]
             if "layout" in settings:
                 layout_settings = settings["layout"].copy()
-                # Merge with current theme to ensure bg colors etc., are from the *Plotter's theme*, not preset
                 layout_settings["plot_bgcolor"] = self.colors["bg_color"]
                 layout_settings["paper_bgcolor"] = self.colors["bg_color"]
                 if "xaxis" in layout_settings:
@@ -330,7 +324,6 @@ class Plotter:
                 if "font" not in layout_settings:
                     layout_settings["font"] = {}
                 layout_settings["font"]["color"] = self.colors["text_color"]
-
                 fig.update_layout(**layout_settings)
             fig.update_traces(
                 line=dict(color=self.colors["theme_color"]),
