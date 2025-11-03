@@ -29,13 +29,15 @@ class TestEDA(unittest.TestCase):
 
     def test_plot_histogram(self):
         """Test the plot_histogram method."""
-        fig = self.eda.plot_histogram('numerical')
+        hist_plotter = self.eda.histogram_plotter()
+        fig = hist_plotter.plot(self.data, 'numerical')
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)  # Close the figure to avoid displaying it during tests
 
     def test_plot_boxplot(self):
         """Test the plot_boxplot method."""
-        fig = self.eda.plot_boxplot('numerical')
+        box_plotter = self.eda.boxplot_plotter()
+        fig = box_plotter.plot(self.data, 'numerical')
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
@@ -44,31 +46,43 @@ class TestEDA(unittest.TestCase):
         # Add another numerical column for scatter plot
         self.data['numerical2'] = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
         eda = ExploratoryDataAnalysis(self.data)
-        fig = eda.plot_scatter('numerical', 'numerical2')
+        scatter_plotter = eda.scatter_plotter()
+        fig = scatter_plotter.plot_2d(self.data, 'numerical', 'numerical2')
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
     def test_plot_heatmap(self):
-        fig = self.eda.plot_heatmap()
+        """Test the plot_heatmap method."""
+        corr_matrix = self.eda.get_correlation_matrix()
+        heatmap_plotter = self.eda.heatmap_plotter()
+        fig = heatmap_plotter.plot(corr_matrix)
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
     def test_plot_barchart(self):
-        """Test the plot_barchart method."""
-        fig = self.eda.plot_barchart('categorical')
+        """
+        Test the plot_barchart method.
+        """
+        barchart_plotter = self.eda.barchart_plotter()
+        fig = barchart_plotter.plot(self.data, 'categorical')
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
     def test_plot_run_chart(self):
-        """Test the plot_run_chart method."""
+        """
+        Test the plot_run_chart method.
+        """
         self.data['time'] = pd.to_datetime(pd.date_range('2023-01-01', periods=10, freq='D'))
         eda = ExploratoryDataAnalysis(self.data)
-        fig = eda.plot_run_chart('time', 'numerical')
+        run_chart_plotter = eda.run_chart_plotter()
+        fig = run_chart_plotter.plot(self.data, 'time', 'numerical')
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
     def test_plot_stem_and_leaf(self):
-        """Test the plot_stem_and_leaf method."""
+        """
+        Test the plot_stem_and_leaf method.
+        """
         import io
         from contextlib import redirect_stdout
 
@@ -80,17 +94,23 @@ class TestEDA(unittest.TestCase):
         self.assertIn("Stem | Leaf", output)
 
     def test_plot_scatter_3d(self):
-        """Test the plot_scatter_3d method."""
+        """
+        Test the plot_scatter_3d method.
+        """
         self.data['numerical2'] = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
         self.data['numerical3'] = [1, 3, 5, 7, 9, 2, 4, 6, 8, 10]
         eda = ExploratoryDataAnalysis(self.data)
-        fig = eda.plot_scatter_3d('numerical', 'numerical2', 'numerical3')
+        scatter_plotter = eda.scatter_plotter()
+        fig = scatter_plotter.plot_3d(self.data, 'numerical', 'numerical2', 'numerical3')
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
     def test_plot_parallel_coordinates(self):
-        """Test the plot_parallel_coordinates method."""
-        fig = self.eda.plot_parallel_coordinates('categorical')
+        """
+        Test the plot_parallel_coordinates method.
+        """
+        parallel_coordinates_plotter = self.eda.parallel_coordinates_plotter()
+        fig = parallel_coordinates_plotter.plot(self.data, 'categorical')
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 

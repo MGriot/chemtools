@@ -34,11 +34,23 @@ print(summary)
 Visualize the distribution of a numerical variable using a histogram or a box plot:
 
 ```python
-fig_hist = eda.plot_histogram('your_numerical_column')
+# Histogram
+hist_plotter = eda.histogram_plotter()
+fig_hist = hist_plotter.plot(eda.data, 'your_numerical_column')
 fig_hist.show()
 
-fig_box = eda.plot_boxplot('your_numerical_column')
+# Box Plot
+box_plotter = eda.boxplot_plotter()
+fig_box = box_plotter.plot(eda.data, 'your_numerical_column')
 fig_box.show()
+
+# Bar Chart
+bar_chart_plotter = eda.barchart_plotter()
+fig_bar = bar_chart_plotter.plot(eda.data, 'your_categorical_column')
+fig_bar.show()
+
+# Stem-and-leaf Plot (prints to console)
+eda.plot_stem_and_leaf('your_numerical_column')
 ```
 
 ### Multivariate Analysis
@@ -58,12 +70,29 @@ Visualize relationships between variables:
 
 ```python
 # Heatmap of the correlation matrix
-fig_heatmap = eda.plot_heatmap()
+corr_matrix = eda.get_correlation_matrix()
+heatmap_plotter = eda.heatmap_plotter()
+fig_heatmap = heatmap_plotter.plot(corr_matrix)
 fig_heatmap.show()
 
-# Scatter plot of two numerical variables
-fig_scatter = eda.plot_scatter('column_x', 'column_y')
-fig_scatter.show()
+# 2D Scatter Plot
+scatter_plotter = eda.scatter_plotter()
+fig_scatter_2d = scatter_plotter.plot_2d(eda.data, 'column_x', 'column_y')
+fig_scatter_2d.show()
+
+# 3D Scatter Plot
+fig_scatter_3d = scatter_plotter.plot_3d(eda.data, 'column_x', 'column_y', 'column_z')
+fig_scatter_3d.show()
+
+# Run Chart
+run_chart_plotter = eda.run_chart_plotter()
+fig_run = run_chart_plotter.plot(eda.data, 'time_column', 'value_column')
+fig_run.show()
+
+# Parallel Coordinates Plot
+parallel_coordinates_plotter = eda.parallel_coordinates_plotter()
+fig_parallel = parallel_coordinates_plotter.plot(eda.data, 'class_column')
+fig_parallel.show()
 ```
 
 ## API Reference
@@ -74,14 +103,13 @@ fig_scatter.show()
 class ExploratoryDataAnalysis:
     def __init__(self, data: pd.DataFrame, plotter_kwargs: dict = None)
     def get_univariate_summary(self) -> pd.DataFrame
-    def plot_histogram(self, column: str, **kwargs)
-    def plot_boxplot(self, column: str, **kwargs)
     def get_correlation_matrix(self, **kwargs) -> pd.DataFrame
-    def plot_heatmap(self, **kwargs)
-    def plot_scatter(self, x_column: str, y_column: str, **kwargs)
-    def plot_barchart(self, column: str, **kwargs)
-    def plot_run_chart(self, time_column: str, value_column: str, **kwargs)
+    def histogram_plotter(self) -> HistogramPlotter
+    def boxplot_plotter(self) -> BoxPlotter
+    def barchart_plotter(self) -> BarChartPlotter
+    def scatter_plotter(self) -> ScatterPlotter
+    def heatmap_plotter(self) -> HeatmapPlotter
+    def run_chart_plotter(self) -> RunChartPlotter
+    def parallel_coordinates_plotter(self) -> ParallelCoordinatesPlotter
     def plot_stem_and_leaf(self, column: str)
-    def plot_scatter_3d(self, x_column: str, y_column: str, z_column: str, **kwargs)
-    def plot_parallel_coordinates(self, class_column: str, **kwargs)
 ```
