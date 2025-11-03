@@ -8,3 +8,4 @@ from .MultipleCorrespondenceAnalysis import MultipleCorrespondenceAnalysis
 from .GeneralizedCanonicalCorrelationAnalysis import (
     GeneralizedCanonicalCorrelationAnalysis,
 )
+from .EDA import ExploratoryDataAnalysis

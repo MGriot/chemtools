@@ -20,6 +20,7 @@ Tools for exploratory data analysis:
 - [Multiple Correspondence Analysis (MCA)](exploration/mca.md)
 - [Factor Analysis (FA)](exploration/factor_analysis.md)
 - [Factor Analysis for Mixed Data (FAMD)](exploration/famd.md)
+- [Exploratory Data Analysis (EDA)](exploration/eda.md)
 
 ### 3. Regression
 Various regression analysis techniques:
