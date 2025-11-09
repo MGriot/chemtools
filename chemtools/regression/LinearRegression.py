@@ -8,13 +8,14 @@ from typing import Optional, Union, Tuple
 from chemtools.base.base_models import BaseModel  # Assuming this is your base class
 from .confidence_band import confidence_band
 from .prediction_band import prediction_band
-from chemtools.utility import t_students, degrees_of_freedom, sort_arrays
-from chemtools.utility import (
+from chemtools.utils import sort_arrays, get_variable_name
+from chemtools.stats.regression_stats import (
+    t_students,
+    calculate_degrees_of_freedom,
     centered_r_squared,
     uncentered_r_squared,
     uncentered_adjusted_r_squared,
 )
-from chemtools.utility.get_var_name import get_variable_name
 
 
 class LinearRegression(BaseModel):
@@ -51,7 +52,7 @@ class LinearRegression(BaseModel):
         self.x_mean = np.mean(self.X, axis=0)
         self.y_mean = np.mean(self.y)
         self.alpha = alpha
-        self.dof = self.objects_number - self.X.shape[1]
+        self.dof = calculate_degrees_of_freedom(self.objects_number, self.X.shape[1])
         self.y_pred = self.predict(self.X, new_data=False)
         self.residuals = self.y.reshape(-1, 1) - self.y_pred.reshape(-1, 1)
         self.SSxx = np.sum((self.X[:, 1:] - self.x_mean[1:]) ** 2, axis=0)

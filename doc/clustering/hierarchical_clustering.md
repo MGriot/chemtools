@@ -1,6 +1,6 @@
 # Hierarchical Clustering
 
-Hierarchical clustering is an algorithm that builds a hierarchy of clusters, creating a tree structure (dendrogram) to visualize relationships between data points.
+Hierarchical clustering is an algorithm that builds a hierarchy of clusters. This method starts with each data point in its own cluster and then iteratively merges the closest pairs of clusters until only one cluster (or a specified number of clusters) is left. The result is a tree-based representation of the objects, called a dendrogram.
 
 ## Usage
 
@@ -63,3 +63,7 @@ class HierarchicalClustering:
 class DendrogramPlotter:
     def plot_dendrogram(self, model, orientation="top", color_threshold=None)
 ```
+
+## Citing Sources
+Further reading can be found on Wikipedia:
+- [Hierarchical clustering](https://en.wikipedia.org/wiki/Hierarchical_clustering)

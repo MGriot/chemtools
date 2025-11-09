@@ -21,9 +21,8 @@ Example usage:
 import numpy as np
 import pandas as pd
 
-from chemtools.utility import reorder_array
-from chemtools.utility import random_colorHEX
-from chemtools.utility.set_names import set_objects_names, set_variables_names
+from chemtools.utils import HarmonizedPaletteGenerator
+from chemtools.utils.data import set_objects_names, set_variables_names
 from chemtools.base import BaseModel
 
 
@@ -31,25 +30,19 @@ class MultipleCorrespondenceAnalysis(BaseModel):
     """
     Performs Multiple Correspondence Analysis (MCA) on a contingency table.
 
+    MCA is an extension of correspondence analysis (CA) which allows one to
+    analyze the pattern of relationships of several categorical dependent
+    variables.
+
     Attributes:
         model_name (str): Name of the model.
         X (np.ndarray): Contingency table (input data).
-        variables (np.ndarray): Names of the variables.
-        objects (np.ndarray): Names of the objects.
-        n_variables (int): Number of variables.
-        n_objects (int): Number of objects.
-        variables_colors (list): List of colors for the variables.
-        objects_colors (list): List of colors for the objects.
-        correspondence_matrix (np.ndarray): Normalized contingency table.
-        row_profiles (np.ndarray): Probability of observing each variable given an object.
-        col_profiles (np.ndarray): Probability of observing each object given a variable.
-        V (np.ndarray): Eigenvalues of the decomposition.
-        L (np.ndarray): Left singular vectors (object coordinates in factor space).
-        G (np.ndarray): Right singular vectors (variable coordinates in factor space).
-        order (np.ndarray): Indices that order eigenvalues in descending order.
         V_ordered (np.ndarray): Ordered eigenvalues.
         L_ordered (np.ndarray): Object coordinates ordered according to eigenvalues.
-        PC_index (np.ndarray): Names of the principal components.
+        G (np.ndarray): Variable coordinates in factor space.
+
+    References:
+        - https://en.wikipedia.org/wiki/Multiple_correspondence_analysis
     """
 
     def __init__(self):
@@ -64,7 +57,6 @@ class MultipleCorrespondenceAnalysis(BaseModel):
             variables_names (list, optional): List of variable names. Defaults to None.
             objects_names (list, optional): List of object names. Defaults to None.
         """
-        # 1. Contingency Table
         self.X = X
         self.variables = set_variables_names(variables_names, X)
         self.objects = set_objects_names(objects_names, X)
@@ -73,66 +65,70 @@ class MultipleCorrespondenceAnalysis(BaseModel):
         self.variables_colors = self.change_variables_colors()
         self.objects_colors = self.change_objects_colors()
 
-        # 2. Correspondence Matrix
         grand_total = np.sum(self.X)
+        if grand_total == 0:
+            raise ValueError("The input contingency table cannot be all zeros.")
+            
         self.correspondence_matrix = self.X / grand_total
 
-        # 3. Row and Column Profiles
-        self.row_profiles = self.correspondence_matrix / np.sum(
-            self.correspondence_matrix, axis=1, keepdims=True
-        )
-        self.col_profiles = self.correspondence_matrix / np.sum(
-            self.correspondence_matrix, axis=0, keepdims=True
-        )
+        row_sums = np.sum(self.correspondence_matrix, axis=1, keepdims=True)
+        col_sums = np.sum(self.correspondence_matrix, axis=0, keepdims=True)
+        
+        if np.any(row_sums == 0) or np.any(col_sums == 0):
+            raise ValueError("The input table cannot have rows or columns that sum to zero.")
 
-        # 4. Centering the matrix
-        row_sums = np.sum(self.correspondence_matrix, axis=1)
-        col_sums = np.sum(self.correspondence_matrix, axis=0)
-        expected_freqs = np.outer(row_sums, col_sums) / grand_total
-        centered_matrix = (self.correspondence_matrix - expected_freqs) / np.sqrt(
-            expected_freqs
-        )
+        self.row_profiles = self.correspondence_matrix / row_sums
+        self.col_profiles = self.correspondence_matrix / col_sums
 
-        # 5. Apply SVD
-        U, s, V = np.linalg.svd(centered_matrix)
+        expected_freqs = np.outer(row_sums.flatten(), col_sums.flatten())
+        centered_matrix = (self.correspondence_matrix - expected_freqs) / np.sqrt(expected_freqs)
 
-        # 6.  Eigenvalues and Eigenvectors
+        U, s, Vt = np.linalg.svd(centered_matrix, full_matrices=False)
+
         self.V = s**2
         self.L = U
-        self.G = V * s[:, None]  # Calculate variable coordinates
+        self.G = Vt.T * s
+        
         self.order = np.argsort(self.V)[::-1]
         self.V_ordered = self.V[self.order]
         self.L_ordered = self.L[:, self.order]
+        self.G_ordered = self.G[:, self.order]
+        
         self.PC_index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
 
     def change_variables_colors(self):
         """Generates random colors for the variables."""
-        return random_colorHEX(self.n_variables)
+        return HarmonizedPaletteGenerator(self.n_variables).generate()
 
     def change_objects_colors(self):
         """Generates random colors for the objects."""
-        return random_colorHEX(self.n_objects)
+        return HarmonizedPaletteGenerator(self.n_objects).generate()
 
-    def _get_summary_data(self, X, explained_variance):
+    def _get_summary_data(self):
         """
         Calculates summary data for the MCA model.
-
-        Args:
-            X (np.ndarray): The data matrix.
-            explained_variance (np.ndarray): Explained variance for each component.
-
-        Returns:
-            pd.DataFrame: A DataFrame containing the summary data.
         """
-        n_components = X.shape[1]
-        columns = ["Variable", "PC"] + [f"PC{i+1}" for i in range(n_components)]
-        summary_data = []
+        if not hasattr(self, 'V_ordered'):
+            return {}
 
-        for i, var in enumerate(self.variables):
-            row = [var, ""] + list(X[i, :])
-            summary_data.append(row)
+        explained_variance = self.V_ordered / np.sum(self.V_ordered)
+        cumulative_variance = np.cumsum(explained_variance)
 
-        summary_df = pd.DataFrame(summary_data, columns=columns)
-        summary_df["Explained Variance"] = explained_variance
+        summary = self._create_general_summary(
+            self.n_variables,
+            self.n_objects
+        )
 
-        return summary_df
+        eigenvalue_table = [
+            ["Component", "Eigenvalue", "Explained Variance (%)", "Cumulative Variance (%)"]
+        ]
+        for i in range(len(self.V_ordered)):
+            eigenvalue_table.append([
+                f"PC{i+1}",
+                f"{self.V_ordered[i]:.4f}",
+                f"{explained_variance[i] * 100:.2f}",
+                f"{cumulative_variance[i] * 100:.2f}"
+            ])
+        
+        summary["tables"] = {"Eigenvalues": eigenvalue_table}
+        return summary

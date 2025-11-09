@@ -18,62 +18,39 @@ from chemtools.preprocessing.matrix_standard_deviation import (
 )
 from chemtools.preprocessing import correlation_matrix
 from chemtools.preprocessing import diagonalized_matrix
-from chemtools.utility import reorder_array
-
-from chemtools.utility.set_names import (
+from chemtools.utils import reorder_array, HarmonizedPaletteGenerator
+from chemtools.utils.data import (
     initialize_names_and_counts,
     set_objects_names,
     set_variables_names,
 )
-from chemtools.utility import random_colorHEX
 from .base import DimensionalityReduction
 
 
 class FactorAnalysis(DimensionalityReduction):
     """
-    A class to perform Factor Analysis (FA) on a dataset.
+    Performs Factor Analysis (FA) on a dataset.
 
-    This class provides methods to fit the FA model to the data, reduce its dimensionality,
-    and compute statistical metrics related to the analysis. It also manages the internal
-    state of the FA, including the mean, standard deviation, and eigenvalues of the data.
+    Factor analysis is a statistical method used to describe variability among
+    observed, correlated variables in terms of a potentially lower number of
+    unobserved variables called factors.
+
+    This class provides methods to fit the FA model, reduce dimensionality,
+    and compute statistical metrics. It supports rotation methods like
+    Varimax and Quartimax to improve interpretability.
 
     Attributes:
-        model_name (str): The name of the model.
-        X (ndarray): The input data.
-        variables (list): Names of the variables.
-        objects (list): Names of the objects.
-        n_variables (int): Number of variables in the dataset.
-        n_objects (int): Number of objects in the dataset.
-        variables_colors (list): Colors assigned to variables for visualization.
-        objects_colors (list): Colors assigned to objects for visualization.
-        mean (ndarray): Mean of the input data.
-        std (ndarray): Standard deviation of the input data.
-        X_autoscaled (ndarray): Autoscaled version of the input data.
-        correlation_matrix (ndarray): Correlation matrix of the autoscaled data.
-        V (ndarray): Eigenvalues of the correlation matrix.
-        L (ndarray): Eigenvectors of the correlation matrix.
-        order (ndarray): Order of eigenvalues.
-        V_ordered (ndarray): Ordered eigenvalues.
-        L_ordered (ndarray): Ordered eigenvectors.
-        PC_index (ndarray): Index labels for principal components.
-        n_components (int): Number of components retained after reduction.
-        V_reduced (ndarray): Reduced eigenvalues.
-        W (ndarray): Reduced eigenvectors (loadings).
-        T (ndarray): Transformed data in the FA space (scores).
-        communalities (ndarray): Communalities of the variables.
-        res_var (ndarray): Residual variances of the variables.
+        model_name (str): The name of the model, "Factor Analysis".
+        method (str): The method name, "FA".
+        n_components (int): Number of factors to retain.
+        rotation (str): Type of rotation applied ('varimax', 'quartimax', or None).
+        W (np.ndarray): The factor loadings matrix.
+        T (np.ndarray): The factor scores matrix.
+        communalities (np.ndarray): The proportion of each variable's variance explained by the factors.
+        res_var (np.ndarray): The residual variances (uniqueness) of the variables.
 
-    Methods:
-        __init__: Initializes the FA model.
-        fit: Fits the FA model to the provided data.
-        transform: Projects new data onto the factor space.
-        fit_transform: Fits FA to data and transforms it.
-        change_variables_colors: Generates colors for the variables.
-        change_objects_colors: Generates colors for the objects.
-        _get_summary_data: Returns a dictionary of data for the summary.
-        rotate: Performs rotation on the factor loadings.
-        _varimax_rotation: Performs varimax rotation on a matrix.
-        _quartimax_rotation: Performs quartimax rotation on a matrix.
+    References:
+        - https://en.wikipedia.org/wiki/Factor_analysis
     """
 
     def __init__(self, n_components: int = 2, rotation: str = None):
@@ -95,7 +72,7 @@ class FactorAnalysis(DimensionalityReduction):
         Fits the FA model to the provided data.
 
         Args:
-            X (ndarray): The data to fit the model to.
+            X (np.ndarray): The data to fit the model to.
             variables_names (list, optional): Names of the variables. Defaults to None.
             objects_names (list, optional): Names of the objects. Defaults to None.
         """
@@ -109,7 +86,6 @@ class FactorAnalysis(DimensionalityReduction):
         try:
             self.mean = np.mean(self.X, axis=0)
             self.std = np.std(self.X, axis=0)
-            # Check to avoid division by zero and identify problematic columns
             zero_std_columns = np.where(self.std == 0)[0]
             if zero_std_columns.size > 0:
                 raise ValueError(
@@ -118,105 +94,116 @@ class FactorAnalysis(DimensionalityReduction):
             self.X_autoscaled = (self.X - self.mean) / self.std
             self.correlation_matrix = np.corrcoef(self.X_autoscaled, rowvar=False)
 
-            # Calculate eigenvalues and eigenvectors
             self.V, self.L = eigh(self.correlation_matrix)
 
-            # Sort eigenvalues and eigenvectors in descending order
             self.order = np.argsort(self.V)[::-1]
             self.V_ordered = self.V[self.order]
             self.L_ordered = self.L[:, self.order]
 
-            # Select the top n_components eigenvectors
             self.V_reduced = self.V_ordered[: self.n_components]
             self.PC_index = [f"F{i+1}" for i in range(self.n_components)]
             self.index = np.array([f"F{i+1}" for i in range(self.V.shape[0])])
             self.W = self.L_ordered[:, : self.n_components]
 
-            # Calculate factor scores
             self.T = self.X_autoscaled @ self.W
 
-            # Calculate communalities and residual variances
             self.communalities = np.sum(self.W**2, axis=1)
             self.res_var = 1 - self.communalities
 
-            # Apply rotation if specified
-            if self.rotation == "varimax":
-                self.W = self._varimax_rotation(self.W)
-            elif self.rotation == "quartimax":
-                self.W = self._quartimax_rotation(self.W)
+            if self.rotation:
+                self.rotate()
 
         except np.linalg.LinAlgError as e:
-            print(f"Error during the calculation of eigenvalues and eigenvectors: {e}")
+            raise RuntimeError(f"Linear algebra error during fit: {e}")
         except ValueError as e:
-            print(f"Error in input data: {e}")
-        except Exception as e:
-            print(f"Unknown error: {e}")
+            raise ValueError(f"Input data error during fit: {e}")
 
     def transform(self, X_new):
         """
         Projects new data onto the factor space.
 
         Args:
-            X_new (ndarray): The new data to transform (shape: n_samples x n_variables).
+            X_new (np.ndarray): The new data to transform.
 
         Returns:
-            ndarray: The transformed data in the factor space (shape: n_samples x n_components).
+            np.ndarray: The transformed data in the factor space.
         """
         X_new_autoscaled = (X_new - self.mean) / self.std
         return np.dot(X_new_autoscaled, self.W)
 
-    def fit_transform(self, X):
+    def fit_transform(self, X, **kwargs):
         """
         Fit FactorAnalysis to X and transform X.
-
-        Args:
-            X (ndarray): The data to fit the model to and then transform.
-
-        Returns:
-            ndarray: The transformed data in the FA space.
         """
-        self.fit(X)
-        return self.transform(X)
+        self.fit(X, **kwargs)
+        return self.T
+
+    def rotate(self):
+        """
+        Performs rotation on the factor loadings.
+        """
+        if self.rotation == "varimax":
+            self.W = self._varimax_rotation(self.W)
+        elif self.rotation == "quartimax":
+            self.W = self._quartimax_rotation(self.W)
+        else:
+            if self.rotation is not None:
+                raise ValueError(f"Unknown rotation: {self.rotation}")
+
+    def _varimax_rotation(self, loadings, max_iter=100, tol=1e-6):
+        """Performs varimax rotation on a matrix."""
+        p, k = loadings.shape
+        rotated_loadings = loadings.copy()
+        for _ in range(max_iter):
+            lambda_rot = rotated_loadings
+            h2 = np.sum(lambda_rot**2, axis=1)
+            U = lambda_rot**3 - (lambda_rot * h2[:, np.newaxis]) / p
+            svd = np.linalg.svd(loadings.T @ U)
+            T = svd[0] @ svd[2]
+            rotated_loadings_new = loadings @ T
+            if np.sum((rotated_loadings_new - rotated_loadings)**2) < tol:
+                break
+            rotated_loadings = rotated_loadings_new
+        return rotated_loadings
+
+    def _quartimax_rotation(self, loadings, max_iter=100, tol=1e-6):
+        """Performs quartimax rotation on a matrix."""
+        p, k = loadings.shape
+        rotated_loadings = loadings.copy()
+        for _ in range(max_iter):
+            lambda_rot = rotated_loadings
+            U = lambda_rot**3
+            svd = np.linalg.svd(loadings.T @ U)
+            T = svd[0] @ svd[2]
+            rotated_loadings_new = loadings @ T
+            if np.sum((rotated_loadings_new - rotated_loadings)**2) < tol:
+                break
+            rotated_loadings = rotated_loadings_new
+        return rotated_loadings
 
     def change_variables_colors(self):
         """Generates random color codes for the variables."""
-        return random_colorHEX(self.n_variables)
+        return HarmonizedPaletteGenerator(self.n_variables).generate()
 
     def change_objects_colors(self):
         """Generates random color codes for the objects."""
-        return random_colorHEX(self.n_objects)
+        return HarmonizedPaletteGenerator(self.n_objects).generate()
 
     def _get_summary_data(self):
         """Returns a dictionary of data for the summary."""
-
-        # Prepare loadings for display
-        loadings_output = {f"Factor{i+1}": [] for i in range(self.n_components)}
-        for i in range(self.n_variables):
-            for j in range(self.n_components):
-                if abs(self.W[i, j]) > 0.3:  # Consider loadings above a threshold
-                    loadings_output[f"Factor{j+1}"].append(
-                        f"{self.variables[i]}: {self.W[i, j]:.2f}"
-                    )
-
-        # --- Prepare loadings for table display ---
         loadings_table = [
             ["Variable"] + [f"Factor {j+1}" for j in range(self.n_components)]
         ]
         for i in range(self.n_variables):
-            row = [self.variables[i]]
-            for j in range(self.n_components):
-                row.append(f"{self.W[i, j]:.2f}")
+            row = [self.variables[i]] + [f"{self.W[i, j]:.2f}" for j in range(self.n_components)]
             loadings_table.append(row)
-
-        # Prepare coefficients for display
-        coefficients_table = []
-        coefficients_table.append(["Uniquenesses"])  # Section Header
-        coefficients_table.extend(
-            [var, f"{uniq:.2f}"] for var, uniq in zip(self.variables, self.res_var)
-        )
 
         summary = self._create_general_summary(
             self.n_variables, self.n_objects, No_Components=f"{self.n_components}"
         )
         summary["tables"] = {"Loadings": loadings_table}
+        
+        uniquenesses = {self.variables[i]: f"{self.res_var[i]:.3f}" for i in range(self.n_variables)}
+        summary["additional_stats"] = {"Uniquenesses": uniquenesses}
+        
         return summary

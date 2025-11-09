@@ -1,10 +1,10 @@
 # Exploratory Data Analysis (EDA)
 
-Exploratory Data Analysis (EDA) is a crucial step in the data science workflow. It involves analyzing and investigating datasets to summarize their main characteristics, often using data visualization methods. The `ExploratoryDataAnalysis` class in `chemtools` provides a convenient way to perform EDA on your data.
+Exploratory Data Analysis (EDA) is a crucial step in the data science workflow. It involves analyzing and investigating datasets to summarize their main characteristics, often using data visualization methods. The `ExploratoryDataAnalysis` class in `chemtools` provides a comprehensive toolkit to perform EDA on your data, with special support for mixed-type (numerical and categorical) datasets.
 
 ## The `ExploratoryDataAnalysis` Class
 
-The `ExploratoryDataAnalysis` class is designed to work with pandas DataFrames and provides a suite of methods for both non-graphical and graphical analysis.
+The `ExploratoryDataAnalysis` class is designed to work with pandas DataFrames and provides a suite of methods for data inspection, non-graphical summaries, and graphical analysis.
 
 ### Initialization
 
@@ -15,85 +15,148 @@ import pandas as pd
 from chemtools.exploration import ExploratoryDataAnalysis
 
 df = pd.read_csv('your_data.csv')
-eda = ExploratoryDataAnalysis(df)
+# You can pass plotter_kwargs to set defaults for all plots
+eda = ExploratoryDataAnalysis(df, plotter_kwargs={'theme': 'oceanic_slate_dark'})
 ```
 
-### Univariate Analysis
+---
 
-#### Non-Graphical
+## 1. Data Inspection
 
-Get a statistical summary of each variable:
+Before analysis, it's important to understand the structure of your data.
+
+### Variable Classification
+
+You can automatically classify columns into numerical and categorical types.
 
 ```python
+numerical_cols, categorical_cols = eda.classify_variables()
+print("Numerical Columns:", numerical_cols)
+print("Categorical Columns:", categorical_cols)
+```
+
+### Missing Value Analysis
+
+Quickly find which columns have missing data and visualize the pattern.
+
+```python
+# Get a summary of missing values
+missing_summary = eda.get_missing_values_summary()
+print(missing_summary)
+
+# Plot a heatmap of missing values
+fig = eda.plot_missing_values()
+fig.show()
+```
+
+---
+
+## 2. Univariate Analysis (One Variable)
+
+Analyze each variable individually.
+
+### Numerical Variables
+
+Get a full statistical summary and visualize the distribution.
+
+```python
+# Get a statistical summary of all numerical variables
 summary = eda.get_univariate_summary()
 print(summary)
+
+# Plot a [histogram](../plotting/plot_types.md) for a single numerical column
+hist_plotter = eda.histogram_plotter()
+fig_hist = hist_plotter.plot(eda.data, 'your_numerical_column', title='Distribution')
+fig_hist.show()
 ```
 
-#### Graphical
+### Categorical Variables
 
-Visualize the distribution of a numerical variable using a histogram or a box plot:
+Get a summary of categories and visualize their frequencies.
 
 ```python
-# Histogram
-hist_plotter = eda.histogram_plotter()
-fig_hist = hist_plotter.plot(eda.data, 'your_numerical_column')
-fig_hist.show()
+# Get a summary (cardinality, mode, missing) of all categorical variables
+cat_summary = eda.get_categorical_summary()
+print(cat_summary)
 
-# Box Plot
-box_plotter = eda.boxplot_plotter()
-fig_box = box_plotter.plot(eda.data, 'your_numerical_column')
-fig_box.show()
-
-# Bar Chart
-bar_chart_plotter = eda.barchart_plotter()
-fig_bar = bar_chart_plotter.plot(eda.data, 'your_categorical_column')
+# Plot a [bar chart](../plotting/plot_types.md) of counts for a single categorical column
+bar_plotter = eda.barchart_plotter()
+fig_bar = bar_plotter.plot_counts(eda.data, 'your_categorical_column')
 fig_bar.show()
 
-# Stem-and-leaf Plot (prints to console)
-eda.plot_stem_and_leaf('your_numerical_column')
+# Plot a [pie chart](../plotting/plot_types.md)
+pie_plotter = eda.pie_chart_plotter()
+pie_data = eda.data['your_categorical_column'].value_counts().reset_index()
+pie_data.columns = ['category', 'count']
+fig_pie = pie_plotter.plot(pie_data, names_column='category', values_column='count')
+fig_pie.show()
 ```
 
-### Multivariate Analysis
+---
 
-#### Non-Graphical
+## 3. Bivariate & Mixed-Type Analysis
 
-Calculate the correlation matrix for numerical variables:
+This is where the most valuable insights are often found, by analyzing the interactions between variables.
 
-```python
-correlation = eda.get_correlation_matrix()
-print(correlation)
-```
+### Numerical vs. Numerical
 
-#### Graphical
-
-Visualize relationships between variables:
+Look for correlations between numerical variables.
 
 ```python
-# Heatmap of the correlation matrix
+# Get the correlation matrix
 corr_matrix = eda.get_correlation_matrix()
+
+# Plot a [heatmap](../plotting/plot_types.md) of the correlation matrix
 heatmap_plotter = eda.heatmap_plotter()
 fig_heatmap = heatmap_plotter.plot(corr_matrix)
 fig_heatmap.show()
 
-# 2D Scatter Plot
+# Create a 2D [scatter plot](../plotting/plot_types.md)
 scatter_plotter = eda.scatter_plotter()
-fig_scatter_2d = scatter_plotter.plot_2d(eda.data, 'column_x', 'column_y')
-fig_scatter_2d.show()
-
-# 3D Scatter Plot
-fig_scatter_3d = scatter_plotter.plot_3d(eda.data, 'column_x', 'column_y', 'column_z')
-fig_scatter_3d.show()
-
-# Run Chart
-run_chart_plotter = eda.run_chart_plotter()
-fig_run = run_chart_plotter.plot(eda.data, 'time_column', 'value_column')
-fig_run.show()
-
-# Parallel Coordinates Plot
-parallel_coordinates_plotter = eda.parallel_coordinates_plotter()
-fig_parallel = parallel_coordinates_plotter.plot(eda.data, 'class_column')
-fig_parallel.show()
+fig_scatter = scatter_plotter.plot_2d(eda.data, 'column_x', 'column_y')
+fig_scatter.show()
 ```
+
+### Categorical vs. Categorical
+
+Analyze the relationship between two categorical variables.
+
+```python
+# Get a contingency table (crosstab)
+crosstab = eda.get_crosstab('category_1', 'category_2')
+print(crosstab)
+
+# Visualize the crosstab as a stacked [bar chart](../plotting/plot_types.md)
+bar_plotter = eda.barchart_plotter()
+fig_crosstab = bar_plotter.plot_crosstab(crosstab, stacked=True)
+fig_crosstab.show()
+```
+
+### Numerical vs. Categorical (Mixed-Type)
+
+This is key for mixed-type datasets. See how a numerical variable's distribution changes across different categories.
+
+```python
+# Get summary statistics of a numerical var grouped by a categorical var
+summary = eda.get_numerical_by_categorical_summary('numerical_col', 'categorical_col')
+print(summary)
+
+# Use the high-level plotting method to visualize this relationship
+# Generate a [box plot](../plotting/plot_types.md)
+fig_box = eda.plot_numerical_by_categorical('numerical_col', 'categorical_col', plot_type='box')
+fig_box.show()
+
+# Generate a [violin plot](../plotting/plot_types.md) (using plotly)
+fig_violin = eda.plot_numerical_by_categorical(
+    'numerical_col', 
+    'categorical_col', 
+    plot_type='violin',
+    plotter_kwargs={'library': 'plotly'}
+)
+fig_violin.show()
+```
+
+---
 
 ## API Reference
 
@@ -102,14 +165,29 @@ fig_parallel.show()
 ```python
 class ExploratoryDataAnalysis:
     def __init__(self, data: pd.DataFrame, plotter_kwargs: dict = None)
-    def get_univariate_summary(self) -> pd.DataFrame
+
+    # --- Inspection & Summaries ---
+    def classify_variables(self) -> tuple[list, list]
+    def get_univariate_summary(self, alpha: float = 0.05) -> pd.DataFrame
+    def get_categorical_summary(self) -> pd.DataFrame
+    def get_crosstab(self, index_col: str, col_col: str, normalize: Union[bool, str] = False) -> pd.DataFrame
+    def get_numerical_by_categorical_summary(self, numerical_col: str, categorical_col: str) -> pd.DataFrame
     def get_correlation_matrix(self, **kwargs) -> pd.DataFrame
-    def histogram_plotter(self) -> HistogramPlotter
-    def boxplot_plotter(self) -> BoxPlotter
-    def barchart_plotter(self) -> BarChartPlotter
-    def scatter_plotter(self) -> ScatterPlotter
-    def heatmap_plotter(self) -> HeatmapPlotter
-    def run_chart_plotter(self) -> RunChartPlotter
-    def parallel_coordinates_plotter(self) -> ParallelCoordinatesPlotter
-    def plot_stem_and_leaf(self, column: str)
+    def get_missing_values_summary(self) -> pd.DataFrame
+    def get_outliers(self, column: str, method: str = "iqr", threshold: float = None) -> pd.Series
+    def get_vif(self) -> pd.DataFrame
+    
+    # --- Plotting ---
+    def plot_missing_values(self, **kwargs)
+    def plot_numerical_by_categorical(self, numerical_col: str, categorical_col: str, plot_type: str = "box", **kwargs)
+    
+    # --- Plotter Factories ---
+    def histogram_plotter(self) -> HistogramPlot
+    def boxplot_plotter(self) -> BoxPlot
+    def barchart_plotter(self) -> BarPlot
+    def pie_chart_plotter(self) -> PiePlot
+    def violin_plotter(self) -> ViolinPlot
+    def scatter_plotter(self) -> ScatterPlot
+    def heatmap_plotter(self) -> HeatmapPlot
+    # ... and others
 ```

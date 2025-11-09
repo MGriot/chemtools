@@ -16,49 +16,45 @@ from chemtools.preprocessing import autoscaling
 from chemtools.preprocessing.matrix_standard_deviation import matrix_standard_deviation
 from chemtools.preprocessing import correlation_matrix
 from chemtools.preprocessing import diagonalized_matrix
-from chemtools.utility import reorder_array
-
-from chemtools.utility.set_names import (
+from chemtools.utils import reorder_array, HarmonizedPaletteGenerator
+from chemtools.utils.data import (
     initialize_names_and_counts,
     set_variables_names,
     set_objects_names,
 )
-from chemtools.utility import random_colorHEX
 from chemtools.base.base_models import BaseModel
 from chemtools.exploration import PrincipalComponentAnalysis
 
 
 class PrincipalComponentClassificationAnalysis(BaseModel):
     """
-    A class to perform Principal Component-based Classification Analysis (PCCCA).
+    Performs Principal Component-based Classification Analysis (PCCA).
 
-    This method combines Principal Component Analysis (PCA) with Canonical Correlation
-    Analysis (CCA) to achieve classification based on dimensionality reduction. It's
-    particularly useful for datasets with a high number of variables and a clear
-    separation between classes.
+    This method combines Principal Component Analysis (PCA) with an approach
+    similar to Canonical Correlation Analysis (CCA) to perform classification.
+    It is particularly useful for high-dimensional data where classes are
+    expected to be separable.
+
+    The process involves:
+    1. Performing PCA on the input data `X` to get scores `T`.
+    2. Creating a dummy-coded matrix `Y` from the class labels.
+    3. Finding a transformation `Wx` that maximizes the correlation between
+       the PCA scores `T` and the class information `Y`.
+    4. The final scores `U` are the projection of `T` onto this new space.
 
     Attributes:
         model_name (str): The name of the model.
-        X (ndarray): The input data.
-        y (ndarray): The class labels.
-        variables (list): Names of the variables.
-        objects (list): Names of the objects.
-        n_variables (int): Number of variables in the dataset.
-        n_objects (int): Number of objects in the dataset.
-        variables_colors (list): Colors assigned to variables for visualization.
-        objects_colors (list): Colors assigned to objects for visualization.
-        pca_model (PrincipalComponentAnalysis): Fitted PCA model.
-        cca_model (PLSCanonical): Fitted CCA model.
-        n_components (int): Number of components retained after reduction.
-        T (ndarray): Transformed data in the PCA space.
-        U (ndarray): Transformed class indicator matrix in the CCA space.
+        pca_model (PrincipalComponentAnalysis): The fitted PCA model.
+        n_components (int): Number of components retained.
+        T (np.ndarray): Scores from the PCA step.
+        U (np.ndarray): Final transformed scores in the classification space.
+        Wx (np.ndarray): The transformation matrix applied to the PCA scores.
 
-    Methods:
-        __init__: Initializes the PCCCA model.
-        fit: Fits the PCCCA model to the provided data and class labels.
-        transform: Transforms the data into the reduced CCA space.
-        change_variables_colors: Generates colors for the variables.
-        change_objects_colors: Generates colors for the objects.
+    References:
+        - This method is a custom implementation combining PCA and CCA principles.
+          For background, see:
+          https://en.wikipedia.org/wiki/Principal_component_analysis
+          https://en.wikipedia.org/wiki/Canonical_correlation
     """
 
     def __init__(self):
@@ -73,23 +69,14 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
         objects_names=None,
     ):
         """
-        Fits the PCCCA model to the provided data and class labels.
-
-        This method first performs PCA on the input data to reduce its dimensionality.
-        Then, it applies CCA between the principal components and a class indicator
-        matrix derived from the class labels. This results in a low-dimensional
-        representation that maximizes the correlation between the data and class
-        information.
+        Fits the PCCA model to the provided data and class labels.
 
         Args:
-            X (ndarray): The input data.
-            y (ndarray): The class labels.
+            X (np.ndarray): The input data (n_samples, n_features).
+            y (np.ndarray): The class labels (n_samples,).
             n_components (int, optional): The number of components to retain. Defaults to 2.
             variables_names (list, optional): Names of the variables. Defaults to None.
             objects_names (list, optional): Names of the objects. Defaults to None.
-
-        Returns:
-            None
         """
         self.X = X
         self.y = y
@@ -99,54 +86,63 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
         self.variables_colors = self.change_variables_colors()
         self.objects_colors = self.change_objects_colors()
 
+        # Step 1: Perform PCA
         self.pca_model = PrincipalComponentAnalysis()
         self.pca_model.fit(self.X, variables_names, objects_names)
         self.pca_model.reduction(n_components)
         self.n_components = n_components
         self.T = self.pca_model.T
 
+        # Step 2: Prepare class indicator matrix and correlation matrices
         Y_dummy = pd.get_dummies(self.y).to_numpy()
         Rxx = np.corrcoef(self.T, rowvar=False)
         Ryy = np.corrcoef(Y_dummy, rowvar=False)
-        Rxy = np.corrcoef(self.T, Y_dummy, rowvar=False)[
-            : self.n_components, self.n_components :
-        ]
+        
+        # Ensure Rxy is calculated correctly
+        n_dummy_vars = Y_dummy.shape[1]
+        full_corr = np.corrcoef(self.T, Y_dummy, rowvar=False)
+        Rxy = full_corr[:self.n_components, self.n_components:]
 
-        A = np.linalg.solve(Rxx, Rxy @ np.linalg.solve(Ryy, Rxy.T))
+        # Step 3: Solve the generalized eigenvalue problem
+        # (Rxx^-1 * Rxy * Ryy^-1 * Ryx) * Wx = lambda * Wx
+        try:
+            Rxx_inv = np.linalg.inv(Rxx)
+            Ryy_inv = np.linalg.inv(Ryy)
+        except np.linalg.LinAlgError:
+            raise RuntimeError("Could not invert correlation matrices. Check for collinearity.")
+
+        A = Rxx_inv @ Rxy @ Ryy_inv @ Rxy.T
         eigenvalues, eigenvectors = np.linalg.eig(A)
 
-        order = np.argsort(eigenvalues)[::-1]
-        eigenvalues = eigenvalues[order]
-        eigenvectors = eigenvectors[:, order]
+        order = np.argsort(eigenvalues.real)[::-1]
+        eigenvalues = eigenvalues[order].real
+        eigenvectors = eigenvectors[:, order].real
 
-        self.Wx = eigenvectors[:, : self.n_components]
+        self.Wx = eigenvectors
         self.U = self.T @ self.Wx
 
     def transform(self, X_test):
         """
-        Transforms the data into the reduced CCA space.
-
-        This method applies the fitted PCA and CCA transformations to new data,
-        projecting it onto the lower-dimensional space that captures class-relevant
-        information.
+        Transforms new data into the reduced PCCA space.
 
         Args:
-            X_test (ndarray): The new data to transform.
+            X_test (np.ndarray): The new data to transform.
 
         Returns:
-            ndarray: The transformed data in the CCA space.
+            np.ndarray: The transformed data in the PCCA space.
         """
-        T_test = self.pca_model.transform(
-            X_test
-        )  # Assuming your PCA model has a transform method
-        U_test = self.pca_model.transform(T_test)
+        if not hasattr(self, 'pca_model'):
+            raise RuntimeError("The model must be fitted before transforming data.")
+            
+        T_test = self.pca_model.transform(X_test)
+        U_test = T_test @ self.Wx
         return U_test
 
     def change_variables_colors(self):
-        return random_colorHEX(self.n_variables)
+        return HarmonizedPaletteGenerator(self.n_variables).generate()
 
     def change_objects_colors(self):
-        return random_colorHEX(self.n_objects)
+        return HarmonizedPaletteGenerator(self.n_objects).generate()
 
     def _get_summary_data(self):
         """Returns a dictionary containing summary data for the model."""
@@ -156,15 +152,13 @@ class PrincipalComponentClassificationAnalysis(BaseModel):
             Components=f"{self.n_components}",
         )
 
-        # Add additional statistics
         if hasattr(self, "U"):
             variance_explained = np.var(self.U, axis=0)
             total_variance = np.sum(variance_explained)
-            prop_variance = variance_explained / total_variance * 100
-
-            summary["additional_stats"] = {
-                f"PC{i+1} Variance (%)": f"{var:.2f}"
-                for i, var in enumerate(prop_variance)
-            }
-
+            if total_variance > 0:
+                prop_variance = variance_explained / total_variance * 100
+                summary["additional_stats"] = {
+                    f"Component {i+1} Variance (%)": f"{var:.2f}"
+                    for i, var in enumerate(prop_variance)
+                }
         return summary

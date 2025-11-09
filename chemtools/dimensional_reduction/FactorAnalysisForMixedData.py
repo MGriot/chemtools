@@ -32,16 +32,21 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import OneHotEncoder
 from .base import DimensionalityReduction
-from chemtools.utility.set_names import initialize_names_and_counts
+from chemtools.utils.data import initialize_names_and_counts
 
 
 class FactorAnalysisOfMixedData(DimensionalityReduction):
     """
     Performs Factor Analysis of Mixed Data (FAMD).
 
-    FAMD is a principal component method that allows to analyze a data set 
+    FAMD is a principal component method that allows the analysis of a data set 
     containing both quantitative and qualitative variables. It balances the
-    influence of both types of variables.
+    influence of both types of variables by preprocessing them appropriately
+    before performing a global Principal Component Analysis (PCA).
+
+    Quantitative variables are standardized (mean-centered and scaled to unit variance).
+    Qualitative variables are transformed using one-hot encoding and then scaled
+    in a manner similar to Multiple Correspondence Analysis (MCA).
 
     Attributes:
         n_components (int): The number of components to keep.
@@ -52,6 +57,10 @@ class FactorAnalysisOfMixedData(DimensionalityReduction):
         eigenvectors (np.ndarray): The eigenvectors of the analysis.
         T (np.ndarray): The scores (coordinates of individuals).
         W (np.ndarray): The loadings (coordinates of variables).
+        
+    References:
+        - Pagès, J. (2004). Analyse factorielle de données mixtes. Revue de Statistique Appliquée, 52(4), 93-111.
+        - https://en.wikipedia.org/wiki/Factor_analysis_of_mixed_data
     """
 
     def __init__(self, n_components: int = 2):

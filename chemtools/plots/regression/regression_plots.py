@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from chemtools.plots.Plotter import Plotter
+from ..base import BasePlotter
 
 
-class RegressionPlots(Plotter):
+class RegressionPlots(BasePlotter):
     """Class for plotting regression results."""
 
     def __init__(self, regression_object, **kwargs):
@@ -14,9 +14,10 @@ class RegressionPlots(Plotter):
 
     def plot_residuals(self, xlabel="Observations", ylabel="Residuals", **kwargs):
         """Plots the residuals of the regression."""
+        params = self._process_common_params(**kwargs)
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(**kwargs)
+            fig, ax = self._create_figure(figsize=params["figsize"])
             ax.scatter(
                 range(len(self.regression_object.residuals)),
                 self.regression_object.residuals,
@@ -27,20 +28,20 @@ class RegressionPlots(Plotter):
             ax.axhline(
                 0, color=self.colors["accent_color"], linestyle="--", linewidth=1.5
             )
-            self._set_labels(ax, xlabel, ylabel, "Residuals vs. Observations")
-            ax.grid(True)
-            ax.legend(loc="best")
-            return self.apply_style_preset(fig)
+            self._set_labels(ax, xlabel, ylabel, params.get("subplot_title", "Residuals vs. Observations"))
+            self._apply_common_layout(fig, params)
+            return fig
 
         elif self.library == "plotly":
             fig = px.scatter(
                 x=range(len(self.regression_object.residuals)),
                 y=self.regression_object.residuals.ravel(),
                 labels={"x": xlabel, "y": ylabel},
-                title="Residuals vs. Observations",
+                title=params.get("title", "Residuals vs. Observations"),
+                color_discrete_sequence=[self.colors["theme_color"]],
             )
             fig.add_hline(y=0, line_dash="dash", line_color=self.colors["accent_color"])
-            fig = self.apply_style_preset(fig)
+            self._apply_common_layout(fig, params)
             return fig
 
     def plot_data(self, xlabel="X", ylabel="y", **kwargs):
@@ -52,9 +53,10 @@ class RegressionPlots(Plotter):
             **kwargs: Additional keyword arguments passed to the plotting
                       functions.
         """
+        params = self._process_common_params(**kwargs)
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(**kwargs)
+            fig, ax = self._create_figure(figsize=params["figsize"])
             ax.scatter(
                 self.regression_object.X_orig,
                 self.regression_object.y,
@@ -62,19 +64,19 @@ class RegressionPlots(Plotter):
                 c=self.colors["theme_color"],
                 alpha=0.7,
             )
-            self._set_labels(ax, xlabel, ylabel, "Data Points")
-            ax.legend(loc="best")
-            ax.grid(True)
-            return self.apply_style_preset(fig)
+            self._set_labels(ax, xlabel, ylabel, params.get("subplot_title", "Data Points"))
+            self._apply_common_layout(fig, params)
+            return fig
 
         elif self.library == "plotly":
             fig = px.scatter(
                 x=self.regression_object.X_orig.ravel(),
                 y=self.regression_object.y.ravel(),
                 labels={"x": xlabel, "y": ylabel},
-                title="Data Points",
+                title=params.get("title", "Data Points"),
+                color_discrete_sequence=[self.colors["theme_color"]],
             )
-            fig = self.apply_style_preset(fig)
+            self._apply_common_layout(fig, params)
             return fig
 
     def plot_regression_line(
@@ -90,9 +92,10 @@ class RegressionPlots(Plotter):
             **kwargs: Additional keyword arguments passed to the plotting
                       functions.
         """
+        params = self._process_common_params(**kwargs)
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(**kwargs)
+            fig, ax = self._create_figure(figsize=params["figsize"])
             x_line = np.linspace(
                 self.regression_object.X_orig.min(),
                 self.regression_object.X_orig.max(),
@@ -123,10 +126,9 @@ class RegressionPlots(Plotter):
                     verticalalignment="top",
                 )
 
-            self._set_labels(ax, xlabel, ylabel, "Regression Line")
-            ax.legend(loc="best")
-            ax.grid(True)
-            return self.apply_style_preset(fig)
+            self._set_labels(ax, xlabel, ylabel, params.get("subplot_title", "Regression Line"))
+            self._apply_common_layout(fig, params)
+            return fig
 
         elif self.library == "plotly":
             fig = go.Figure()
@@ -167,12 +169,9 @@ class RegressionPlots(Plotter):
                     showarrow=False,
                 )
 
-            fig.update_layout(
-                xaxis_title=xlabel,
-                yaxis_title=ylabel,
-                title="Regression Line",
-            )
-            return self.apply_style_preset(fig)
+            self._set_labels(fig, xlabel=xlabel, ylabel=ylabel, title=params.get("title", "Regression Line"))
+            self._apply_common_layout(fig, params)
+            return fig
 
     def _generate_equation_string(self):
         """Helper method to generate the equation string."""
@@ -215,10 +214,11 @@ class RegressionPlots(Plotter):
                                    If None, uses theme's confidence_band color.
             **kwargs: Additional keyword arguments for plotting.
         """
+        params = self._process_common_params(**kwargs)
         confidence_band_color = confidence_band_color or self.colors["confidence_band"]
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(**kwargs)
+            fig, ax = self._create_figure(figsize=params["figsize"])
             ax.fill_between(
                 self.regression_object.X_orig.ravel(),
                 self.regression_object.lower_confidence_band.ravel(),
@@ -234,10 +234,9 @@ class RegressionPlots(Plotter):
                 c=self.colors["theme_color"],
                 alpha=0.7,
             )
-            self._set_labels(ax, xlabel, ylabel, "Confidence Band")
-            ax.legend(loc="best")
-            ax.grid(True)
-            return self.apply_style_preset(fig)
+            self._set_labels(ax, xlabel, ylabel, params.get("subplot_title", "Confidence Band"))
+            self._apply_common_layout(fig, params)
+            return fig
 
         elif self.library == "plotly":
             # ... Implement Plotly version if needed ...
@@ -255,10 +254,11 @@ class RegressionPlots(Plotter):
                                    If None, uses theme's prediction_band color.
             **kwargs: Additional keyword arguments for plotting.
         """
+        params = self._process_common_params(**kwargs)
         prediction_band_color = prediction_band_color or self.colors["prediction_band"]
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(**kwargs)
+            fig, ax = self._create_figure(figsize=params["figsize"])
             ax.fill_between(
                 self.regression_object.X_orig.ravel(),
                 self.regression_object.lower_prediction_band.ravel(),
@@ -274,10 +274,9 @@ class RegressionPlots(Plotter):
                 c=self.colors["theme_color"],
                 alpha=0.7,
             )
-            self._set_labels(ax, xlabel, ylabel, "Prediction Band")
-            ax.legend(loc="best")
-            ax.grid(True)
-            return self.apply_style_preset(fig)
+            self._set_labels(ax, xlabel, ylabel, params.get("subplot_title", "Prediction Band"))
+            self._apply_common_layout(fig, params)
+            return fig
 
         elif self.library == "plotly":
             # ... Implement Plotly version if needed ...
@@ -316,11 +315,12 @@ class RegressionPlots(Plotter):
                                                     Defaults to default.
             **kwargs: Additional keyword arguments for plotting.
         """
+        params = self._process_common_params(**kwargs)
         confidence_band_color = confidence_band_color or self.colors["confidence_band"]
         prediction_band_color = prediction_band_color or self.colors["prediction_band"]
 
         if self.library == "matplotlib":
-            fig, ax = self._create_figure(**kwargs)
+            fig, ax = self._create_figure(figsize=params["figsize"])
             if show_data:
                 ax.scatter(
                     self.regression_object.X_orig,
@@ -369,10 +369,9 @@ class RegressionPlots(Plotter):
                     label="Prediction Band",
                 )
 
-            self._set_labels(ax, xlabel, ylabel, "Regression Results")
-            ax.legend(loc="best")
-            ax.grid(True)
-            return self.apply_style_preset(fig)
+            self._set_labels(ax, xlabel, ylabel, params.get("subplot_title", "Regression Results"))
+            self._apply_common_layout(fig, params)
+            return fig
 
         elif self.library == "plotly":
             # ... Implement Plotly version if needed ...

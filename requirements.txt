@@ -1,2 +1,10 @@
-
 plotly
+flet
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+husl

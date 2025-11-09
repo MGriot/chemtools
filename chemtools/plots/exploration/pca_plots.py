@@ -3,10 +3,10 @@ import matplotlib.patches as patches
 from matplotlib.patches import Ellipse
 import numpy as np
 
-from chemtools.plots.Plotter import Plotter
+from ..base import BasePlotter
 
 
-class PCAplots(Plotter):
+class PCAplots(BasePlotter):
     """Class to generate various plots related to Principal Component Analysis (PCA).
 
     Args:
@@ -14,8 +14,8 @@ class PCAplots(Plotter):
         **kwargs: Keyword arguments passed to the Plotter class.
     """
 
-    def __init__(self, pca_object, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, pca_object, library="matplotlib", theme="light", style_preset="default", **kwargs):
+        super().__init__(library=library, theme=theme, style_preset=style_preset, **kwargs)
         self.pca_object = pca_object
 
     def _normalize_colors(self, colors):
@@ -26,9 +26,10 @@ class PCAplots(Plotter):
             return colors
         return [colors] * len(self.pca_object.variables)
 
-    def plot_correlation_matrix(self, cmap="coolwarm", threshold=None):
+    def plot_correlation_matrix(self, cmap="coolwarm", threshold=None, **kwargs):
         """Plots the correlation matrix of the data used in the PCA."""
-        fig, ax = self._create_figure(figsize=(10, 10))
+        params = self._process_common_params(**kwargs)
+        fig, ax = self._create_figure(figsize=params["figsize"])
 
         # Create heatmap
         im = ax.imshow(self.pca_object.correlation_matrix, cmap=cmap)
@@ -70,16 +71,11 @@ class PCAplots(Plotter):
                 )
 
         # Set title and apply style
-        self._set_labels(ax, title="Correlation Matrix")
-        fig = self.apply_style_preset(fig)
-
-        # Show plot using plt.show() for matplotlib
-        if self.library == "matplotlib":
-            plt.tight_layout()
-            plt.show()
+        self._set_labels(ax, subplot_title=params.get("subplot_title", "Correlation Matrix"))
+        self._apply_common_layout(fig, params)
         return fig
 
-    def plot_eigenvalues(self, criteria=None):
+    def plot_eigenvalues(self, criteria=None, **kwargs):
         """Plots the eigenvalues and highlights them based on the chosen criteria.
 
         Args:
@@ -90,7 +86,8 @@ class PCAplots(Plotter):
                                        'broken_stick'. If None, no highlighting is
                                        applied. Defaults to None.
         """
-        fig, ax = self._create_figure(figsize=(8, 6))
+        params = self._process_common_params(**kwargs)
+        fig, ax = self._create_figure(figsize=params["figsize"])
 
         # Main eigenvalues plot with theme colors
         ax.plot(
@@ -104,8 +101,7 @@ class PCAplots(Plotter):
 
         # Set up axes with theme colors
         ax.set_xticks(range(len(self.pca_object.PC_index)))
-        ax.set_xticklabels(self.pca_object.PC_index)
-        ax.grid(True, color=self.colors["grid_color"])
+        ax.grid(False)
 
         all_criteria = [
             "greater_than_one",
@@ -128,21 +124,10 @@ class PCAplots(Plotter):
             ax,
             xlabel=r"$PC_i$",
             ylabel="Eigenvalue",
-            title="Eigenvalues with Selected Criteria",
+            subplot_title=params.get("subplot_title", "Eigenvalues with Selected Criteria"),
         )
 
-        # Style legend with theme colors
-        if ax.get_legend():
-            ax.legend(loc="best").set_draggable(True)
-            for text in ax.get_legend().get_texts():
-                text.set_color(self.colors["text_color"])
-
-        # Apply style preset and show plot
-        fig = self.apply_style_preset(fig)
-
-        if self.library == "matplotlib":
-            plt.tight_layout()
-            plt.show()
+        self._apply_common_layout(fig, params)
         return fig
 
     def _add_eigenvalue_criteria(self, ax, criteria):
@@ -314,14 +299,14 @@ class PCAplots(Plotter):
             label="Broken Stick",
         )
 
-    def plot_hotteling_t2_vs_q(self, show_legend=True):
+    def plot_hotteling_t2_vs_q(self, **kwargs):
         """Plots the Hotelling's T2 statistic versus the Q statistic (Squared Prediction Error).
 
         Args:
-            show_legend (bool, optional): Whether to display the legend.
-                                        Defaults to True.
+            **kwargs: Additional keyword arguments passed to the plotter.
         """
-        fig, ax = self._create_figure(figsize=(8, 6))
+        params = self._process_common_params(**kwargs)
+        fig, ax = self._create_figure(figsize=params["figsize"])
 
         for i in range(len(self.pca_object.Q)):
             ax.plot(
@@ -336,19 +321,17 @@ class PCAplots(Plotter):
             ax,
             xlabel=r"$Q$ (Squared Prediction Error)",
             ylabel=r"$Hotelling's T^2$",
-            title="Hotelling's T2 vs. Q",
+            subplot_title=params.get("subplot_title", "Hotelling's T2 vs. Q"),
         )
-        ax.grid(True, color=self.colors["grid_color"])
+        ax.grid(False)
 
-        if show_legend:
-            ax.legend(loc="best")
-
-        fig = self.apply_style_preset(fig)
+        self._apply_common_layout(fig, params)
         return fig
 
-    def plot_pci_contribution(self):
+    def plot_pci_contribution(self, **kwargs):
         """Plots the contribution of each variable to each principal component."""
-        fig, ax = self._create_figure(figsize=(10, 6))
+        params = self._process_common_params(**kwargs)
+        fig, ax = self._create_figure(figsize=params["figsize"])
         for i in range(self.pca_object.W.shape[1]):
             ax.plot(
                 np.arange(self.pca_object.n_variables),
@@ -363,7 +346,7 @@ class PCAplots(Plotter):
             ax,
             xlabel="Variable",
             ylabel="Value of Loading",
-            title="Contributions of Variables to Each PC",
+            subplot_title=params.get("subplot_title", "Contributions of Variables to Each PC"),
         )
 
         plt.xticks(
@@ -373,33 +356,26 @@ class PCAplots(Plotter):
             ha="right",
             rotation_mode="anchor",
         )
-        ax.legend(labelcolor=self.colors["text_color"])
-        ax.grid(True, color=self.colors["grid_color"])
-        fig = self.apply_style_preset(fig)
+        ax.grid(False)
+        self._apply_common_layout(fig, params)
         return fig
 
-    def plot_loadings(self, components=None, show_arrows=True):
+    def plot_loadings(self, components=None, show_arrows=True, **kwargs):
         """Plot loadings with themed colors."""
+        params = self._process_common_params(**kwargs)
         if components is not None:
             i, j = components
-            fig = self._plot_loadings_single(i, j, show_arrows)
+            fig = self._plot_loadings_single(i, j, show_arrows, params)
         else:
-            fig = self._plot_loadings_matrix(show_arrows)
+            fig = self._plot_loadings_matrix(show_arrows, params)
         
-        if self.library == "matplotlib":
-            plt.tight_layout()
-            plt.show()
+        self._apply_common_layout(fig, params)
         return fig
 
-    def _plot_loadings_single(self, i, j, show_arrows=True):
+    def _plot_loadings_single(self, i, j, show_arrows, params):
         """Plots loadings for a single pair of components."""
-        fig, ax = self._create_figure(figsize=(5, 5))
-        fig.suptitle(
-            f"Loadings plot PC{i+1} vs PC{j+1}",
-            fontsize=24,
-            y=1,
-            color=self.colors["text_color"],
-        )
+        fig, ax = self._create_figure(figsize=params["figsize"])
+        self._set_labels(ax, subplot_title=params.get("subplot_title", f"Loadings plot PC{i+1} vs PC{j+1}"))
 
         x_data = self.pca_object.W[:, i]
         y_data = self.pca_object.W[:, j]
@@ -436,27 +412,16 @@ class PCAplots(Plotter):
             )
 
         self._set_labels(ax, xlabel=rf"PC$_{i+1}$", ylabel=rf"PC$_{j+1}$")
-
-        handles, labels = scatter.legend_elements()
-        fig.legend(
-            handles,
-            labels,
-            loc="center left",
-            bbox_to_anchor=(1, 0.5),
-            labelcolor=self.colors["text_color"],
-        )
-        plt.tight_layout()
         return fig
 
-    def _plot_loadings_matrix(self, show_arrows=True):
+    def _plot_loadings_matrix(self, show_arrows, params):
         fig, axs = plt.subplots(
             self.pca_object.n_component,
             self.pca_object.n_component,
-            figsize=(5 * self.pca_object.n_component, 5 * self.pca_object.n_component),
+            figsize=params["figsize"],
         )
-        fig.suptitle("Loadings Plot", color=self.colors["text_color"])
+        self._set_labels(fig, title=params.get("title", "Loadings Plot"))
 
-        # Handle both single axis and matrix of axes
         if self.pca_object.n_component == 1:
             axs = np.array([[axs]])
         elif self.pca_object.n_component == 2:
@@ -470,7 +435,6 @@ class PCAplots(Plotter):
                 else:
                     self._plot_empty_loadings_on_axis(ax, i)
                     
-        fig = self.apply_style_preset(fig)
         return fig
 
     def _plot_loadings_on_axis(self, ax, i, j, show_arrows=True):
@@ -529,28 +493,22 @@ class PCAplots(Plotter):
             )
         )
 
-    def plot_scores(self, components=None, label_points=False):
+    def plot_scores(self, components=None, label_points=False, **kwargs):
         """Plot scores with proper theme colors."""
+        params = self._process_common_params(**kwargs)
         if components is not None:
             i, j = components
-            fig = self._plot_scores_single(i, j, label_points)
+            fig = self._plot_scores_single(i, j, label_points, params)
         else:
-            fig = self._plot_scores_matrix(label_points)
+            fig = self._plot_scores_matrix(label_points, params)
         
-        if self.library == "matplotlib":
-            plt.tight_layout()
-            plt.show()
+        self._apply_common_layout(fig, params)
         return fig
 
-    def _plot_scores_single(self, i, j, label_points=False):
+    def _plot_scores_single(self, i, j, label_points, params):
         """Plots scores for a single pair of components."""
-        fig, ax = self._create_figure(figsize=(5, 5))
-        fig.suptitle(
-            f"Scores plot PC{i+1} vs PC{j+1}",
-            fontsize=24,
-            y=1,
-            color=self.colors["text_color"],
-        )
+        fig, ax = self._create_figure(figsize=params["figsize"])
+        self._set_labels(ax, subplot_title=params.get("subplot_title", f"Scores plot PC{i+1} vs PC{j+1}"))
 
         x_data = self.pca_object.T[:, i]
         y_data = self.pca_object.T[:, j]
@@ -568,27 +526,16 @@ class PCAplots(Plotter):
                 )
 
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
-
-        handles, labels = scatter.legend_elements()
-        fig.legend(
-            handles,
-            labels,
-            loc="center left",
-            bbox_to_anchor=(1, 0.5),
-            labelcolor=self.colors["text_color"],
-        )
-        plt.tight_layout()
         return fig
 
-    def _plot_scores_matrix(self, label_points=False):
+    def _plot_scores_matrix(self, label_points, params):
         fig, axs = plt.subplots(
             self.pca_object.n_component,
             self.pca_object.n_component,
-            figsize=(5 * self.pca_object.n_component, 5 * self.pca_object.n_component),
+            figsize=params["figsize"],
         )
-        fig.suptitle("Scores Plot", color=self.colors["text_color"])
+        self._set_labels(fig, title=params.get("title", "Scores Plot"))
 
-        # Handle both single axis and matrix of axes
         if self.pca_object.n_component == 1:
             axs = np.array([[axs]])
         elif self.pca_object.n_component == 2:
@@ -602,7 +549,6 @@ class PCAplots(Plotter):
                 else:
                     self._plot_empty_scores_on_axis(ax, i)
                     
-        fig = self.apply_style_preset(fig)
         return fig
 
     def _plot_scores_on_axis(self, ax, i, j, label_points=False):
@@ -645,8 +591,7 @@ class PCAplots(Plotter):
         self,
         components=None,
         label_points=False,
-        subplot_dimensions=(5, 5),
-        show_legend=True,
+        **kwargs,
     ):
         """Plots a biplot, combining scores and loadings in one plot.
 
@@ -655,37 +600,28 @@ class PCAplots(Plotter):
                                         Defaults to None (all components).
             label_points (bool, optional): Whether to label the score points.
                                         Defaults to False.
-            subplot_dimensions (tuple, optional): Dimensions of subplots.
-                                                Defaults to (5, 5).
-            show_legend (bool, optional): Whether to display the legend.
-                                        Defaults to True.
+            **kwargs: Additional keyword arguments passed to the plotter.
         """
+        params = self._process_common_params(**kwargs)
         if components is not None:
             i, j = components
             fig = self._plot_biplot_single(
-                i, j, label_points, subplot_dimensions, show_legend
+                i, j, label_points, params
             )
         else:
             fig = self._plot_biplot_matrix(
-                label_points, subplot_dimensions, show_legend
+                label_points, params
             )
         
-        if self.library == "matplotlib":
-            plt.tight_layout()
-            plt.show()
+        self._apply_common_layout(fig, params)
         return fig
 
     def _plot_biplot_single(
-        self, i, j, label_points=False, subplot_dimensions=(5, 5), show_legend=True
+        self, i, j, label_points, params
     ):
         """Plots a biplot for a single pair of components."""
-        fig, ax = self._create_figure(figsize=subplot_dimensions)
-        fig.suptitle(
-            f"Biplot PC{i+1} vs PC{j+1}",
-            fontsize=24,
-            y=1,
-            color=self.colors["text_color"],
-        )
+        fig, ax = self._create_figure(figsize=params["figsize"])
+        self._set_labels(ax, subplot_title=params.get("subplot_title", f"Biplot PC{i+1} vs PC{j+1}"))
 
         x_data = self.pca_object.T[:, i]
         y_data = self.pca_object.T[:, j]
@@ -727,22 +663,10 @@ class PCAplots(Plotter):
             )
 
         self._set_labels(ax, xlabel=f"PC{i+1}", ylabel=f"PC{j+1}")
-
-        if show_legend:
-            handles, labels = scatter.legend_elements()
-            fig.legend(
-                handles,
-                labels,
-                loc="center left",
-                bbox_to_anchor=(1, 0.5),
-                labelcolor=self.colors["text_color"],
-            )
-
-        plt.tight_layout()
         return fig
 
     def _plot_biplot_matrix(
-        self, label_points=False, subplot_dimensions=(5, 5), show_legend=True
+        self, label_points, params
     ):
         """Plots biplots for all pairs of components in a matrix."""
         height_ratios = [1] * self.pca_object.n_component
@@ -751,16 +675,13 @@ class PCAplots(Plotter):
         fig, axs = plt.subplots(
             self.pca_object.n_component,
             self.pca_object.n_component,
-            figsize=(
-                subplot_dimensions[0] * self.pca_object.n_component,
-                subplot_dimensions[1] * self.pca_object.n_component,
-            ),
+            figsize=params["figsize"],
             gridspec_kw={
                 "height_ratios": height_ratios,
                 "width_ratios": width_ratios,
             },
         )
-        fig.suptitle("Biplots plot", fontsize=24, y=1, color=self.colors["text_color"])
+        self._set_labels(fig, title=params.get("title", "Biplots plot"))
 
         all_handles = []
         all_labels = []
@@ -777,17 +698,6 @@ class PCAplots(Plotter):
                     all_labels.extend(labels)
                 else:
                     self._plot_empty_biplot_on_axis(ax, i)
-
-        if show_legend:
-            fig.legend(
-                all_handles,
-                all_labels,
-                loc="center left",
-                bbox_to_anchor=(1, 0.5),
-                labelcolor=self.colors["text_color"],
-            )
-
-        plt.tight_layout()
         return fig
 
     def _plot_biplot_on_axis(self, ax, i, j, label_points=False):
@@ -856,7 +766,7 @@ class PCAplots(Plotter):
         )
 
     def plot_classes_pca(
-        self, class_labels, new_data_point=None, colors=None, ellipse_std=2
+        self, class_labels, new_data_point=None, colors=None, ellipse_std=2, **kwargs
     ):
         """Plots multiple classes in PCA space with centroids,
         class boundaries, and an optional new data point.
@@ -869,11 +779,16 @@ class PCAplots(Plotter):
             ellipse_std (float, optional): The number of standard deviations to use for
                                         the ellipse radius. Defaults to 2.
         """
+        params = self._process_common_params(**kwargs)
         pca_models = self.pca_object
         if colors is None:
-            colors = plt.cm.get_cmap("viridis", len(pca_models)).colors
+            if len(pca_models) <= len(self.colors["category_color_scale"]):
+                colors = self.colors["category_color_scale"][:len(pca_models)]
+            else:
+                # Fallback to a matplotlib colormap if not enough theme colors
+                colors = plt.cm.get_cmap("viridis", len(pca_models)).colors
 
-        fig, ax = self._create_figure()
+        fig, ax = self._create_figure(figsize=params["figsize"])
 
         for i, pca in enumerate(pca_models):
             class_scores = pca.T
@@ -921,7 +836,7 @@ class PCAplots(Plotter):
                 )
 
         self._set_labels(
-            ax, xlabel="PC1", ylabel="PC2", title="Class Separation in PCA Space"
+            ax, xlabel="PC1", ylabel="PC2", subplot_title=params.get("subplot_title", "Class Separation in PCA Space")
         )
-        fig = self.apply_style_preset(fig)
+        self._apply_common_layout(fig, params)
         return fig

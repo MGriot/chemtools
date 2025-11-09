@@ -1,1 +1,1 @@
-from .Plotter import Plotter
+from .base import BasePlotter

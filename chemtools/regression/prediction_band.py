@@ -1,44 +1,49 @@
 import numpy as np
+from typing import Tuple
 
-
-def prediction_band(number_data, X, x_mean, y_pred_orig, SSxx, t_two):
+def prediction_band(number_data: int, X: np.ndarray, x_mean: np.ndarray, y_pred: np.ndarray, SSxx: np.ndarray, t_two: float) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Calcola la banda di predizione per una regressione lineare.
+    Calculates the prediction band for a linear regression.
 
-    Parametri:
-    number_data (int): Numero totale di osservazioni.
-    x (array): Array contenente i valori di x per cui si vuole calcolare la banda di predizione.
-    x_mean (float): Media dei valori di x.
-    y_pred_orig (array): Array contenente i valori predetti di y per i valori di x in input.
-    SSxx (float): Somma dei quadrati delle deviazioni di X dalla sua media.
-    t_two (float): Valore critico della distribuzione t di Student con gradi di libertà pari al numero di osservazioni meno il numero di parametri stimati.
+    The prediction band provides a range of values within which a future observation
+    is expected to fall with a certain level of confidence. It is wider than the
+    confidence band because it accounts for both the uncertainty in the estimated
 
-    Restituisce:
-    PI_Y_upper (array): Array contenente gli estremi superiori della banda di predizione per ogni valore x in input.
-    PI_Y_lower (array): Array contenente gli estremi inferiori della banda di predizione per ogni valore x in input.
+    Args:
+        number_data (int): Total number of observations.
+        X (np.ndarray): Array containing the x-values for which the prediction band is to be calculated.
+        x_mean (np.ndarray): Mean of the x-values.
+        y_pred (np.ndarray): Array containing the predicted y-values for the input x-values.
+        SSxx (np.ndarray): Sum of squares of the deviations of X from its mean.
+        t_two (float): The two-tailed critical value from Student's t-distribution.
 
-    Esempio:
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: A tuple containing:
+            - PI_Y_upper (np.ndarray): The upper bounds of the prediction band for each input x-value.
+            - PI_Y_lower (np.ndarray): The lower bounds of the prediction band for each input x-value.
 
-            # Definisci i parametri in input
-            number_data = 100
-            x = np.array([...])
-            x_mean = np.mean(x)
-            y_pred_orig = np.array([...])
-            SSxx = np.sum((x - x_mean) ** 2)
-            t_two = stats.t.ppf(1 - 0.05 / 2, number_data - 2)
+    Example:
+        import numpy as np
+        from scipy import stats
 
-            # Chiama la funzione prediction_band passando i parametri in input
-            PI_Y_upper, PI_Y_lower = prediction_band(number_data, x, x_mean, y_pred_orig, SSxx, t_two)
+        # Define input parameters
+        number_data = 100
+        x = np.array([...])
+        x_mean = np.mean(x)
+        y_pred = np.array([...])
+        SSxx = np.sum((x - x_mean) ** 2)
+        t_two = stats.t.ppf(1 - 0.05 / 2, number_data - 2)
 
-            # Visualizza gli estremi superiori e inferiori della banda di predizione
-            print(PI_Y_upper)
-            print(PI_Y_lower)
+        # Call the prediction_band function
+        PI_Y_upper, PI_Y_lower = prediction_band(number_data, x, x_mean, y_pred, SSxx, t_two)
 
+        # Display the upper and lower bounds of the prediction band
+        print(PI_Y_upper)
+        print(PI_Y_lower)
     """
-
-    # Calcola la banda di predizione superiore e inferiore utilizzando operazioni vettoriali
+    # Calculate the upper and lower prediction band using vector operations
     diff = X - x_mean
     PI_term = t_two * np.sqrt(1 + 1 / number_data + np.sum((diff**2 / SSxx), axis=1))
-    PI_Y_upper = y_pred_orig + PI_term
-    PI_Y_lower = y_pred_orig - PI_term
+    PI_Y_upper = y_pred + PI_term
+    PI_Y_lower = y_pred - PI_term
     return PI_Y_upper, PI_Y_lower

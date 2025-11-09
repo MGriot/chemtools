@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
-from ..Plotter import Plotter
+from ..base import BasePlotter
 import plotly.figure_factory as ff
 
 
-class DendrogramPlotter(Plotter):
+class DendrogramPlotter(BasePlotter):
     """
     A plotter class for dendrogram visualization that supports both matplotlib and plotly.
     Inherits from the master Plotter class.

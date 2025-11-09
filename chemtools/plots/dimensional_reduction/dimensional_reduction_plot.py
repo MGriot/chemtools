@@ -1,4 +1,4 @@
-from chemtools.plots.Plotter import Plotter
+from ..base import BasePlotter
 from chemtools.dimensional_reduction import FactorAnalysis
 from chemtools.exploration import PrincipalComponentAnalysis
 import matplotlib.pyplot as plt
@@ -15,11 +15,11 @@ from typing import List, Dict, Optional, Union, Tuple, Any # From Plotter, but g
 
 
 # --- Subclass for Dimensionality Reduction Visualization ---
-class DimensionalityReductionPlot(Plotter):
+class DimensionalityReductionPlot(BasePlotter):
     """Class for dimensional reduction visualization."""
 
-    def __init__(self, dim_reduction_model, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, dim_reduction_model, library="matplotlib", theme="light", style_preset="default", **kwargs):
+        super().__init__(library=library, theme=theme, style_preset=style_preset, **kwargs)
         self.dim_reduction_model = dim_reduction_model
 
         # Augment the self.colors dictionary from Plotter's theme
@@ -50,6 +50,7 @@ class DimensionalityReductionPlot(Plotter):
 
         ax.tick_params(axis="x", colors=self.colors["text_color"])
         ax.tick_params(axis="y", colors=self.colors["text_color"])
+        ax.grid(False) # Disable grid for correlation matrix
 
         self._set_labels(
             ax,

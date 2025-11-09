@@ -1,6 +1,6 @@
 """
-chemtools.exploration.ExtendedPrincipalComponentAnalysis
----------------------------------------------------------
+chemtools.dimensional_reduction.ExtendedPrincipalComponentAnalysis
+-----------------------------------------------------------------
 
 This module provides the ExtendedPrincipalComponentAnalysis class for performing 
 Extended Principal Component Analysis (XPCA) on mixed data (both discrete 
@@ -12,21 +12,19 @@ different nature of the data. This allows for a more robust analysis
 compared to traditional PCA when dealing with mixed data types.
 
 Example usage:
->>> from chemtools.exploration import ExtendedPrincipalComponentAnalysis
+>>> from chemtools.dimensional_reduction import ExtendedPrincipalComponentAnalysis
 >>> # Assuming 'X' is your dataset (numpy array or pandas DataFrame)
 >>> xpca = ExtendedPrincipalComponentAnalysis(X) 
->>> xpca.fit(autoscaling=True)  # Consider autoscaling for mixed data
->>> xpca.reduction(n_components=2) # Reduce to 2 dimensions
->>> # ... Access results (e.g., xpca.T, xpca.V_reduced, xpca.W) 
->>> # ... and use plotting methods
+>>> xpca.fit(autoscaling=True)
+>>> xpca.reduction(n_components=2)
+>>> # Access results: xpca.T, xpca.W, etc.
 """
 
 import numpy as np
 from scipy.stats import norm
 
-from chemtools.utility import reorder_array
-from chemtools.utility import random_colorHEX
-from chemtools.utility.set_names import set_objects_names, set_variables_names
+from chemtools.utils import HarmonizedPaletteGenerator
+from chemtools.utils.data import set_objects_names, set_variables_names
 from chemtools.base.base_models import BaseModel
 
 
@@ -34,32 +32,19 @@ class ExtendedPrincipalComponentAnalysis(BaseModel):
     """
     Performs Extended Principal Component Analysis (XPCA) on mixed data.
 
+    XPCA is a variant of PCA that uses Gaussian copulas to model the 
+    dependence structure between variables. This makes it suitable for
+    datasets containing both continuous and discrete variables.
+
     Attributes:
         model_name (str): Name of the model.
         X (np.ndarray): Input data.
-        variables (np.ndarray): Names of the variables.
-        objects (np.ndarray): Names of the objects.
-        n_variables (int): Number of variables.
-        n_objects (int): Number of objects.
-        variables_colors (list): List of colors for the variables.
-        objects_colors (list): List of colors for the objects.
-        autoscaling (bool): Indicates whether to autoscale the data.
-        mean (np.ndarray): Mean of the data (if autoscaling is True).
-        std (np.ndarray): Standard deviation of the data (if autoscaling is True).
-        X_autoscaled (np.ndarray): Autoscaled data (if autoscaling is True).
-        U (np.ndarray): Matrix of nonparametric marginals.
-        correlation_matrix (np.ndarray): Covariance matrix of the copula.
-        V (np.ndarray): Eigenvalues of the covariance matrix.
-        L (np.ndarray): Eigenvectors of the covariance matrix.
-        order (np.ndarray): Order of the eigenvalues.
+        T (np.ndarray): Transformed data in the reduced space (scores).
+        W (np.ndarray): Matrix of eigenvectors for the reduced components (loadings).
         V_ordered (np.ndarray): Ordered eigenvalues.
-        L_ordered (np.ndarray): Ordered eigenvectors.
-        index (np.ndarray): Principal component indices.
-        n_components (int): Number of principal components to retain.
-        V_reduced (np.ndarray): Reduced eigenvalues.
-        W (np.ndarray): Matrix of eigenvectors for the reduced components.
-        T (np.ndarray): Transformed data in the reduced space.
-
+        
+    References:
+        - https://en.wikipedia.org/wiki/Copula_(probability_theory)
     """
 
     def __init__(self, X, variables_names=None, objects_names=None):
@@ -86,71 +71,80 @@ class ExtendedPrincipalComponentAnalysis(BaseModel):
         Fit the XPCA model to the data.
 
         Args:
-            autoscaling (bool, optional): If True, autoscale the data before applying XPCA. Defaults to False.
+            autoscaling (bool, optional): If True, autoscale the data. Defaults to False.
         """
-        try:
-            self.autoscaling = autoscaling
-            if autoscaling:
-                # Calculate mean and standard deviation
-                self.mean = np.mean(self.X, axis=0)
-                self.std = np.std(self.X, axis=0)
-                # Check for zero standard deviation
-                zero_std_columns = np.where(self.std == 0)[0]
-                if zero_std_columns.size > 0:
-                    raise ValueError(
-                        f"The standard deviation contains zero in the columns: {zero_std_columns}. Consider removing the variables or setting autoscaling to False."
-                    )
-                # Autoscale the data
-                self.X_autoscaled = (self.X - self.mean) / self.std
-                X_to_use = self.X_autoscaled
-            else:
-                X_to_use = self.X
+        self.autoscaling = autoscaling
+        X_to_use = self.X
+        if autoscaling:
+            self.mean = np.mean(self.X, axis=0)
+            self.std = np.std(self.X, axis=0)
+            if np.any(self.std == 0):
+                raise ValueError("Cannot autoscale data with zero standard deviation in one or more columns.")
+            self.X_autoscaled = (self.X - self.mean) / self.std
+            X_to_use = self.X_autoscaled
 
-            # Calculate nonparametric marginals
-            self.U = np.array(
-                [norm.cdf(X_to_use[:, i]) for i in range(X_to_use.shape[1])]
-            ).T
+        # Calculate nonparametric marginals (U-matrix)
+        self.U = np.array([norm.cdf(X_to_use[:, i]) for i in range(X_to_use.shape[1])]).T
 
-            # Calculate the covariance matrix of the copula
-            self.correlation_matrix = np.cov(self.U, rowvar=False)
+        # Calculate the correlation matrix of the copula
+        self.correlation_matrix = np.corrcoef(self.U, rowvar=False)
 
-            # Calculate eigenvalues and eigenvectors
-            self.V, self.L = np.linalg.eigh(self.correlation_matrix)
-            self.order = np.argsort(self.V)[::-1]
-            self.V_ordered = self.V[self.order]
-            self.L_ordered = self.L[:, self.order]
-            self.index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
-        except np.linalg.LinAlgError as e:
-            print(f"Error during the calculation of eigenvalues and eigenvectors: {e}")
-        except Exception as e:
-            print(f"Unknown error: {e}")
+        # Eigenvalue decomposition
+        self.V, self.L = np.linalg.eigh(self.correlation_matrix)
+        self.order = np.argsort(self.V)[::-1]
+        self.V_ordered = self.V[self.order]
+        self.L_ordered = self.L[:, self.order]
+        self.index = np.array([f"PC{i+1}" for i in range(self.V.shape[0])])
 
     def change_variables_colors(self):
-        """Generates random colors for the variables."""
-        return random_colorHEX(self.n_variables)
+        """Generates colors for the variables."""
+        return HarmonizedPaletteGenerator(self.n_variables).generate()
 
     def change_objects_colors(self):
-        """Generates random colors for the objects."""
-        return random_colorHEX(self.n_objects)
+        """Generates colors for the objects."""
+        return HarmonizedPaletteGenerator(self.n_objects).generate()
 
     def reduction(self, n_components=2):
         """
-        Reduce the dimensionality of the data using the specified number of components.
+        Reduce the dimensionality of the data.
 
         Args:
             n_components (int): Number of principal components to retain.
         """
+        if not hasattr(self, 'V_ordered'):
+            raise RuntimeError("Fit method must be called before reduction.")
+        
         self.n_components = n_components
-        try:
-            # Select the top n_components eigenvalues and eigenvectors
-            self.V_reduced = self.V_ordered[:n_components]
-            self.W = self.L_ordered[:, :n_components]
-            # Transform the data into the reduced space
-            if self.autoscaling:
-                self.T = np.dot(self.X_autoscaled, self.W)
-            else:
-                self.T = np.dot(self.X, self.W)
-        except AttributeError as e:
-            print(f"Attribute error: {e}")
-        except Exception as e:
-            print(f"Unknown error: {e}")
+        self.V_reduced = self.V_ordered[:n_components]
+        self.W = self.L_ordered[:, :n_components]
+        
+        X_to_transform = self.X_autoscaled if self.autoscaling else self.X
+        self.T = np.dot(X_to_transform, self.W)
+
+    def _get_summary_data(self):
+        """Returns a dictionary containing summary data for the model."""
+        if not hasattr(self, 'V_ordered'):
+            return {}
+
+        explained_variance = self.V_ordered / np.sum(self.V_ordered)
+        cumulative_variance = np.cumsum(explained_variance)
+
+        summary = self._create_general_summary(
+            self.n_variables,
+            self.n_objects,
+            No_Components=f"{self.n_components}"
+        )
+
+        eigenvalue_table = [
+            ["Component", "Eigenvalue", "Explained Variance (%)", "Cumulative Variance (%)"]
+        ]
+        for i in range(len(self.V_ordered)):
+            eigenvalue_table.append([
+                f"PC{i+1}",
+                f"{self.V_ordered[i]:.4f}",
+                f"{explained_variance[i] * 100:.2f}",
+                f"{cumulative_variance[i] * 100:.2f}"
+            ])
+        
+        summary["tables"] = {"Eigenvalues": eigenvalue_table}
+        return summary

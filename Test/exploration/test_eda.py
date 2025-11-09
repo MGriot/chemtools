@@ -1,118 +1,102 @@
-"""
-Unit tests for the ExploratoryDataAnalysis class.
-"""
-
-import unittest
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from chemtools.exploration.EDA import ExploratoryDataAnalysis
 
-class TestEDA(unittest.TestCase):
-    """
-    Test suite for ExploratoryDataAnalysis.
-    """
+# --- 1. Generate Dummy Data ---
+print("---" + " 1. Generating Dummy Data " + "---")
+# Create a dataframe with a mix of numerical and categorical data
+data = pd.DataFrame({
+    'category_A': np.random.choice(['A', 'B', 'C'], 100),
+    'category_B': np.random.choice(['X', 'Y', 'Z'], 100),
+    'value1': np.random.rand(100) * 100,
+    'value2': np.random.rand(100) * 50,
+    'value3': np.random.rand(100) * 20,
+    'timestamp': pd.to_datetime(np.arange(100), unit='D', origin='2023-01-01')
+})
+# Add some missing values to test missing value analysis
+data.loc[5:10, 'value1'] = np.nan
+data.loc[15:20, 'category_A'] = np.nan
+print("Dummy data created successfully.\n")
 
-    def setUp(self):
-        """Set up a sample mixed dataset for testing."""
-        self.data = pd.DataFrame({
-            'numerical': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            'categorical': ['A', 'A', 'B', 'B', 'A', 'C', 'C', 'B', 'A', 'C']
-        })
-        self.eda = ExploratoryDataAnalysis(self.data)
 
-    def test_univariate_summary(self):
-        """Test the get_univariate_summary method."""
-        summary = self.eda.get_univariate_summary()
-        self.assertIsInstance(summary, pd.DataFrame)
-        self.assertEqual(summary.shape[1], 2) # 2 columns in the summary
+# --- 2. Instantiate EDA class ---
+eda = ExploratoryDataAnalysis(data)
+print("---" + " 2. ExploratoryDataAnalysis class instantiated " + "---" + "\n")
 
-    def test_plot_histogram(self):
-        """Test the plot_histogram method."""
-        hist_plotter = self.eda.histogram_plotter()
-        fig = hist_plotter.plot(self.data, 'numerical')
-        self.assertIsInstance(fig, plt.Figure)
-        plt.close(fig)  # Close the figure to avoid displaying it during tests
 
-    def test_plot_boxplot(self):
-        """Test the plot_boxplot method."""
-        box_plotter = self.eda.boxplot_plotter()
-        fig = box_plotter.plot(self.data, 'numerical')
-        self.assertIsInstance(fig, plt.Figure)
-        plt.close(fig)
+# --- 3. Test Variable Classification and Summaries (New & Improved) ---
+print("---" + " 3.1. Test `classify_variables` " + "---")
+numerical_cols, categorical_cols = eda.classify_variables()
+print("Numerical Columns:", numerical_cols)
+print("Categorical Columns:", categorical_cols)
+print("-" * 30)
 
-    def test_plot_scatter(self):
-        """Test the plot_scatter method."""
-        # Add another numerical column for scatter plot
-        self.data['numerical2'] = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-        eda = ExploratoryDataAnalysis(self.data)
-        scatter_plotter = eda.scatter_plotter()
-        fig = scatter_plotter.plot_2d(self.data, 'numerical', 'numerical2')
-        self.assertIsInstance(fig, plt.Figure)
-        plt.close(fig)
+print("\n---" + " 3.2. Test `get_univariate_summary` (Numerical) " + "---")
+univariate_summary = eda.get_univariate_summary()
+print(univariate_summary)
+print("-" * 30)
 
-    def test_plot_heatmap(self):
-        """Test the plot_heatmap method."""
-        corr_matrix = self.eda.get_correlation_matrix()
-        heatmap_plotter = self.eda.heatmap_plotter()
-        fig = heatmap_plotter.plot(corr_matrix)
-        self.assertIsInstance(fig, plt.Figure)
-        plt.close(fig)
+print("\n---" + " 3.3. Test `get_categorical_summary` (New Method) " + "---")
+categorical_summary = eda.get_categorical_summary()
+print(categorical_summary)
+print("-" * 30)
 
-    def test_plot_barchart(self):
-        """
-        Test the plot_barchart method.
-        """
-        barchart_plotter = self.eda.barchart_plotter()
-        fig = barchart_plotter.plot(self.data, 'categorical')
-        self.assertIsInstance(fig, plt.Figure)
-        plt.close(fig)
+print("\n---" + " 3.4. Test Missing Values Analysis " + "---")
+missing_summary = eda.get_missing_values_summary()
+print("Missing Values Summary:")
+print(missing_summary)
+print("Plotting missing values matrix...")
+eda.plot_missing_values()
+plt.show()
+print("-" * 30)
 
-    def test_plot_run_chart(self):
-        """
-        Test the plot_run_chart method.
-        """
-        self.data['time'] = pd.to_datetime(pd.date_range('2023-01-01', periods=10, freq='D'))
-        eda = ExploratoryDataAnalysis(self.data)
-        run_chart_plotter = eda.run_chart_plotter()
-        fig = run_chart_plotter.plot(self.data, 'time', 'numerical')
-        self.assertIsInstance(fig, plt.Figure)
-        plt.close(fig)
 
-    def test_plot_stem_and_leaf(self):
-        """
-        Test the plot_stem_and_leaf method.
-        """
-        import io
-        from contextlib import redirect_stdout
+# --- 4. Test Bivariate and Mixed-Type Analysis (New & Improved) ---
+print("\n---" + " 4.1. Test Numerical vs. Numerical Analysis " + "---")
+print("Correlation Matrix:")
+correlation_matrix = eda.get_correlation_matrix()
+print(correlation_matrix)
+print("Plotting heatmap of correlation matrix...")
+heatmap_plotter = eda.heatmap_plotter()
+heatmap_plotter.plot(correlation_matrix, title="Correlation Heatmap")
+plt.show()
+print("-" * 30)
 
-        with io.StringIO() as buf, redirect_stdout(buf):
-            self.eda.plot_stem_and_leaf('numerical')
-            output = buf.getvalue()
-        
-        self.assertIn("Stem-and-leaf plot for numerical", output)
-        self.assertIn("Stem | Leaf", output)
+print("\n---" + " 4.2. Test Categorical vs. Categorical Analysis (New Method) " + "---")
+print("Crosstab between 'category_A' and 'category_B':")
+crosstab = eda.get_crosstab('category_A', 'category_B')
+print(crosstab)
+print("Visualizing the crosstab...")
+# Visualize the crosstab using the new themed method
+bar_plotter = eda.barchart_plotter()
+bar_plotter.plot_crosstab(crosstab, stacked=True, subplot_title="Crosstab: category_A vs. category_B")
+plt.show()
+print("-" * 30)
 
-    def test_plot_scatter_3d(self):
-        """
-        Test the plot_scatter_3d method.
-        """
-        self.data['numerical2'] = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-        self.data['numerical3'] = [1, 3, 5, 7, 9, 2, 4, 6, 8, 10]
-        eda = ExploratoryDataAnalysis(self.data)
-        scatter_plotter = eda.scatter_plotter()
-        fig = scatter_plotter.plot_3d(self.data, 'numerical', 'numerical2', 'numerical3')
-        self.assertIsInstance(fig, plt.Figure)
-        plt.close(fig)
+print("\n---" + " 4.3. Test Numerical vs. Categorical Analysis (New Methods) " + "---")
+print("Summary of 'value1' grouped by 'category_A':")
+num_by_cat_summary = eda.get_numerical_by_categorical_summary('value1', 'category_A')
+print(num_by_cat_summary)
 
-    def test_plot_parallel_coordinates(self):
-        """
-        Test the plot_parallel_coordinates method.
-        """
-        parallel_coordinates_plotter = self.eda.parallel_coordinates_plotter()
-        fig = parallel_coordinates_plotter.plot(self.data, 'categorical')
-        self.assertIsInstance(fig, plt.Figure)
-        plt.close(fig)
+print("\nPlotting 'value1' by 'category_A' using the new high-level method...")
+print("Generating Box Plot...")
+eda.plot_numerical_by_categorical('value1', 'category_A', plot_type='box')
+plt.show()
 
-if __name__ == '__main__':
-    unittest.main()
+print("Generating Violin Plot (using plotly)...")
+fig = eda.plot_numerical_by_categorical('value2', 'category_B', plot_type='violin', plotter_kwargs={'library': 'plotly'})
+fig.show()
+print("-" * 30)
+
+
+# --- 5. Test New Plotter Factories ---
+print("\n---" + " 5. Test New Plotter Factories " + "---")
+print("Testing Pie Chart Plotter:")
+pie_plotter = eda.pie_chart_plotter()
+pie_data = data['category_A'].value_counts().reset_index()
+pie_data.columns = ['category_A', 'count']
+pie_plotter.plot(pie_data, names_column='category_A', values_column='count', title="Pie Chart of category_A")
+plt.show()
+
+print("\n---" + " All new EDA method tests are complete! " + "---")

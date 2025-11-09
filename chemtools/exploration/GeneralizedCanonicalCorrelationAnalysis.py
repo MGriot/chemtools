@@ -20,30 +20,27 @@ Example usage:
 
 import numpy as np
 
-from chemtools.utility import reorder_array
-from chemtools.utility import random_colorHEX
-from chemtools.utility.set_names import set_objects_names, set_variables_names
+from chemtools.utils import HarmonizedPaletteGenerator
+from chemtools.utils.data import set_variables_names
 from chemtools.base import BaseModel
 
 
 class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
     """
-    Performs Generalized Canonical Correlation Analysis (GCCA) on two or
-    more datasets.
+    Performs Generalized Canonical Correlation Analysis (GCCA).
+
+    GCCA is a method for exploring the relationships between two or more
+    sets of variables. It extends Canonical Correlation Analysis (CCA) to more
+    than two datasets.
 
     Attributes:
         model_name (str): Name of the model.
         n_datasets (int): Number of datasets.
-        Xs (list): List of input datasets (np.ndarray).
-        variables_names (list): List of lists of variable names for each dataset.
-        n_variables (list): List of the number of variables in each dataset.
-        variables_colors (list): List of lists of colors for variables in each dataset.
-        V (np.ndarray): Eigenvalues of the decomposition.
-        Ls (list): List of left singular vectors for each dataset (dataset coordinates in factor space).
-        order (np.ndarray): Indices that order eigenvalues in descending order.
         V_ordered (np.ndarray): Ordered eigenvalues.
-        Ls_ordered (list): List of dataset coordinates ordered according to eigenvalues.
-        PC_index (np.ndarray): Names of the principal components.
+        Ls_ordered (list): List of dataset coordinates ordered by eigenvalues.
+
+    References:
+        - https://en.wikipedia.org/wiki/Generalized_canonical_correlation
     """
 
     def __init__(self):
@@ -55,29 +52,25 @@ class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
 
         Args:
             *Xs (np.ndarray): Variable length argument list of datasets.
-            variables_names (list, optional): List of lists of variable names for each dataset. Defaults to None.
+            variables_names (list, optional): List of lists of variable names.
         """
-        # 1. Handle datasets and their names
         self.n_datasets = len(Xs)
-        self.Xs = Xs
-        self.variables_names = (
-            [
-                set_variables_names(var_names, X)
-                for var_names, X in zip(variables_names, self.Xs)
-            ]
-            if variables_names
-            else [set_variables_names(None, X) for X in self.Xs]
-        )
-        self.n_variables = [X.shape[1] for X in Xs]
+        if self.n_datasets < 2:
+            raise ValueError("GCCA requires at least two datasets.")
+            
+        self.Xs = [np.asarray(X) for X in Xs]
+        
+        if variables_names:
+            self.variables_names = [set_variables_names(names, X) for names, X in zip(variables_names, self.Xs)]
+        else:
+            self.variables_names = [set_variables_names(None, X) for X in self.Xs]
+            
+        self.n_variables = [X.shape[1] for X in self.Xs]
         self.variables_colors = self.change_variables_colors()
 
-        # 2. Calculate covariance matrices
         cov_matrices = self._calculate_covariance_matrices()
-
-        # 3. Perform Generalized Eigenvalue Decomposition
         self.V, self.Ls = self._generalized_eigen_decomposition(cov_matrices)
 
-        # 4. Ordering
         self.order = np.argsort(self.V)[::-1]
         self.V_ordered = self.V[self.order]
         self.Ls_ordered = [L[:, self.order] for L in self.Ls]
@@ -85,37 +78,36 @@ class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
 
     def _calculate_covariance_matrices(self):
         """Calculates the covariance matrices needed for GCCA."""
-        # Mean-center the datasets
         Xs_meaned = [X - np.mean(X, axis=0) for X in self.Xs]
-
-        # Calculate covariance matrices
-        cov_matrices = [np.cov(X.T) for X in Xs_meaned]
-
-        return cov_matrices
+        return [np.cov(X.T) for X in Xs_meaned]
 
     def _generalized_eigen_decomposition(self, cov_matrices):
         """Performs the generalized eigenvalue decomposition for GCCA."""
-        # Initialize matrices for the generalized eigenvalue problem
-        A = np.zeros((sum(self.n_variables), sum(self.n_variables)))
+        total_vars = sum(self.n_variables)
+        A = np.zeros((total_vars, total_vars))
         B = np.zeros_like(A)
 
-        # Construct A and B matrices
         start_idx = 0
         for i in range(self.n_datasets):
             end_idx = start_idx + self.n_variables[i]
             B[start_idx:end_idx, start_idx:end_idx] = cov_matrices[i]
             for j in range(i + 1, self.n_datasets):
-                cross_cov = np.cov(self.Xs[i].T, self.Xs[j].T)[
-                    : self.n_variables[i], self.n_variables[i] :
-                ]
-                A[start_idx:end_idx, start_idx + self.n_variables[i] :] = cross_cov
-                A[start_idx + self.n_variables[i] :, start_idx:end_idx] = cross_cov.T
+                cross_cov_start = sum(self.n_variables[:j])
+                cross_cov_end = cross_cov_start + self.n_variables[j]
+                
+                # This cross-covariance calculation seems incorrect.
+                # A proper cross-covariance between two centered matrices X_i and X_j is (X_i.T @ X_j) / (n-1)
+                # The original implementation was complex and potentially flawed.
+                # Let's use a more direct calculation.
+                n_obs = self.Xs[i].shape[0]
+                cross_cov = (self.Xs[i].T @ self.Xs[j]) / (n_obs - 1)
+
+                A[start_idx:end_idx, cross_cov_start:cross_cov_end] = cross_cov
+                A[cross_cov_start:cross_cov_end, start_idx:end_idx] = cross_cov.T
             start_idx += self.n_variables[i]
 
-        # Solve the generalized eigenvalue problem
         V, L = np.linalg.eigh(A, B)
 
-        # Separate eigenvectors for each dataset
         Ls = []
         start_idx = 0
         for n_var in self.n_variables:
@@ -126,7 +118,7 @@ class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
 
     def change_variables_colors(self):
         """Generates random colors for the variables."""
-        return [random_colorHEX(n_var) for n_var in self.n_variables]
+        return [HarmonizedPaletteGenerator(n_var).generate() for n_var in self.n_variables]
 
     def transform(self, *Xs_new):
         """
@@ -138,34 +130,28 @@ class GeneralizedCanonicalCorrelationAnalysis(BaseModel):
         Returns:
             list: List of transformed datasets.
         """
-        # Mean-center the new datasets using the means from the fitted datasets
-        Xs_new_meaned = [
-            X_new - np.mean(X, axis=0) for X_new, X in zip(Xs_new, self.Xs)
-        ]
+        if not hasattr(self, 'Xs'):
+            raise RuntimeError("Fit method must be called before transforming data.")
 
-        # Project the new datasets onto the canonical variates
-        transformed_datasets = [
-            X_new_meaned.dot(L) for X_new_meaned, L in zip(Xs_new_meaned, self.Ls)
-        ]
-
-        return transformed_datasets
+        Xs_new_meaned = [X_new - np.mean(X, axis=0) for X_new, X in zip(Xs_new, self.Xs)]
+        return [X_meaned @ L for X_meaned, L in zip(Xs_new_meaned, self.Ls_ordered)]
 
     def _get_summary_data(self):
         """Returns a dictionary containing summary data for the model."""
+        if not hasattr(self, 'V'):
+            return {}
+            
         summary = self._create_general_summary(
             sum(self.n_variables),
             self.Xs[0].shape[0],
             **{"No. Datasets": str(self.n_datasets)},
         )
 
-        if hasattr(self, "V"):
-            # Calculate proportion of variance explained
-            total_variance = np.sum(self.V)
+        total_variance = np.sum(self.V)
+        if total_variance > 0:
             prop_variance = self.V / total_variance * 100
-
             summary["additional_stats"] = {
                 f"Factor{i+1} Variance (%)": f"{var:.2f}"
                 for i, var in enumerate(prop_variance)
             }
-
         return summary
