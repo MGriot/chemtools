@@ -146,12 +146,16 @@ print(summary)
 fig_box = eda.plot_numerical_by_categorical('numerical_col', 'categorical_col', plot_type='box')
 fig_box.show()
 
-# Generate a [violin plot](../plotting/plot_types.md) (using plotly)
+# Generate an enhanced [violin plot](../plotting/plot_types.md) with automatic statistical tests
 fig_violin = eda.plot_numerical_by_categorical(
-    'numerical_col', 
-    'categorical_col', 
+    numerical_col='numerical_col', 
+    categorical_col='categorical_col', 
     plot_type='violin',
-    plotter_kwargs={'library': 'plotly'}
+    # Note: These enhancements are for the matplotlib backend
+    show_jitter=True,
+    show_mean=True,
+    show_n=True,
+    perform_stat_test=True 
 )
 fig_violin.show()
 ```

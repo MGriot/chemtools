@@ -1,12 +1,12 @@
 {
-    "light": {
+    "classic_professional_light": {
         "bg_color": "#ffffff",
         "text_color": "#2b2b2b",
         "grid_color": "#e0e0e0",
         "detail_light_color": "#b4aea9",
         "detail_medium_color": "#7F7F7F",
-        "theme_color": "#264653",
-        "accent_color": "#d00000",
+        "theme_color": "#005f73",
+        "accent_color": "#c00000",
         "category_color_scale": [
             "#1B9E77",
             "#D95F02",
@@ -21,17 +21,17 @@
         ],
         "prediction_band": "#2a9d8f",
         "confidence_band": "#f4a261",
-        "annotation_fontsize_small": 9,
-        "annotation_fontsize_medium": 11
+        "annotation_fontsize_small": 10,
+        "annotation_fontsize_medium": 12
     },
-    "dark": {
+    "classic_professional_dark": {
         "bg_color": "#2b2b2b",
         "text_color": "#ffffff",
         "grid_color": "#404040",
         "detail_light_color": "#666666",
         "detail_medium_color": "#888888",
-        "theme_color": "#8ecae6",
-        "accent_color": "#ff6b6b",
+        "theme_color": "#4cc9f0",
+        "accent_color": "#ff595e",
         "category_color_scale": [
             "#8dd3c7",
             "#ffffb3",

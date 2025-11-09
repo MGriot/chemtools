@@ -371,19 +371,20 @@ class ExploratoryDataAnalysis:
             categorical_col (str): The categorical column (x-axis).
             plot_type (str, optional): The type of plot to generate.
                                        Can be "box" or "violin". Defaults to "box".
-            **kwargs: Additional keyword arguments passed to the plotter.
+            **kwargs: Additional keyword arguments passed to the plotter. Can include
+                      `plotter_kwargs` to override theme/library for this specific plot.
 
         Returns:
             A matplotlib or plotly figure object.
         """
-        numerical_cols, categorical_cols = self.classify_variables()
-        if numerical_col not in numerical_cols or categorical_col not in categorical_cols:
-            raise ValueError("You must provide one valid numerical and one valid categorical column.")
+        # Extract plotter_kwargs for plotter instantiation, remove them from kwargs for the plot method
+        plotter_specific_kwargs = kwargs.pop('plotter_kwargs', self.plotter_kwargs)
 
         if plot_type == "box":
-            plotter = self.boxplot_plotter()
+            plotter = self.boxplot_plotter() # This uses instance default, let's change it
+            plotter = BoxPlot(**plotter_specific_kwargs)
         elif plot_type == "violin":
-            plotter = self.violin_plotter()
+            plotter = ViolinPlot(**plotter_specific_kwargs)
         else:
             raise ValueError("plot_type must be 'box' or 'violin'")
 

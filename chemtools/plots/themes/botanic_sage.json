@@ -5,8 +5,8 @@
         "grid_color": "#e0e0e0",
         "detail_light_color": "#c1c1c1",
         "detail_medium_color": "#8a8a8a",
-        "theme_color": "#414833",
-        "accent_color": "#c44536",
+        "theme_color": "#3a5a40",
+        "accent_color": "#e85d04",
         "category_color_scale": [
             "#656d4a",
             "#a4ac86",
@@ -31,7 +31,7 @@
         "detail_light_color": "#606c38",
         "detail_medium_color": "#939a7b",
         "theme_color": "#a3b18a",
-        "accent_color": "#ff7b5a",
+        "accent_color": "#faa307",
         "category_color_scale": [
             "#fefae0",
             "#dda15e",

@@ -1,0 +1,52 @@
+{
+    "terracotta_sun_light": {
+        "bg_color": "#fffbf7",
+        "text_color": "#4a2511",
+        "grid_color": "#e6dcd5",
+        "detail_light_color": "#d1c4ba",
+        "detail_medium_color": "#a1887f",
+        "theme_color": "#e2711d",
+        "accent_color": "#00a896",
+        "category_color_scale": [
+            "#d4a373",
+            "#faedcd",
+            "#fefae0",
+            "#e9c46a",
+            "#f4a261",
+            "#e76f51",
+            "#d08c60",
+            "#b58463",
+            "#997b66",
+            "#796454"
+        ],
+        "prediction_band": "#f4a261",
+        "confidence_band": "#faedcd",
+        "annotation_fontsize_small": 9,
+        "annotation_fontsize_medium": 11
+    },
+    "terracotta_sun_dark": {
+        "bg_color": "#2c1d10",
+        "text_color": "#fdecdf",
+        "grid_color": "#523c2a",
+        "detail_light_color": "#6e533e",
+        "detail_medium_color": "#9b7d63",
+        "theme_color": "#ff9f1c",
+        "accent_color": "#06d6a0",
+        "category_color_scale": [
+            "#06d6a0",
+            "#f8961e",
+            "#f94144",
+            "#f3722c",
+            "#f9c74f",
+            "#90be6d",
+            "#43aa8b",
+            "#577590",
+            "#ef476f",
+            "#ffd166"
+        ],
+        "prediction_band": "#f3722c",
+        "confidence_band": "#f8961e",
+        "annotation_fontsize_small": 10,
+        "annotation_fontsize_medium": 12
+    }
+}

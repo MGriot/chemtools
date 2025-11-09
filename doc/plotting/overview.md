@@ -33,11 +33,20 @@ class MyCustomPlot(BasePlotter):
 
 ## Theming
 
-The plotting library includes a powerful theming system to control the appearance of your plots.
+The `chemtools` plotting library provides a robust theming system to control the aesthetic appearance of your visualizations. Themes define comprehensive color palettes, font settings, and other visual properties, ensuring a consistent and professional look across all your plots.
+
+### Available Themes
+
+The following themes are available out-of-the-box:
+
+-   **`light`**: A default light-colored theme suitable for most general-purpose plots.
+-   **`dark`**: A default dark-colored theme, ideal for presentations or environments with low ambient light.
+-   **`oceanic_slate_light`**: A custom light theme with a cool, oceanic color palette.
+-   **`oceanic_slate_dark`**: A custom dark theme complementing the oceanic_slate_light theme.
 
 ### Using a Theme
 
-You can select a theme by passing the `theme` parameter to any plotter class. The default themes are `light` and `dark`.
+You can select a theme by passing the `theme` parameter to any plotter class constructor.
 
 ```python
 from chemtools.plots.basic.line import LinePlot
@@ -47,7 +56,7 @@ plotter = LinePlot(theme="dark")
 fig = plotter.plot(x=[1, 2, 3], y=[1, 4, 9])
 ```
 
-As of the latest update, a new theme `Oceanic Slate` has been added. You can use it by specifying `oceanic_slate_light` or `oceanic_slate_dark`.
+To use a custom theme like `oceanic_slate_light`:
 
 ```python
 # Use the Oceanic Slate light theme
@@ -143,3 +152,13 @@ The plotting library is organized into categories based on the plot's purpose. F
 
 6.  **Analysis-Specific Plots**
     -   The existing plots for PCA, FA, MCA, Regression, and Clustering are still available in their respective modules.
+
+---
+
+## Inspirational Resources
+
+For further inspiration on data visualization and advanced plotting techniques, consider exploring these excellent resources:
+
+-   [The Python Graph Gallery](https://python-graph-gallery.com/)
+-   [Python Plot](https://pythonplot.com/)
+-   [Beautiful Plots](https://beautifulplots.readthedocs.io/en/latest/index.html)
