@@ -75,7 +75,7 @@ class PairPlot(BasePlotter):
         if hue:
             # Use the passed palette directly
             hue_groups = subset_data[hue].unique()
-            colors = sns.color_palette(palette, len(hue_groups)) # Use the passed palette
+            colors = palette # Use the passed palette directly
             color_map = dict(zip(hue_groups, colors))
 
             y_pos = 0.6
@@ -128,6 +128,12 @@ class PairPlot(BasePlotter):
             # Generate the base pairplot. Seaborn automatically handles mixed
             # categorical/numeric data types for the plots outside the main numeric matrix.
             g = sns.pairplot(data, diag_kind="kde", hue=hue, palette=plot_palette, **kwargs)
+
+            if hue:
+                # Add legend explicitly and position it outside the plot
+                g.add_legend(loc='center right', bbox_to_anchor=(1.08, 0.5), title=hue)
+                # Prevent BasePlotter from adding another legend
+                params["showlegend"] = False
 
             # Systematically update the upper triangle plots
             for i, j in zip(*np.triu_indices_from(g.axes, 1)):

@@ -50,6 +50,7 @@ Unified plotting interface:
 - [Plotting Overview](plotting/overview.md)
 - [Plot Styles and Themes](plotting/styles_and_themes.md)
 - [Plot Types](plotting/plot_types.md)
+- [Categorical Plots](plotting/categorical_plots.md)
 
 ## Usage Examples
 

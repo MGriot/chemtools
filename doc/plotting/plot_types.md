@@ -2,6 +2,11 @@
 
 This document provides a detailed overview of the various plot types available in the `chemtools` plotting system. Each plot type is organized by category and includes a brief description, a code snippet for usage, and a list of its specific parameters. All plots leverage the `BasePlotter` for consistent theming and backend selection.
 
+## Categorical Plots
+
+For plots specifically designed to handle categorical data, such as heatmaps of co-occurrences and mosaic plots, please see the dedicated documentation:
+- [Categorical Data Plots](categorical_plots.md)
+
 ## Basic Plots
 
 Located in `chemtools.plots.basic`.

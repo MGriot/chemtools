@@ -35,6 +35,7 @@ from .anova import (
     MultiwayANOVA,
     MANOVA,
 )
+from .chi_squared import ChiSquaredTest
 
 __all__ = [
     "sample_number",
@@ -68,4 +69,5 @@ __all__ = [
     "TwoWayANOVA",
     "MultiwayANOVA",
     "MANOVA",
+    "ChiSquaredTest",
 ]

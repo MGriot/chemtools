@@ -47,7 +47,7 @@ class BasePlotter:
                 "grid.alpha": 0.5,
                 "axes.spines.top": True,
                 "axes.spines.right": True,
-                "axes.grid": True,  # Default to grid on
+                "axes.grid": False,  # Default to grid off
             },
             "minimal": {
                 "grid.alpha": 0,
@@ -69,8 +69,8 @@ class BasePlotter:
         "plotly": {  # Plotly presets remain for completeness
             "default": {
                 "layout": {
-                    "xaxis": {"showgrid": True, "showline": True, "gridwidth": 1},
-                    "yaxis": {"showgrid": True, "showline": True, "gridwidth": 1},
+                    "xaxis": {"showgrid": False, "showline": True, "gridwidth": 1},
+                    "yaxis": {"showgrid": False, "showline": True, "gridwidth": 1},
                     "plot_bgcolor": None,  # Will be set by theme
                     "paper_bgcolor": None,  # Will be set by theme
                 }
@@ -133,7 +133,7 @@ class BasePlotter:
     }
 
     def __init__(
-        self, library="matplotlib", theme="light", style_preset="default", **kwargs
+        self, library="matplotlib", theme="light", style_preset="default", legend_opts: dict = None, **kwargs
     ):
         self.library = library
         if theme not in BasePlotter._ALL_THEMES:
@@ -156,6 +156,7 @@ class BasePlotter:
         self.user_figsize = kwargs.get(
             "figsize", (10, 6)
         )  # Default figsize changed slightly
+        self.legend_opts = legend_opts
 
         if self.library == "matplotlib":
             self._init_matplotlib_style()
@@ -495,6 +496,7 @@ class BasePlotter:
             "showlegend": kwargs.get(
                 "showlegend", default_showlegend
             ),  # Default to True, except for heatmaps
+            "legend_opts": kwargs.get("legend_opts", self.legend_opts),
         }
         return common_params
 
@@ -521,32 +523,52 @@ class BasePlotter:
             if params.get("figsize"):  # Ensure figure size is set or updated
                 fig.set_size_inches(params["figsize"])
 
-            # Basic legend handling for Matplotlib if showlegend is true
-            # This assumes handles/labels were added to axes correctly before calling this.
+            # Handle legend with new legend_opts
             if params.get("showlegend", False):
-                # Attempt to create a figure-level legend if multiple axes, or use axis legend
-                # This is tricky to generalize perfectly.
-                # Simple approach: if any axis has a legend, ensure it's styled.
+                legend_opts = params.get("legend_opts") or {}
                 for ax_item in fig.get_axes():
-                    if ax_item.get_legend_handles_labels()[0]:  # If handles exist
-                        leg = ax_item.legend(labelcolor=self.colors["text_color"])
+                    handles, labels = ax_item.get_legend_handles_labels()
+                    if handles:
+                        # Apply theme defaults that can be overridden by user
+                        final_legend_opts = {
+                            'labelcolor': self.colors["text_color"],
+                            **legend_opts
+                        }
+                        
+                        # Set facecolor and edgecolor only if not provided by user
+                        if 'facecolor' not in final_legend_opts:
+                            final_legend_opts['facecolor'] = self.colors["bg_color"]
+                        if 'edgecolor' not in final_legend_opts:
+                            final_legend_opts['edgecolor'] = self.colors["detail_light_color"]
+
+                        leg = ax_item.legend(handles=handles, labels=labels, **final_legend_opts)
+                        
                         if leg:
-                            leg.get_frame().set_facecolor(self.colors["bg_color"])
-                            leg.get_frame().set_edgecolor(
-                                self.colors["detail_light_color"]
-                            )
+                            # Set title color separately if title is in opts
+                            if 'title' in final_legend_opts:
+                                plt.setp(leg.get_title(), color=self.colors["text_color"])
                         break  # Assume one legend is enough or handled per axis
 
         elif self.library == "plotly":
             fig = fig_or_ax  # fig_or_ax is fig for Plotly
+            legend_opts = params.get("legend_opts")
+            
             layout_update = {
-                # Title is handled by _set_labels or directly in plot methods for Plotly for more control
-                # "title_text": params.get("title"), "title_x": 0.5,
                 "width": params.get("width"),
                 "height": params.get("height"),
                 "showlegend": params.get("showlegend", False),
-                # Template already applied at creation, but can update specific parts here
             }
+
+            if legend_opts:
+                # Apply theme defaults that can be overridden
+                final_legend_opts = {
+                    'font': {'color': self.colors["text_color"]},
+                    'bgcolor': self.colors["bg_color"],
+                    'bordercolor': self.colors["detail_light_color"],
+                    **legend_opts
+                }
+                layout_update['legend'] = final_legend_opts
+
             # Filter out None values before updating layout
             fig.update_layout(
                 **{k: v for k, v in layout_update.items() if v is not None}
