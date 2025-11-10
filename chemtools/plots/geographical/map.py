@@ -39,6 +39,7 @@ class MapPlot(BasePlotter):
             
             # 'title' is passed explicitly, so remove it from plotly_kwargs to avoid conflict
             plotly_kwargs.pop('title', None)
+            plotly_kwargs.pop('subplot_title', None)
 
             fig = px.choropleth(data, locations=locations_column, color=values_column,
                                 title=title, color_continuous_scale=px.colors.sequential.Plasma, **plotly_kwargs)
@@ -71,6 +72,7 @@ class MapPlot(BasePlotter):
             
             # Remove 'title' from kwargs to avoid conflict with explicit title argument
             kwargs.pop('title', None) 
+            kwargs.pop('subplot_title', None) 
 
             color_col = kwargs.pop('color', None) # Remove 'color' from kwargs to handle it explicitly
 

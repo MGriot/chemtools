@@ -46,7 +46,7 @@ class BarPlot(BasePlotter):
         if self.library == "matplotlib":
             fig, ax = self._create_figure(figsize=params["figsize"])
             if color:
-                pivot_df = data.pivot(index=x, columns=color, values=y)
+                pivot_df = data.groupby([x, color])[y].mean().unstack()
                 if mode == 'stack':
                     pivot_df.plot(kind='bar', stacked=True, ax=ax, color=self.colors['category_color_scale'])
                 else: # 'group'

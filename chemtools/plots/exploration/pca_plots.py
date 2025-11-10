@@ -14,7 +14,7 @@ class PCAplots(BasePlotter):
         **kwargs: Keyword arguments passed to the Plotter class.
     """
 
-    def __init__(self, pca_object, library="matplotlib", theme="light", style_preset="default", **kwargs):
+    def __init__(self, pca_object, library="matplotlib", theme="classic_professional_light", style_preset="default", **kwargs):
         super().__init__(library=library, theme=theme, style_preset=style_preset, **kwargs)
         self.pca_object = pca_object
 

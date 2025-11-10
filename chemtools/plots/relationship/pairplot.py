@@ -114,10 +114,16 @@ class PairPlot(BasePlotter):
         params = self._process_common_params(**kwargs)
         if self.library == "matplotlib":
             title = params.get("title", "Pair Plot")
-            hue = kwargs.get("hue")
+            hue = kwargs.pop("hue", None)
             
             # Extract palette from kwargs or use theme's category_color_scale
             plot_palette = kwargs.pop("palette", self.colors["category_color_scale"])
+            kwargs.pop('title', None) # Remove title from kwargs to prevent error
+
+            # Slice the palette if hue is used to avoid seaborn warning
+            if hue:
+                n_colors = data[hue].nunique()
+                plot_palette = plot_palette[:n_colors]
 
             # Generate the base pairplot. Seaborn automatically handles mixed
             # categorical/numeric data types for the plots outside the main numeric matrix.
