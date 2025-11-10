@@ -6,11 +6,17 @@ class MCAPlots(BasePlotter):
     """Class to generate various plots related to Multiple Correspondence Analysis (MCA)."""
 
     def __init__(self, mca_object, **kwargs):
+        kwargs.setdefault("theme", "classic_professional_light")
         super().__init__(**kwargs)
         self.mca_object = mca_object
 
     def plot_eigenvalues(self, **kwargs):
         """Plots eigenvalues of the MCA."""
+        if "plotter_kwargs" in kwargs:
+            plotter_specific_kwargs = kwargs.pop("plotter_kwargs")
+            temp_plotter = MCAPlots(self.mca_object, **plotter_specific_kwargs)
+            return temp_plotter.plot_eigenvalues(**kwargs)
+
         params = self._process_common_params(**kwargs)
         if self.library == "matplotlib":
             fig, ax = self._create_figure(figsize=params["figsize"])
@@ -27,6 +33,11 @@ class MCAPlots(BasePlotter):
 
     def plot_objects(self, axes=[0, 1], **kwargs):
         """Plots objects on the first two principal components."""
+        if "plotter_kwargs" in kwargs:
+            plotter_specific_kwargs = kwargs.pop("plotter_kwargs")
+            temp_plotter = MCAPlots(self.mca_object, **plotter_specific_kwargs)
+            return temp_plotter.plot_objects(axes=axes, **kwargs)
+
         params = self._process_common_params(**kwargs)
         if self.library == "matplotlib":
             fig, ax = self._create_figure(figsize=params["figsize"])
