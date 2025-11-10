@@ -28,17 +28,17 @@ from chemtools.plots.basic.bar import BarPlot
 **Examples:**
 
 *Simple Bar Plot of Counts*
-![Bar Plot Counts](../../img/plots/basic/bar_plot_counts_classic_professional_light.png)
+![Bar Plot Counts](../img/plots/basic/bar_plot_counts_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Bar Plot Counts Dark](../../img/plots/basic/bar_plot_counts_classic_professional_dark.png)
+  ![Bar Plot Counts Dark](../img/plots/basic/bar_plot_counts_classic_professional_dark.png)
 </details>
 
 *Grouped Bar Plot*
-![Grouped Bar Plot](../../img/plots/basic/bar_plot_grouped_classic_professional_light.png)
+![Grouped Bar Plot](../img/plots/basic/bar_plot_grouped_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Grouped Bar Plot Dark](../../img/plots/basic/bar_plot_grouped_classic_professional_dark.png)
+  ![Grouped Bar Plot Dark](../img/plots/basic/bar_plot_grouped_classic_professional_dark.png)
 </details>
 
 ### Line Plot
@@ -54,10 +54,10 @@ from chemtools.plots.basic.line import LinePlot
 -   `mode`: Can be `'line'`, `'dot'`, or `'area'`.
 
 **Example:**
-![Line Plot](../../img/plots/basic/line_plot_classic_professional_light.png)
+![Line Plot](../img/plots/basic/line_plot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Line Plot Dark](../../img/plots/basic/line_plot_classic_professional_dark.png)
+  ![Line Plot Dark](../img/plots/basic/line_plot_classic_professional_dark.png)
 </details>
 
 ### Pie Plot
@@ -73,10 +73,10 @@ from chemtools.plots.basic.pie import PiePlot
 -   `hole`: Creates a donut chart if > 0.
 
 **Example:**
-![Pie Plot](../../img/plots/basic/pie_plot_classic_professional_light.png)
+![Pie Plot](../img/plots/basic/pie_plot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Pie Plot Dark](../../img/plots/basic/pie_plot_classic_professional_dark.png)
+  ![Pie Plot Dark](../img/plots/basic/pie_plot_classic_professional_dark.png)
 </details>
 
 ## Distribution Plots
@@ -96,10 +96,10 @@ from chemtools.plots.distribution.histogram import HistogramPlot
 -   `mode`: Can be `'hist'` or `'density'`.
 
 **Example:**
-![Histogram](../../img/plots/distribution/histogram_classic_professional_light.png)
+![Histogram](../img/plots/distribution/histogram_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Histogram Dark](../../img/plots/distribution/histogram_classic_professional_dark.png)
+  ![Histogram Dark](../img/plots/distribution/histogram_classic_professional_dark.png)
 </details>
 
 ### Box Plot
@@ -116,10 +116,10 @@ from chemtools.plots.distribution.boxplot import BoxPlot
 -   `x`: Optional categorical column for grouped plots.
 
 **Example:**
-![Box Plot](../../img/plots/distribution/boxplot_classic_professional_light.png)
+![Box Plot](../img/plots/distribution/boxplot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Box Plot Dark](../../img/plots/distribution/boxplot_classic_professional_dark.png)
+  ![Box Plot Dark](../img/plots/distribution/boxplot_classic_professional_dark.png)
 </details>
 
 ### Violin Plot
@@ -144,10 +144,10 @@ from chemtools.plots.violin import ViolinPlot
 -   `jitter_alpha` (float, optional): Transparency (alpha) for the jittered data points (0.0 to 1.0). Overrides automatic adjustment.
 
 **Example (with jitter and mean):**
-![Violin Plot](../../img/plots/distribution/violin_plot_classic_professional_light.png)
+![Violin Plot](../img/plots/distribution/violin_plot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Violin Plot Dark](../../img/plots/distribution/violin_plot_classic_professional_dark.png)
+  ![Violin Plot Dark](../img/plots/distribution/violin_plot_classic_professional_dark.png)
 </details>
 
 ## Relationship Plots
@@ -168,10 +168,10 @@ from chemtools.plots.relationship.scatterplot import ScatterPlot
 -   `size_column`: Creates a bubble chart if provided.
 
 **Example:**
-![Scatter Plot](../../img/plots/relationship/scatter_plot_classic_professional_light.png)
+![Scatter Plot](../img/plots/relationship/scatter_plot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Scatter Plot Dark](../../img/plots/relationship/scatter_plot_classic_professional_dark.png)
+  ![Scatter Plot Dark](../img/plots/relationship/scatter_plot_classic_professional_dark.png)
 </details>
 
 ### Heatmap
@@ -187,10 +187,10 @@ from chemtools.plots.relationship.heatmap import HeatmapPlot
 -   `data`: pandas DataFrame representing the matrix to plot.
 
 **Example (Correlation Matrix):**
-![Heatmap](../../img/plots/relationship/heatmap_classic_professional_light.png)
+![Heatmap](../img/plots/relationship/heatmap_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Heatmap Dark](../../img/plots/relationship/heatmap_classic_professional_dark.png)
+  ![Heatmap Dark](../img/plots/relationship/heatmap_classic_professional_dark.png)
 </details>
 
 ### Pair Plot
@@ -206,10 +206,10 @@ from chemtools.plots.relationship.pairplot import PairPlot
 - `hue`: A categorical column to color the data points by.
 
 **Example:**
-![Pair Plot](../../img/plots/relationship/pairplot_classic_professional_light.png)
+![Pair Plot](../img/plots/relationship/pairplot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Pair Plot Dark](../../img/plots/relationship/pairplot_classic_professional_dark.png)
+  ![Pair Plot Dark](../img/plots/relationship/pairplot_classic_professional_dark.png)
 </details>
 
 ## Specialized Plots
@@ -229,10 +229,10 @@ from chemtools.plots.specialized.parallel_coordinates import ParallelCoordinates
 -   `class_column`: Column to color the lines by.
 
 **Example:**
-![Parallel Coordinates Plot](../../img/plots/specialized/parallel_coordinates_plot_classic_professional_light.png)
+![Parallel Coordinates Plot](../img/plots/specialized/parallel_coordinates_plot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Parallel Coordinates Plot Dark](../../img/plots/specialized/parallel_coordinates_plot_classic_professional_dark.png)
+  ![Parallel Coordinates Plot Dark](../img/plots/specialized/parallel_coordinates_plot_classic_professional_dark.png)
 </details>
 
 ### Funnel Chart
@@ -248,10 +248,10 @@ from chemtools.plots.specialized.funnel import FunnelPlot
 -   `data`: Should be sorted by funnel stage.
 
 **Example:**
-![Funnel Chart](../../img/plots/specialized/funnel_plot_classic_professional_light.png)
+![Funnel Chart](../img/plots/specialized/funnel_plot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Funnel Chart Dark](../../img/plots/specialized/funnel_plot_classic_professional_dark.png)
+  ![Funnel Chart Dark](../img/plots/specialized/funnel_plot_classic_professional_dark.png)
 </details>
 
 ### Bullet Chart
@@ -267,10 +267,10 @@ from chemtools.plots.specialized.bullet import BulletPlot
 -   `value`, `target`, `ranges`: Numerical inputs for the chart.
 
 **Example:**
-![Bullet Chart](../../img/plots/specialized/bullet_plot_classic_professional_light.png)
+![Bullet Chart](../img/plots/specialized/bullet_plot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Bullet Chart Dark](../../img/plots/specialized/bullet_plot_classic_professional_dark.png)
+  ![Bullet Chart Dark](../img/plots/specialized/bullet_plot_classic_professional_dark.png)
 </details>
 
 ### Dual-Axis Chart
@@ -286,10 +286,10 @@ from chemtools.plots.specialized.dual_axis import DualAxisPlot
 -   **Note:** Matplotlib library only.
 
 **Example:**
-![Dual-Axis Chart](../../img/plots/specialized/dual_axis_plot_classic_professional_light.png)
+![Dual-Axis Chart](../img/plots/specialized/dual_axis_plot_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Dual-Axis Chart Dark](../../img/plots/specialized/dual_axis_plot_classic_professional_dark.png)
+  ![Dual-Axis Chart Dark](../img/plots/specialized/dual_axis_plot_classic_professional_dark.png)
 </details>
 
 ## Clustering Plots
@@ -310,10 +310,10 @@ from chemtools.plots.clustering import DendrogramPlotter
 ```
 
 **Example:**
-![Dendrogram](../../img/plots/clustering/dendrogram_classic_professional_light.png)
+![Dendrogram](../img/plots/clustering/dendrogram_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Dendrogram Dark](../../img/plots/clustering/dendrogram_classic_professional_dark.png)
+  ![Dendrogram Dark](../img/plots/clustering/dendrogram_classic_professional_dark.png)
 </details>
 
 ## Temporal Plots
@@ -332,10 +332,10 @@ from chemtools.plots.temporal.run_chart import RunChartPlot
 ```
 
 **Example:**
-![Run Chart](../../img/plots/temporal/run_chart_classic_professional_light.png)
+![Run Chart](../img/plots/temporal/run_chart_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Run Chart Dark](../../img/plots/temporal/run_chart_classic_professional_dark.png)
+  ![Run Chart Dark](../img/plots/temporal/run_chart_classic_professional_dark.png)
 </details>
 
 ## Regression Plots
@@ -356,10 +356,10 @@ from chemtools.plots.regression import RegressionPlots
 ```
 
 **Example:**
-![Regression Results Plot](../../img/plots/regression/regression_results_classic_professional_light.png)
+![Regression Results Plot](../img/plots/regression/regression_results_classic_professional_light.png)
 <details>
   <summary>Dark Theme Version</summary>
-  ![Regression Results Plot Dark](../../img/plots/regression/regression_results_classic_professional_dark.png)
+  ![Regression Results Plot Dark](../img/plots/regression/regression_results_classic_professional_dark.png)
 </details>
 
 ## Geographical Plots
