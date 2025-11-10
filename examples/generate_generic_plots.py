@@ -9,6 +9,7 @@ from chemtools.plots.basic.line import LinePlot
 from chemtools.plots.basic.pie import PiePlot
 from chemtools.plots.distribution.histogram import HistogramPlot
 from chemtools.plots.distribution.boxplot import BoxPlot
+from chemtools.plots.distribution.raincloud import RaincloudPlot # New import
 from chemtools.plots.relationship.scatterplot import ScatterPlot
 from chemtools.plots.relationship.heatmap import HeatmapPlot
 from chemtools.plots.violin import ViolinPlot
@@ -122,7 +123,28 @@ def generate_generic_plots():
         except Exception as e:
             print(f"  - Error generating violin plot for theme {theme}: {e}")
 
-    # 7. Scatter Plot
+    # 7. Raincloud Plot (New)
+    print("\nGenerating Raincloud Plots...")
+    # Use data_mixed where 'Category' is categorical and 'Value' is numerical
+    for theme in themes:
+        try:
+            # Vertical Raincloud Plot
+            plotter_v = RaincloudPlot(theme=theme)
+            fig_v = plotter_v.plot(data_mixed, x='Category', y='Value', orientation='vertical', subplot_title=f"Vertical Raincloud Plot ({theme})")
+            fig_v.savefig(os.path.join(output_dir, f"raincloud_vertical_{theme}.png"), bbox_inches='tight')
+            plt.close(fig_v)
+            print(f"  - Saved vertical raincloud plot for theme: {theme}")
+
+            # Horizontal Raincloud Plot
+            plotter_h = RaincloudPlot(theme=theme)
+            fig_h = plotter_h.plot(data_mixed, x='Value', y='Category', orientation='horizontal', subplot_title=f"Horizontal Raincloud Plot ({theme})")
+            fig_h.savefig(os.path.join(output_dir, f"raincloud_horizontal_{theme}.png"), bbox_inches='tight')
+            plt.close(fig_h)
+            print(f"  - Saved horizontal raincloud plot for theme: {theme}")
+        except Exception as e:
+            print(f"  - Error generating raincloud plots for theme {theme}: {e}")
+
+    # 8. Scatter Plot
     output_dir = "doc/img/plots/relationship"
     os.makedirs(output_dir, exist_ok=True)
     print("\nGenerating Scatter Plots...")
@@ -136,7 +158,7 @@ def generate_generic_plots():
         except Exception as e:
             print(f"  - Error generating scatter plot for theme {theme}: {e}")
 
-    # 8. Heatmap
+    # 9. Heatmap
     print("\nGenerating Heatmaps...")
     corr_matrix = data_numeric.corr()
     for theme in themes:

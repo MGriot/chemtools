@@ -155,6 +155,44 @@ from chemtools.plots.violin import ViolinPlot
   ![Violin Plot Dark](../img/plots/distribution/violin_plot_classic_professional_dark.png)
 </details>
 
+### Raincloud Plot
+
+The Raincloud plot is a powerful visualization that combines a violin plot, a jittered scatter plot (the "rain"), and a box plot to provide a comprehensive view of data distributions. It is particularly useful for comparing distributions across different categories, showing both the overall shape and individual data points.
+
+```python
+from chemtools.plots.distribution.raincloud import RaincloudPlot
+
+# plotter = RaincloudPlot()
+# Vertical Raincloud Plot (x is categorical, y is numerical)
+# plotter.plot(data, x='Category', y='Value', orientation='vertical', **kwargs)
+# Horizontal Raincloud Plot (x is numerical, y is categorical)
+# plotter.plot(data, x='Value', y='Category', orientation='horizontal', **kwargs)
+```
+-   `x`: The column name for the categorical variable (vertical) or numerical variable (horizontal).
+-   `y`: The column name for the numerical variable (vertical) or categorical variable (horizontal).
+-   `orientation` (str): `'vertical'` (default) or `'horizontal'`.
+-   `jitter_width` (float): Controls the spread of jittered points.
+-   `box_width` (float): Controls the width of the box plot.
+-   `violin_width` (float): Controls the width of the violin plot.
+
+**Example (Vertical):**
+![Vertical Raincloud Plot](../img/plots/distribution/raincloud_vertical_classic_professional_light.png)
+<details>
+  <summary>Dark Theme Version</summary>
+  ![Vertical Raincloud Plot Dark](../img/plots/distribution/raincloud_vertical_classic_professional_dark.png)
+</details>
+
+**Example (Horizontal):**
+![Horizontal Raincloud Plot](../img/plots/distribution/raincloud_horizontal_classic_professional_light.png)
+<details>
+  <summary>Dark Theme Version</summary>
+  ![Horizontal Raincloud Plot Dark](../img/plots/distribution/raincloud_horizontal_classic_professional_dark.png)
+</details>
+
+**Citation:**
+This implementation is inspired by the concepts presented in:
+[https://python-graph-gallery.com/raincloud-plot-with-matplotlib-and-ptitprince/](https://python-graph-gallery.com/raincloud-plot-with-matplotlib-and-ptitprince/)
+
 ## Relationship Plots
 
 Located in `chemtools.plots.relationship`.

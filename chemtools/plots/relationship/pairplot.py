@@ -1,9 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import plotly.express as px
 from ..base import BasePlotter
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, gaussian_kde
 import numpy as np
 
 class PairPlot(BasePlotter):
@@ -114,45 +113,145 @@ class PairPlot(BasePlotter):
         params = self._process_common_params(**kwargs)
         if self.library == "matplotlib":
             title = params.get("title", "Pair Plot")
-            hue = kwargs.pop("hue", None)
-            
-            # Extract palette from kwargs or use theme's category_color_scale
+            hue_col = kwargs.pop("hue", None)
             plot_palette = kwargs.pop("palette", self.colors["category_color_scale"])
-            kwargs.pop('title', None) # Remove title from kwargs to prevent error
 
-            # Slice the palette if hue is used to avoid seaborn warning
-            if hue:
-                n_colors = data[hue].nunique()
-                plot_palette = plot_palette[:n_colors]
+            # Filter out non-numeric columns for the pair plot matrix
+            numerical_data = data.select_dtypes(include=np.number)
+            if numerical_data.empty:
+                raise ValueError("No numerical columns found in the data for PairPlot.")
 
-            # Generate the base pairplot. Seaborn automatically handles mixed
-            # categorical/numeric data types for the plots outside the main numeric matrix.
-            g = sns.pairplot(data, diag_kind="kde", hue=hue, palette=plot_palette, **kwargs)
+            numerical_cols = numerical_data.columns.tolist()
+            n_vars = len(numerical_cols)
 
-            if hue:
-                # Add legend explicitly and position it outside the plot
-                g.add_legend(loc='center right', bbox_to_anchor=(1.08, 0.5), title=hue)
-                # Prevent BasePlotter from adding another legend
-                params["showlegend"] = False
+            # Create figure and axes grid
+            fig, axes = plt.subplots(n_vars, n_vars, figsize=params["figsize"])
+            if n_vars == 1: # Handle single variable case
+                axes = np.array([[axes]]) # Make it 2D for consistent indexing
+            
+            # Prepare data for hue if present
+            if hue_col:
+                if hue_col not in data.columns:
+                    raise ValueError(f"Hue column '{hue_col}' not found in the data.")
+                hue_groups = data[hue_col].unique()
+                n_hue_groups = len(hue_groups)
+                # Ensure plot_palette has enough colors
+                if len(plot_palette) < n_hue_groups:
+                    plot_palette = (plot_palette * (n_hue_groups // len(plot_palette) + 1))[:n_hue_groups]
+                color_map = dict(zip(hue_groups, plot_palette))
+            else:
+                color_map = {None: self.colors['theme_color']} # Default color if no hue
 
-            # Systematically update the upper triangle plots
-            for i, j in zip(*np.triu_indices_from(g.axes, 1)):
-                ax = g.axes[i, j]
-                x_var = g.x_vars[j]
-                y_var = g.y_vars[i]
+            # Iterate through the grid
+            for i in range(n_vars):
+                for j in range(n_vars):
+                    ax = axes[i, j]
+                    x_var = numerical_cols[j]
+                    y_var = numerical_cols[i]
 
-                # Ensure we only calculate correlation for numeric columns
-                if (
-                    data[x_var].dtype.kind in "ifcm"
-                    and data[y_var].dtype.kind in "ifcm"
-                ):
-                    self._plot_correlations(
-                        x_var=x_var, y_var=y_var, data=data, hue=hue, ax=ax, palette=plot_palette, **kwargs
-                    )
+                    # Set common properties for all subplots
+                    ax.tick_params(axis='x', labelrotation=90)
+                    ax.tick_params(axis='y', labelrotation=0)
+                    ax.set_facecolor(self.colors['bg_color']) # Apply theme background
+                    ax.set_xlabel("") # Clear default labels
+                    ax.set_ylabel("") # Clear default labels
 
-            g.fig.suptitle(title, y=1.02)
-            self._apply_common_layout(g.fig, params)
-            return g.fig
+                    # Diagonal plots (KDE)
+                    if i == j:
+                        ax.set_yticklabels([]) # No y-ticks on diagonal
+                        ax.set_xticklabels([]) # No x-ticks on diagonal
+                        ax.set_xticks([]) # No x-ticks on diagonal
+                        ax.set_yticks([]) # No y-ticks on diagonal
+                        ax.set_frame_on(False) # Remove frame
+
+                        # Plot KDE
+                        if hue_col:
+                            for group in hue_groups:
+                                subset = data[data[hue_col] == group][x_var].dropna()
+                                if not subset.empty:
+                                    # Use twinx to avoid scaling issues with scatter plots
+                                    ax_kde = ax.twinx()
+                                    ax_kde.set_ylabel("")
+                                    ax_kde.set_yticklabels([])
+                                    ax_kde.set_xticks([])
+                                    ax_kde.set_yticks([])
+                                    ax_kde.set_frame_on(False)
+                                    
+                                    # Calculate KDE
+                                    kde = gaussian_kde(subset)
+                                    x_vals = np.linspace(subset.min(), subset.max(), 100)
+                                    ax_kde.plot(x_vals, kde(x_vals), color=color_map[group], label=group)
+                                    ax_kde.fill_between(x_vals, kde(x_vals), color=color_map[group], alpha=0.2)
+                        else:
+                            subset = data[x_var].dropna()
+                            if not subset.empty:
+                                ax_kde = ax.twinx()
+                                ax_kde.set_ylabel("")
+                                ax_kde.set_yticklabels([])
+                                ax_kde.set_xticks([])
+                                ax_kde.set_yticks([])
+                                ax_kde.set_frame_on(False)
+                                
+                                kde = gaussian_kde(subset)
+                                x_vals = np.linspace(subset.min(), subset.max(), 100)
+                                ax_kde.plot(x_vals, kde(x_vals), color=color_map[None])
+                                ax_kde.fill_between(x_vals, kde(x_vals), color=color_map[None], alpha=0.2)
+                        
+                        # Add variable name to diagonal
+                        ax.text(0.5, 0.5, x_var, transform=ax.transAxes,
+                                ha='center', va='center', fontsize=12, fontweight='bold',
+                                color=self.colors['text_color'])
+
+                    # Lower triangle (Scatter plots)
+                    elif i > j:
+                        if hue_col:
+                            for group in hue_groups:
+                                subset = data[data[hue_col] == group]
+                                ax.scatter(subset[x_var], subset[y_var],
+                                           color=color_map[group], label=group, s=10, alpha=0.7)
+                        else:
+                            ax.scatter(data[x_var], data[y_var],
+                                       color=color_map[None], s=10, alpha=0.7)
+
+                    # Upper triangle (Correlation text)
+                    else: # i < j
+                        ax.set_axis_off() # Turn off axis for correlation text
+                        # Call _plot_correlations to display text
+                        self._plot_correlations(
+                            x_var=x_var, y_var=y_var, data=data, hue=hue_col, ax=ax, palette=plot_palette, **kwargs
+                        )
+
+                    # Set labels for outer plots
+                    if i == n_vars - 1: # Bottom row
+                        ax.set_xlabel(x_var, color=self.colors['text_color'])
+                    else:
+                        ax.set_xticklabels([])
+
+                    if j == 0: # Leftmost column
+                        ax.set_ylabel(y_var, color=self.colors['text_color'])
+                    else:
+                        ax.set_yticklabels([])
+            
+            # Adjust layout to make space for legend
+            fig.subplots_adjust(right=0.8)
+
+            # Manual legend creation
+            if hue_col:
+                handles = []
+                labels = []
+                # Create dummy handles for the legend
+                for group in hue_groups:
+                    handles.append(plt.Line2D([0], [0], marker='o', color=color_map[group], linestyle=''))
+                    labels.append(group)
+                
+                fig.legend(handles, labels, title=hue_col, loc='center right', bbox_to_anchor=(1.0, 0.5),
+                           facecolor=self.colors['bg_color'], edgecolor=self.colors['detail_light_color'],
+                           labelcolor=self.colors['text_color'])
+                params["showlegend"] = False # Prevent BasePlotter from adding another legend
+
+            fig.suptitle(title, y=1.02) # Main title
+            self._apply_common_layout(fig, params)
+            return fig
 
         elif self.library == "plotly":
             title = params.get("title", "Pair Plot")
