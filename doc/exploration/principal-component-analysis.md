@@ -61,7 +61,10 @@ The `PCAplots` class provides a comprehensive suite of plots to visualize and in
 
 This plot visualizes the correlation between the original variables. It helps to identify multicollinearity and understand the relationships between variables before reduction. Red indicates a positive correlation, blue indicates a negative correlation, and white indicates no correlation.
 
-![Correlation Matrix](../img/exploration/pca/pca_correlation_matrix_classic_professional_light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_correlation_matrix_classic_professional_dark.png">
+  <img alt="Correlation Matrix" src="../img/exploration/pca/pca_correlation_matrix_classic_professional_light.png">
+</picture>
 
 ### Eigenvalue Plot (Scree Plot)
 
@@ -70,25 +73,37 @@ The scree plot is essential for determining the number of principal components t
 - **Broken Stick Model:** Compares the explained variance of each component to the expected variance if the total variance was randomly distributed.
 - **Average Eigenvalue (AEC):** Retain components with eigenvalues above the average.
 
-![Eigenvalue Plot](../img/exploration/pca/pca_eigenvalues_classic_professional_light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_eigenvalues_classic_professional_dark.png">
+  <img alt="Eigenvalue Plot" src="../img/exploration/pca/pca_eigenvalues_classic_professional_light.png">
+</picture>
 
 ### Scores Plot
 
 The scores plot shows the projection of the original observations (objects) onto the new principal component space. It is used to identify patterns, clusters, or outliers among the observations. Each point represents an object from your dataset.
 
-![Scores Plot](../img/exploration/pca/pca_scores_classic_professional_light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_scores_classic_professional_dark.png">
+  <img alt="Scores Plot" src="../img/exploration/pca/pca_scores_classic_professional_light.png">
+</picture>
 
 ### Loadings Plot
 
 The loadings plot shows how the original variables contribute to the principal components. Variables that are close to each other are positively correlated, variables that are opposite are negatively correlated, and variables near the origin have little influence on the components shown.
 
-![Loadings Plot](../img/exploration/pca/pca_loadings_classic_professional_light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_loadings_classic_professional_dark.png">
+  <img alt="Loadings Plot" src="../img/exploration/pca/pca_loadings_classic_professional_light.png">
+</picture>
 
 ### Biplot
 
 The biplot is a powerful visualization that overlays the scores (observations) and the loadings (variables) in a single plot. This allows you to see the relationships between observations and how they are influenced by the original variables.
 
-![Biplot](../img/exploration/pca/pca_biplot_classic_professional_light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_biplot_classic_professional_dark.png">
+  <img alt="Biplot" src="../img/exploration/pca/pca_biplot_classic_professional_light.png">
+</picture>
 
 ### Hotelling's T² vs. Q Residuals
 
@@ -96,13 +111,19 @@ This plot is a diagnostic tool for outlier detection.
 - **Hotelling's T²:** Measures the variation within the PCA model (distance from the center of the model). Points far out on this axis may be considered outliers.
 - **Q Residuals (or SPE):** Measures the variation not captured by the PCA model (distance of the observation to the model plane). High Q values indicate that the observation is not well-described by the model.
 
-![Hotelling's T2 vs. Q Plot](../img/exploration/pca/pca_hotteling_t2_vs_q_classic_professional_light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_hotteling_t2_vs_q_classic_professional_dark.png">
+  <img alt="Hotelling's T2 vs. Q Plot" src="../img/exploration/pca/pca_hotteling_t2_vs_q_classic_professional_light.png">
+</picture>
 
 ### PCI Contribution Plot
 
 This plot shows the contribution of each original variable to each of the principal components. It helps in understanding which variables are most important for defining each component.
 
-![PCI Contribution Plot](../img/exploration/pca/pca_pci_contribution_classic_professional_light.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_pci_contribution_classic_professional_dark.png">
+  <img alt="PCI Contribution Plot" src="../img/exploration/pca/pca_pci_contribution_classic_professional_light.png">
+</picture>
 
 
 ## API Reference

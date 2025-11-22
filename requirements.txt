@@ -8,3 +8,6 @@ statsmodels
 matplotlib
 seaborn
 husl
+polars
+networkx
+pyarrow

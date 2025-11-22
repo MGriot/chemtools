@@ -36,3 +36,7 @@ from .viz import (
     smooth_plot,
     HarmonizedPaletteGenerator,
 )
+
+from .sql_builder import (
+    SqlModelBuilder,
+)

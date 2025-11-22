@@ -133,7 +133,7 @@ class BasePlotter:
     }
 
     def __init__(
-        self, library="matplotlib", theme="light", style_preset="default", legend_opts: dict = None, **kwargs
+        self, library="matplotlib", theme="classic_professional_light", style_preset="default", legend_opts: dict = None, **kwargs
     ):
         self.library = library
         if theme not in BasePlotter._ALL_THEMES:

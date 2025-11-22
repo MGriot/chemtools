@@ -18,7 +18,7 @@ from typing import List, Dict, Optional, Union, Tuple, Any # From Plotter, but g
 class DimensionalityReductionPlot(BasePlotter):
     """Class for dimensional reduction visualization."""
 
-    def __init__(self, dim_reduction_model, library="matplotlib", theme="light", style_preset="default", **kwargs):
+    def __init__(self, dim_reduction_model, library="matplotlib", theme="classic_professional_light", style_preset="default", **kwargs):
         super().__init__(library=library, theme=theme, style_preset=style_preset, **kwargs)
         self.dim_reduction_model = dim_reduction_model
 
@@ -236,7 +236,7 @@ class DimensionalityReductionPlot(BasePlotter):
                 ),
                 color=self.colors["highlight_color"],
                 linestyle="--",
-                label="Eigenvalues $\geq$ 1",
+                label=r"Eigenvalues $\geq$ 1",
             )
             return line
         return None
@@ -1290,11 +1290,15 @@ class DimensionalityReductionPlot(BasePlotter):
         preset_name = self.style_preset
         preset_settings = self.STYLE_PRESETS["matplotlib"].get(preset_name, {})
 
-        ax.grid(
-            preset_settings.get("axes.grid", True) and not for_empty,
-            alpha=preset_settings.get("grid.alpha", 0.5),
-            color=self.colors["grid_color"],
-        )
+        grid_enabled = preset_settings.get("axes.grid", True) and not for_empty
+        if grid_enabled:
+            ax.grid(
+                grid_enabled,
+                alpha=preset_settings.get("grid.alpha", 0.5),
+                color=self.colors["grid_color"],
+            )
+        else:
+            ax.grid(grid_enabled)
 
         ax.spines["top"].set_visible(
             preset_settings.get("axes.spines.top", True) and not for_empty

@@ -19,6 +19,7 @@ class RaincloudPlot(BasePlotter):
         x: str,
         y: str,
         orientation: str = "vertical",
+        violin_filled: bool = True,
         **kwargs,
     ):
         """
@@ -31,6 +32,7 @@ class RaincloudPlot(BasePlotter):
             orientation (str): 'vertical' (default) or 'horizontal'.
                                 If 'vertical', x is categorical, y is numerical.
                                 If 'horizontal', x is numerical, y is categorical.
+            violin_filled (bool): If True, the violin plot is filled. Otherwise, only the contour is drawn.
             **kwargs: Additional keyword arguments passed to the plotter.
                       Includes 'jitter_amount', 'box_width', 'violin_width', 'plot_offset', 'show_legend'.
         """
@@ -58,7 +60,6 @@ class RaincloudPlot(BasePlotter):
             raise TypeError(f"Column '{categorical_var}' must be categorical.")
 
         categories = data[categorical_var].dropna().unique()
-        # It's better to sort to ensure a consistent plotting order
         categories = sorted(categories)
 
         if self.library == "matplotlib":
@@ -66,10 +67,9 @@ class RaincloudPlot(BasePlotter):
                 figsize=params.get("figsize", (10, 2 + len(categories) * 1.5))
             )
 
-            # ## UPDATED: More descriptive parameter names
-            jitter_amount = kwargs.get("jitter_amount", 0.1)
+            jitter_amount = kwargs.get("jitter_amount", 0.04)
             point_size = kwargs.get("point_size", 20)
-            plot_offset = kwargs.get("plot_offset", 0.2)  # Controls separation
+            plot_offset = kwargs.get("plot_offset", 0.25)
 
             n_categories = len(categories)
             colors = self.colors["category_color_scale"][:n_categories]
@@ -80,121 +80,97 @@ class RaincloudPlot(BasePlotter):
                 if subset.empty:
                     continue
 
-                # ## UPDATED: Centralize position and use offset for clarity
                 center = i
-                rain_position = center - plot_offset
                 cloud_position = center + plot_offset
-
-                # 1. Half-Violin Plot (Cloud)
-                kde = gaussian_kde(
-                    subset, bw_method="scott"
-                )  # Using Scott's rule for bandwidth
-
+                data_viz_position = center - plot_offset
+                
+                kde = gaussian_kde(subset, bw_method="scott")
+                
+                data_range = subset.max() - subset.min() if len(subset) > 1 else 1
+                kde_min = subset.min() - data_range * 0.1
+                kde_max = subset.max() + data_range * 0.1
+                
                 if orientation == "vertical":
-                    # KDE plot (the "cloud")
-                    kde_x = np.linspace(subset.min(), subset.max(), 100)
-                    kde_y = kde(kde_x)
-                    scaled_kde = kde_y / kde_y.max() * 0.4  # Scale width of the cloud
-                    ax.fill_betweenx(
-                        kde_x,
-                        cloud_position,
-                        cloud_position + scaled_kde,
-                        facecolor=color_map[cat],
-                        alpha=0.6,
-                        label=f"KDE {cat}",
-                    )
+                    kde_vals = np.linspace(kde_min, kde_max, 200)
+                    kde_dist = kde(kde_vals)
+                    scaled_kde = kde_dist / kde_dist.max() * 0.4
 
-                    # Jittered Scatter Plot (the "rain")
+                    ax.plot(cloud_position + scaled_kde, kde_vals, color=color_map[cat], zorder=10)
+
+                    if violin_filled:
+                        ax.fill_betweenx(
+                            kde_vals, cloud_position, cloud_position + scaled_kde,
+                            facecolor=color_map[cat], alpha=0.3, zorder=9
+                        )
+
                     jittered_x = np.random.uniform(
-                        rain_position - jitter_amount,
-                        rain_position + jitter_amount,
+                        data_viz_position - jitter_amount,
+                        data_viz_position + jitter_amount,
                         size=len(subset),
                     )
-                    ax.scatter(
-                        jittered_x,
-                        subset,
-                        color=color_map[cat],
-                        alpha=0.4,
-                        s=point_size,
-                        label=f"Data {cat}",
-                    )
+                    ax.scatter(jittered_x, subset, color=color_map[cat], alpha=0.5, s=point_size, zorder=5)
 
-                    # Box Plot (aligned with the rain)
-                    ax.boxplot(
-                        subset,
-                        positions=[rain_position],
-                        widths=[0.15],
-                        showfliers=False,
-                        patch_artist=True,
-                        vert=True,
-                        boxprops=dict(facecolor="white", edgecolor="black", alpha=0.8),
-                        medianprops=dict(color="black"),
-                        whiskerprops=dict(color="black"),
-                        capprops=dict(color="black"),
+                    bp = ax.boxplot(
+                        subset, positions=[data_viz_position], widths=[0.15],
+                        showfliers=False, patch_artist=True, vert=True,
                     )
+                    for patch in bp['boxes']:
+                        patch.set_facecolor('none')
+                        patch.set_edgecolor(self.colors['text_color'])
+                        patch.set_zorder(20)
+                    for element in ['whiskers', 'caps', 'medians']:
+                        for line in bp[element]:
+                            line.set_color(self.colors['text_color'])
+                            line.set_zorder(20)
+
                 else:  # horizontal
-                    # KDE plot (the "cloud")
-                    kde_y = np.linspace(subset.min(), subset.max(), 100)
-                    kde_x = kde(kde_y)
-                    scaled_kde = kde_x / kde_x.max() * 0.4  # Scale height of the cloud
-                    ax.fill_between(
-                        kde_y,
-                        cloud_position,
-                        cloud_position + scaled_kde,
-                        facecolor=color_map[cat],
-                        alpha=0.6,
-                        label=f"KDE {cat}",
-                    )
+                    kde_vals = np.linspace(kde_min, kde_max, 200)
+                    kde_dist = kde(kde_vals)
+                    scaled_kde = kde_dist / kde_dist.max() * 0.4
 
-                    # Jittered Scatter Plot (the "rain")
+                    ax.plot(kde_vals, cloud_position + scaled_kde, color=color_map[cat], zorder=10)
+
+                    if violin_filled:
+                        ax.fill_between(
+                            kde_vals, cloud_position, cloud_position + scaled_kde,
+                            facecolor=color_map[cat], alpha=0.3, zorder=9
+                        )
+
                     jittered_y = np.random.uniform(
-                        rain_position - jitter_amount,
-                        rain_position + jitter_amount,
+                        data_viz_position - jitter_amount,
+                        data_viz_position + jitter_amount,
                         size=len(subset),
                     )
-                    ax.scatter(
-                        subset,
-                        jittered_y,
-                        color=color_map[cat],
-                        alpha=0.4,
-                        s=point_size,
-                        label=f"Data {cat}",
-                    )
+                    ax.scatter(subset, jittered_y, color=color_map[cat], alpha=0.5, s=point_size, zorder=5)
 
-                    # Box Plot (aligned with the rain)
-                    ax.boxplot(
-                        subset,
-                        positions=[rain_position],
-                        widths=[0.15],
-                        showfliers=False,
-                        patch_artist=True,
-                        vert=False,
-                        boxprops=dict(facecolor="white", edgecolor="black", alpha=0.8),
-                        medianprops=dict(color="black"),
-                        whiskerprops=dict(color="black"),
-                        capprops=dict(color="black"),
+                    bp = ax.boxplot(
+                        subset, positions=[data_viz_position], widths=[0.15],
+                        showfliers=False, patch_artist=True, vert=False,
                     )
+                    for patch in bp['boxes']:
+                        patch.set_facecolor('none')
+                        patch.set_edgecolor(self.colors['text_color'])
+                        patch.set_zorder(20)
+                    for element in ['whiskers', 'caps', 'medians']:
+                        for line in bp[element]:
+                            line.set_color(self.colors['text_color'])
+                            line.set_zorder(20)
 
-            # Configure axes ticks and labels
             if orientation == "vertical":
                 ax.set_xticks(np.arange(n_categories))
                 ax.set_xticklabels(categories)
                 self._set_labels(
                     ax,
-                    subplot_title=params.get(
-                        "subplot_title", f"{numerical_var} by {categorical_var}"
-                    ),
+                    subplot_title=params.get("subplot_title", f"{numerical_var} by {categorical_var}"),
                     xlabel=categorical_var,
                     ylabel=numerical_var,
                 )
-            else:  # horizontal
+            else:
                 ax.set_yticks(np.arange(n_categories))
                 ax.set_yticklabels(categories)
                 self._set_labels(
                     ax,
-                    subplot_title=params.get(
-                        "subplot_title", f"{numerical_var} by {categorical_var}"
-                    ),
+                    subplot_title=params.get("subplot_title", f"{numerical_var} by {categorical_var}"),
                     xlabel=numerical_var,
                     ylabel=categorical_var,
                 )
@@ -205,41 +181,22 @@ class RaincloudPlot(BasePlotter):
             return fig
 
         elif self.library == "plotly":
-            # Plotly logic remains untouched as it was correct
             if orientation == "vertical":
                 fig = px.violin(
-                    data,
-                    x=categorical_var,
-                    y=numerical_var,
-                    color=categorical_var,
-                    points="all",
-                    box=True,
-                    title=params.get(
-                        "title", f"Raincloud Plot: {numerical_var} by {categorical_var}"
-                    ),
-                    color_discrete_sequence=self.colors["category_color_scale"],
-                    **kwargs,
+                    data, x=categorical_var, y=numerical_var, color=categorical_var,
+                    points="all", box=True, title=params.get("title", f"Raincloud Plot: {numerical_var} by {categorical_var}"),
+                    color_discrete_sequence=self.colors["category_color_scale"], **kwargs,
                 )
             else:  # horizontal
                 fig = px.violin(
-                    data,
-                    x=numerical_var,
-                    y=categorical_var,
-                    color=categorical_var,
-                    points="all",
-                    box=True,
-                    title=params.get(
-                        "title", f"Raincloud Plot: {numerical_var} by {categorical_var}"
-                    ),
-                    orientation="h",
-                    color_discrete_sequence=self.colors["category_color_scale"],
-                    **kwargs,
+                    data, x=numerical_var, y=categorical_var, color=categorical_var,
+                    points="all", box=True, title=params.get("title", f"Raincloud Plot: {numerical_var} by {categorical_var}"),
+                    orientation="h", color_discrete_sequence=self.colors["category_color_scale"], **kwargs,
                 )
 
-            # This part is a nice-to-have to better emulate the half-violin plot
-            fig.update_traces(
-                side="positive", width=0.7
-            )  # Show only one side of the violin
+            fig.update_traces(side="positive", width=0.7, points='all', jitter=1, pointpos=-1.2)
+            if not violin_filled:
+                fig.update_traces(fillcolor='rgba(0,0,0,0)')
             self._apply_common_layout(fig, params)
             return fig
         else:

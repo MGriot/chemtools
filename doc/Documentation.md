@@ -45,7 +45,11 @@ Core statistical calculations and models:
 - [Regression Statistics](stats/regression_stats.md)
 - [Analysis of Variance (ANOVA)](stats/anova.md)
 
-### 7. Plotting System
+### 7. Semantic Modeling
+Tools for building and interacting with semantic data models:
+- [Hybrid Semantic Model](semantic/semantic_model.md)
+
+### 8. Plotting System
 Unified plotting interface:
 - [Plotting Overview](plotting/overview.md)
 - [Plot Styles and Themes](plotting/styles_and_themes.md)

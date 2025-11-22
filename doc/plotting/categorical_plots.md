@@ -16,11 +16,10 @@ from chemtools.plots.relationship.heatmap import HeatmapPlot
 ```
 
 **Example:**
-![Categorical Heatmap](../../img/plots/categorical/heatmap_categorical_classic_professional_light.png)
-<details>
-  <summary>Dark Theme Version</summary>
-  ![Categorical Heatmap Dark](../../img/plots/categorical/heatmap_categorical_classic_professional_dark.png)
-</details>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../img/plots/categorical/heatmap_categorical_classic_professional_dark.png">
+  <img alt="Categorical Heatmap" src="../../img/plots/categorical/heatmap_categorical_classic_professional_light.png">
+</picture>
 
 ## Mosaic Plot
 
@@ -36,11 +35,10 @@ from chemtools.plots.categorical.mosaic import MosaicPlot
 ```
 
 **Example (matplotlib):**
-![Mosaic Plot](../../img/plots/categorical/mosaic_plot_mpl_classic_professional_light.png)
-<details>
-  <summary>Dark Theme Version</summary>
-  ![Mosaic Plot Dark](../../img/plots/categorical/mosaic_plot_mpl_classic_professional_dark.png)
-</details>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../../img/plots/categorical/mosaic_plot_mpl_classic_professional_dark.png">
+  <img alt="Mosaic Plot" src="../../img/plots/categorical/mosaic_plot_mpl_classic_professional_light.png">
+</picture>
 
 **Example (plotly - Treemap):**
 ![Mosaic Plot (Treemap)](../../img/plots/categorical/mosaic_plot_plotly_classic_professional_light.png)
