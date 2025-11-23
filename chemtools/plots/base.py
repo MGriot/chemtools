@@ -137,8 +137,8 @@ class BasePlotter:
     ):
         self.library = library
         if theme not in BasePlotter._ALL_THEMES:
-            print(f"Warning: Theme '{theme}' not found. Using 'light' theme.")
-            self.theme = "light"
+            print(f"Warning: Theme '{theme}' not found. Using 'classic_professional_light' theme.")
+            self.theme = "classic_professional_light" # Change from "light"
         else:
             self.theme = theme
         if style_preset not in self.STYLE_PRESETS[self.library]:

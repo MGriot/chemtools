@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from chemtools.semantic.model import HybridSemanticModel
 from chemtools.utils.sql_builder import SqlModelBuilder
 from chemtools.plots.basic.bar import BarPlot
+import os # Import os for directory creation
 
 # 1. Define a complex SQL Schema (String)
 sql_script = """
@@ -58,7 +59,7 @@ model.add_table('Sales', df_sales)
 model.add_measure('Total Revenue', 'Sales', 'Amount', 'sum')
 
 print("\n--- 3. Visualization ---")
-model.visualize() 
+# model.visualize() # This might be an interactive visualization, skip for automated saving
 
 print("\n--- 4. Calculation (Pandas) ---")
 # Logic: "Revenue from North Region"
@@ -84,11 +85,16 @@ df_region_revenue = df_merged.groupby('Region')['Amount'].sum().reset_index()
 print("\nAggregated data for plotting:")
 print(df_region_revenue)
 
+output_dir = "doc/img/examples/semantic_model" # Define output_dir for this script
+os.makedirs(output_dir, exist_ok=True) # Create output directory
+
+
 # Use the BarPlot plotter from chemtools
 try:
     plotter = BarPlot(theme='classic_professional_light')
     fig = plotter.plot(data=df_region_revenue, x='Region', y='Amount', title='Total Revenue by Region')
-    plt.show()
+    fig.savefig(os.path.join(output_dir, "total_revenue_by_region.png"), bbox_inches='tight')
+    plt.close(fig)
     print("\nSuccessfully generated and displayed the plot.")
 except Exception as e:
     print(f"\nAn error occurred during plotting: {e}")

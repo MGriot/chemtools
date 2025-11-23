@@ -22,13 +22,14 @@ def test_autoscaling():
 def test_matrix_mean():
     """Test matrix mean calculation."""
     X = np.array([[1, 2], [3, 4]])
-    means = matrix_mean(X)
+    means = matrix_mean(X, mode="column") # Added mode="column"
     np.testing.assert_array_equal(means, [2, 3])
 
 
 def test_correlation_matrix():
     """Test correlation matrix calculation."""
     X = np.array([[1, 2], [3, 4], [5, 6]])
-    corr = correlation_matrix(X)
+    X_scaled = autoscaling(X) # Autoscaled X
+    corr = correlation_matrix(X_scaled) # Passed autoscaled X
     assert corr.shape == (2, 2)
     np.testing.assert_almost_equal(np.diag(corr), [1, 1])

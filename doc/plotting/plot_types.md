@@ -44,6 +44,9 @@ from chemtools.plots.basic.bar import BarPlot
   <img alt="Grouped Bar Plot" src="../img/plots/basic/bar_plot_grouped_classic_professional_light.png">
 </picture>
 
+*Total Revenue by Region (Semantic Model Example)*
+<img alt="Total Revenue by Region" src="../img/examples/semantic_model/total_revenue_by_region.png">
+
 ### Line Plot
 
 Used for visualizing data points connected by straight line segments. It is especially useful for showing trends in data over time or another continuous interval. The `mode` parameter can also be set to `'dot'` or `'area'`.
@@ -179,6 +182,12 @@ from chemtools.plots.distribution.raincloud import RaincloudPlot
   <source media="(prefers-color-scheme: dark)" srcset="../img/plots/distribution/raincloud_horizontal_classic_professional_dark.png">
   <img alt="Horizontal Raincloud Plot" src="../img/plots/distribution/raincloud_horizontal_classic_professional_light.png">
 </picture>
+
+**Example (Filled Raincloud Plot):**
+<img alt="Filled Raincloud Plot" src="../img/examples/raincloud_demo/filled_raincloud_plot.png">
+
+**Example (Unfilled Raincloud Plot):**
+<img alt="Unfilled Raincloud Plot" src="../img/examples/raincloud_demo/unfilled_raincloud_plot.png">
 
 **Citation:**
 This implementation is inspired by the concepts presented in:

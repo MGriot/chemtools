@@ -156,7 +156,7 @@ class ViolinPlot(BasePlotter):
                 
                 ax.plot([positions[i], positions[i] + x_offset], [mean_val, mean_val], ls="dashdot", color=self.colors['text_color'], zorder=25)
                 ax.text(
-                    positions[i] + x_offset, mean_val, f" $\hat{{\mu}} = {mean_val:.2f}$",
+                    positions[i] + x_offset, mean_val, f" $\\hat{{\\mu}} = {mean_val:.2f}$",
                     fontsize=self.colors['annotation_fontsize_small'], va="center", ha=ha,
                     bbox=dict(facecolor=self.colors['bg_color'], edgecolor=self.colors['text_color'], boxstyle="round,pad=0.15", alpha=0.8),
                     zorder=25
@@ -207,6 +207,7 @@ class ViolinPlot(BasePlotter):
 
     def _plot_plotly(self, data, y, x, params, **kwargs):
         kwargs.pop('title', None)
+        kwargs.pop('subplot_title', None) # Remove subplot_title for Plotly
         unique_categories = data[x].dropna().unique()
         color_map = {
             cat: self.colors['category_color_scale'][i % len(self.colors['category_color_scale'])]

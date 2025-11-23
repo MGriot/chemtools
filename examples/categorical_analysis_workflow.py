@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from chemtools.exploration import EDA
+from chemtools.exploration.EDA import ExploratoryDataAnalysis
 from chemtools.plots.basic.bar import BarPlot
 from chemtools.plots.relationship.heatmap import HeatmapPlot
+import os # Import os for directory creation
 
 def categorical_analysis_workflow():
     """
@@ -11,6 +12,9 @@ def categorical_analysis_workflow():
     using chemtools, without saving any files.
     """
     print("--- Categorical Analysis Workflow with Chemtools ---")
+
+    output_dir = "doc/img/examples/categorical_workflow"
+    os.makedirs(output_dir, exist_ok=True) # Create output directory
 
     # 1. Load and create sample data
     print("\n1. Creating sample data...")
@@ -23,7 +27,7 @@ def categorical_analysis_workflow():
 
     # 2. Summary statistics
     print("\n2. Summary Statistics:")
-    eda = EDA(data)
+    eda = ExploratoryDataAnalysis(data) # Corrected instantiation
     
     # Using chemtools EDA class for a quick overview
     print("\n--- Using chemtools.exploration.EDA ---")
@@ -41,7 +45,8 @@ def categorical_analysis_workflow():
     print("\n3. Visualizing single variable distribution (Count Plot)...")
     bar_plotter = BarPlot()
     fig1 = bar_plotter.plot_counts(data, 'Category1', subplot_title="Distribution of Category1")
-    plt.show()
+    fig1.savefig(os.path.join(output_dir, "category1_count_plot.png"), bbox_inches='tight')
+    plt.close(fig1)
 
     # 4. Relationship between two categorical variables (Grouped Count Plot)
     print("\n4. Visualizing relationship between two variables (Grouped Count Plot)...")
@@ -50,7 +55,8 @@ def categorical_analysis_workflow():
     
     # The BarPlot.plot method needs a y-value, so we use the calculated 'count'.
     fig2 = bar_plotter.plot(grouped_counts, x='Category1', y='count', color='Category2', mode='group', subplot_title="Counts of Category2 within Category1")
-    plt.show()
+    fig2.savefig(os.path.join(output_dir, "grouped_count_plot.png"), bbox_inches='tight')
+    plt.close(fig2)
 
     # 5. Crosstab and heatmap
     print("\n5. Crosstab and Heatmap...")
@@ -64,7 +70,8 @@ def categorical_analysis_workflow():
     print("\nDisplaying heatmap of the crosstab...")
     heatmap_plotter = HeatmapPlot()
     fig3 = heatmap_plotter.plot(crosstab_df, annot=True, subplot_title="Heatmap of Co-occurrences")
-    plt.show()
+    fig3.savefig(os.path.join(output_dir, "crosstab_heatmap.png"), bbox_inches='tight')
+    plt.close(fig3)
     
     print("\n--- Workflow Complete ---")
 

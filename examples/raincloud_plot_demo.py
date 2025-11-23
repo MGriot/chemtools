@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from chemtools.plots.distribution.raincloud import RaincloudPlot
+import os # Import os for directory creation
 
 # Create sample data
 np.random.seed(0)
@@ -16,6 +17,9 @@ data = pd.DataFrame({
 
 print("--- Raincloud Plot Demo ---")
 
+output_dir = "doc/img/examples/raincloud_demo"
+os.makedirs(output_dir, exist_ok=True) # Create output directory
+
 # --- Demo 1: Filled Violin ---
 print("\n1. Generating filled raincloud plot...")
 try:
@@ -27,7 +31,8 @@ try:
         violin_filled=True,
         title="Filled Raincloud Plot"
     )
-    plt.show()
+    fig1.savefig(os.path.join(output_dir, "filled_raincloud_plot.png"), bbox_inches='tight')
+    plt.close(fig1)
     print("   ... Filled plot generated.")
 except Exception as e:
     print(f"   ... Error generating filled plot: {e}")
@@ -44,7 +49,8 @@ try:
         violin_filled=False,
         title="Unfilled (Contour) Raincloud Plot"
     )
-    plt.show()
+    fig2.savefig(os.path.join(output_dir, "unfilled_raincloud_plot.png"), bbox_inches='tight')
+    plt.close(fig2)
     print("   ... Unfilled plot generated.")
 except Exception as e:
     print(f"   ... Error generating unfilled plot: {e}")

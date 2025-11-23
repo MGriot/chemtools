@@ -45,3 +45,30 @@ from chemtools.plots.categorical.mosaic import MosaicPlot
   <source media="(prefers-color-scheme: dark)" srcset="../img/plots/categorical/mosaic_plot_plotly_classic_professional_dark.png">
   <img alt="Mosaic Plot (Treemap)" src="../img/plots/categorical/mosaic_plot_plotly_classic_professional_light.png">
 </picture>
+
+## Categorical Analysis Workflows
+
+The `chemtools` library provides comprehensive tools for categorical data analysis, which can be integrated into various workflows for exploratory data analysis and hypothesis testing.
+
+### Full Categorical Analysis Workflow
+
+This workflow demonstrates a detailed analysis of categorical data, including 100% stacked bar charts and Chi-Squared tests.
+
+**100% Stacked Bar Chart:**
+<img alt="100% Stacked Bar Chart" src="../img/examples/categorical_analysis/stacked_bar_chart.png">
+
+**Crosstab Heatmap:**
+<img alt="Crosstab Heatmap" src="../img/examples/categorical_analysis/crosstab_heatmap.png">
+
+### Basic Categorical Analysis Workflow
+
+This workflow focuses on basic summaries and visualizations for categorical variables, including count plots and heatmaps of co-occurrences.
+
+**Category Count Plot:**
+<img alt="Category Count Plot" src="../img/examples/categorical_workflow/category1_count_plot.png">
+
+**Grouped Count Plot:**
+<img alt="Grouped Count Plot" src="../img/examples/categorical_workflow/grouped_count_plot.png">
+
+**Crosstab Heatmap:**
+<img alt="Crosstab Heatmap" src="../img/examples/categorical_workflow/crosstab_heatmap.png">

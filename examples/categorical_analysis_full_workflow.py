@@ -5,6 +5,7 @@ from chemtools.exploration.EDA import ExploratoryDataAnalysis
 from chemtools.plots.basic.bar import BarPlot
 from chemtools.plots.relationship.heatmap import HeatmapPlot
 from chemtools.stats import ChiSquaredTest
+import os # Import os for directory creation
 
 def categorical_analysis_full_workflow():
     """
@@ -12,6 +13,9 @@ def categorical_analysis_full_workflow():
     using chemtools, including 100% stacked bar charts and Chi-Squared test.
     """
     print("--- Full Categorical Analysis Workflow with Chemtools ---")
+
+    output_dir = "doc/img/examples/categorical_analysis"
+    os.makedirs(output_dir, exist_ok=True) # Create output directory
 
     # 1. Create sample data
     print("\n1. Creating sample data...")
@@ -58,7 +62,8 @@ def categorical_analysis_full_workflow():
         normalize=True, 
         subplot_title="100% Stacked Bar Chart: Job Satisfaction by Education"
     )
-    plt.show()
+    fig_100_stacked.savefig(os.path.join(output_dir, "stacked_bar_chart.png"), bbox_inches='tight')
+    plt.close(fig_100_stacked)
 
     # 5. Chi-Squared Test and Cramér's V
     print("\n5. Performing Chi-Squared Test for Education vs. JobSatisfaction:")
@@ -70,7 +75,8 @@ def categorical_analysis_full_workflow():
     print("\n6. Displaying heatmap of the crosstab with annotations...")
     heatmap_plotter = HeatmapPlot(theme='classic_professional_light')
     fig_heatmap = heatmap_plotter.plot(crosstab_df, annot=True, subplot_title="Heatmap of Co-occurrences")
-    plt.show()
+    fig_heatmap.savefig(os.path.join(output_dir, "crosstab_heatmap.png"), bbox_inches='tight')
+    plt.close(fig_heatmap)
     
     print("\n--- Workflow Complete ---")
 
