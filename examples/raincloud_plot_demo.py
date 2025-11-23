@@ -29,7 +29,9 @@ try:
         x='Category',
         y='Value',
         violin_filled=True,
-        title="Filled Raincloud Plot"
+        title="Filled Raincloud Plot",
+        plot_offset=0.1,  # Adjusted for closer points and violin
+        jitter_amount=0.02 # Adjusted for tighter points
     )
     fig1.savefig(os.path.join(output_dir, "filled_raincloud_plot.png"), bbox_inches='tight')
     plt.close(fig1)
@@ -47,7 +49,9 @@ try:
         x='Category',
         y='Value',
         violin_filled=False,
-        title="Unfilled (Contour) Raincloud Plot"
+        title="Unfilled (Contour) Raincloud Plot",
+        plot_offset=0.1,  # Adjusted for closer points and violin
+        jitter_amount=0.02 # Adjusted for tighter points
     )
     fig2.savefig(os.path.join(output_dir, "unfilled_raincloud_plot.png"), bbox_inches='tight')
     plt.close(fig2)
