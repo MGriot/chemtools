@@ -110,7 +110,7 @@ class PairPlot(BasePlotter):
         Returns:
             A matplotlib or plotly figure object.
         """
-        params = self._process_common_params(**kwargs)
+        params = self._process_common_params(showlegend=kwargs.pop("showlegend", False), **kwargs)
         if self.library == "matplotlib":
             title = params.get("title", "Pair Plot")
             hue_col = kwargs.pop("hue", None)

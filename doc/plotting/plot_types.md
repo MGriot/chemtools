@@ -386,6 +386,28 @@ from chemtools.plots.regression import RegressionPlots
   <img alt="Regression Results Plot" src="../img/plots/regression/regression_results_classic_professional_light.png">
 </picture>
 
+### Regression Component Visualizations
+
+Beyond the main regression results plot, individual components of a regression analysis can be visualized for deeper insight.
+
+**All Regression Components:**
+<img alt="All Regression Components" src="../img/regression/all.png">
+
+**Confidence Band:**
+<img alt="Confidence Band" src="../img/regression/confidence band.png">
+
+**Data Points:**
+<img alt="Data Points" src="../img/regression/data.png">
+
+**Prediction Band:**
+<img alt="Prediction Band" src="../img/regression/prediction band.png">
+
+**Regression Line:**
+<img alt="Regression Line" src="../img/regression/regression line.png">
+
+**Residuals Plot:**
+<img alt="Residuals Plot" src="../img/regression/residuals.png">
+
 ## Geographical Plots
 
 Located in `chemtools.plots.geographical`.
@@ -401,3 +423,85 @@ from chemtools.plots.geographical.map import MapPlot
 # plotter.plot_scatter_geo(data, lat_column, lon_column, **kwargs)
 ```
 -   **Note:** Plotly library is recommended for these plots. To save these plots as static images, you will also need the `kaleido` package (`pip install --upgrade kaleido`).
+
+## Exploration Plots
+
+Located in `chemtools.plots.exploration`.
+
+### Factor Analysis for Mixed Data (FAMD) Plots
+
+FAMD plots are used to visualize the results of Factor Analysis for Mixed Data, showing both loadings and scores.
+
+**FAMD Loadings Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/dimensional_reduction/famd/famd_loadings_classic_professional_dark.png">
+  <img alt="FAMD Loadings Plot" src="../img/dimensional_reduction/famd/famd_loadings_classic_professional_light.png">
+</picture>
+
+**FAMD Scores Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/dimensional_reduction/famd/famd_scores_classic_professional_dark.png">
+  <img alt="FAMD Scores Plot" src="../img/dimensional_reduction/famd/famd_scores_classic_professional_light.png">
+</picture>
+
+### Multiple Correspondence Analysis (MCA) Plots
+
+MCA plots are used to visualize the relationships between multiple categorical variables, showing eigenvalues and the positions of categories/observations.
+
+**MCA Eigenvalues Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/mca/mca_eigenvalues_classic_professional_dark.png">
+  <img alt="MCA Eigenvalues Plot" src="../img/exploration/mca/mca_eigenvalues_classic_professional_light.png">
+</picture>
+
+**MCA Objects Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/mca/mca_objects_classic_professional_dark.png">
+  <img alt="MCA Objects Plot" src="../img/exploration/mca/mca_objects_classic_professional_light.png">
+</picture>
+
+### Principal Component Analysis (PCA) Plots
+
+PCA plots are fundamental for visualizing the results of Principal Component Analysis, including biplots, loadings, scores, correlation matrices, eigenvalues, Hotelling's T2 vs Q plots, and PCI contributions.
+
+**PCA Biplot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_biplot_classic_professional_dark.png">
+  <img alt="PCA Biplot" src="../img/exploration/pca/pca_biplot_classic_professional_light.png">
+</picture>
+
+**PCA Correlation Matrix:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_correlation_matrix_classic_professional_dark.png">
+  <img alt="PCA Correlation Matrix" src="../img/exploration/pca/pca_correlation_matrix_classic_professional_light.png">
+</picture>
+
+**PCA Eigenvalues Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_eigenvalues_classic_professional_dark.png">
+  <img alt="PCA Eigenvalues Plot" src="../img/exploration/pca/pca_eigenvalues_classic_professional_light.png">
+</picture>
+
+**PCA Hotelling's T2 vs Q Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_hotteling_t2_vs_q_classic_professional_dark.png">
+  <img alt="PCA Hotelling's T2 vs Q Plot" src="../img/exploration/pca/pca_hotteling_t2_vs_q_classic_professional_light.png">
+</picture>
+
+**PCA Loadings Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_loadings_classic_professional_dark.png">
+  <img alt="PCA Loadings Plot" src="../img/exploration/pca/pca_loadings_classic_professional_light.png">
+</picture>
+
+**PCA PCI Contribution Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_pci_contribution_classic_professional_dark.png">
+  <img alt="PCA PCI Contribution Plot" src="../img/exploration/pca/pca_pci_contribution_classic_professional_light.png">
+</picture>
+
+**PCA Scores Plot:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_scores_classic_professional_dark.png">
+  <img alt="PCA Scores Plot" src="../img/exploration/pca/pca_scores_classic_professional_light.png">
+</picture>
