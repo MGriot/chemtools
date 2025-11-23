@@ -151,6 +151,29 @@ from chemtools.plots.violin import ViolinPlot
   <img alt="Violin Plot" src="../img/plots/distribution/violin_plot_classic_professional_light.png">
 </picture>
 
+### Beeswarm Plot
+
+A beeswarm plot (or swarmplot) displays individual data points for a numerical variable, arranging them to avoid overlap. This results in a "swarming" effect that reveals the distribution and density of the data more effectively than a standard scatter or box plot. It is a very good alternative to the boxplot, which can hide the underlying distribution.
+
+**When to use it:** Use the beeswarm plot for smaller datasets to get a clear view of each data point. Avoid using it for very large datasets, as the algorithm to prevent point overlap will become computationally intensive and the plot may become too crowded. For larger datasets, a violin plot is a better alternative.
+
+```python
+from chemtools.plots.distribution.beeswarm import BeeswarmPlot
+
+# plotter = BeeswarmPlot()
+# plotter.plot(data, x='Category', y='Value', **kwargs)
+```
+-   `x`: The column name for the categorical variable.
+-   `y`: The column name for the numerical variable.
+-   `point_size` (int): Size of the scatter points.
+-   `spread_factor` (float): Controls the horizontal spread of points.
+
+**Example:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/examples/beeswarm_demo/beeswarm_plot_dark.png">
+  <img alt="Beeswarm Plot" src="../img/examples/beeswarm_demo/beeswarm_plot_light.png">
+</picture>
+
 ### Raincloud Plot
 
 The Raincloud plot is a powerful visualization that combines a violin plot, a jittered scatter plot (the "rain"), and a box plot to provide a comprehensive view of data distributions. It is particularly useful for comparing distributions across different categories, showing both the overall shape and individual data points.

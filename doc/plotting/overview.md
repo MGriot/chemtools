@@ -135,6 +135,7 @@ The plotting library is organized into categories based on the plot's purpose. F
     -   [Histogram](plot_types.md#histogram) (including density curve)
     -   [Box Plot](plot_types.md#box-plot)
     -   [Violin Plot](plot_types.md#violin-plot)
+    -   [Beeswarm Plot](plot_types.md#beeswarm-plot)
 
 3.  **Relationship Plots**
     -   [Scatter Plot](plot_types.md#scatter-plot) (2D, 3D, and bubble)
