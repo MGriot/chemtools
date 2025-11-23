@@ -162,4 +162,5 @@ For further inspiration on data visualization and advanced plotting techniques, 
 
 -   [The Python Graph Gallery](https://python-graph-gallery.com/)
 -   [Python Plot](https://pythonplot.com/)
--   [Beautiful Plots](https://beautifulplots.readthedocs.io/en/latest/index.html)
+    -   [Beautiful Plots](https://beautifulplots.readthedocs.io/en/latest/index.html)
+    -   [ObservableHQ](https://observablehq.com/@observablehq)
