@@ -33,8 +33,24 @@ class LinearRegression(BaseModel):
         self.coefficients = None
 
     def fit(self, X, y):
-        """Fit the model to the data."""
-        raise NotImplementedError("Subclasses must implement the 'fit' method.")
+        """Fit the OLS model."""
+        # Ensure X is always 2D (even for a single feature)
+        if X.ndim == 1:
+            X = X.reshape(-1, 1)
+
+        self.X_orig, self.y = sort_arrays(X, y.ravel())
+        self.X_orig = np.array(self.X_orig)
+        self.y = np.array([self.y]).T
+
+        if self.fit_intercept:
+            self.X = np.hstack((np.ones((X.shape[0], 1)), self.X_orig))
+        else:
+            self.X = self.X_orig
+
+        self.coefficients = np.linalg.solve(
+            self.X.T @ self.X, self.X.T @ self.y
+        ).reshape(-1)
+        self._calculate_statistics()
 
     def predict(self, X: np.ndarray, new_data: bool = True) -> np.ndarray:
         """Predict using the fitted model."""
@@ -55,7 +71,10 @@ class LinearRegression(BaseModel):
         self.dof = calculate_degrees_of_freedom(self.objects_number, self.X.shape[1])
         self.y_pred = self.predict(self.X, new_data=False)
         self.residuals = self.y.reshape(-1, 1) - self.y_pred.reshape(-1, 1)
-        self.SSxx = np.sum((self.X[:, 1:] - self.x_mean[1:]) ** 2, axis=0)
+        if self.fit_intercept:
+            self.SSxx = np.sum((self.X[:, 1:] - self.x_mean[1:]) ** 2, axis=0)
+        else:
+            self.SSxx = np.sum((self.X - self.x_mean) ** 2, axis=0)
         self.SSyy = np.sum((self.y - self.y_mean) ** 2)
         self.SSxy = np.sum(
             (self.X[:, 1:] - self.x_mean[1:]) * (self.y - self.y_mean)[:, np.newaxis],
@@ -149,6 +168,7 @@ class LinearRegression(BaseModel):
             self.y_pred,
             self.SSxx,
             self.t_two,
+            self.fit_intercept,
         )
 
         self.upper_prediction_band, self.lower_prediction_band = prediction_band(
@@ -158,6 +178,7 @@ class LinearRegression(BaseModel):
             self.y_pred,
             self.SSxx,  # Now an array for each feature
             self.t_two,
+            self.fit_intercept,
         )
 
     def _get_covariance_type(self):
@@ -205,19 +226,19 @@ class LinearRegression(BaseModel):
         # --- Add additional statistics to the summary dictionary ---
         summary["additional_stats"] = {
             "Omnibus:": (
-                f"{float(self.omnibus):.3f}" if not np.isnan(self.omnibus) else "nan"
+                f"{self.omnibus.item():.3f}" if not np.isnan(self.omnibus).item() else "nan"
             ),
             "Prob(Omnibus):": (
-                f"{float(self.prob_omnibus):.3f}"
-                if not np.isnan(self.prob_omnibus)
+                f"{self.prob_omnibus.item():.3f}"
+                if not np.isnan(self.prob_omnibus).item()
                 else "nan"
             ),
             "Skew:": (
-                f"{self.skewness[0]:.3f}"
-                if not np.isnan(self.skewness).any()
+                f"{self.skewness.item():.3f}"
+                if not np.isnan(self.skewness).item()
                 else "nan"
             ),
-            "Kurtosis:": f"{float(self.kurtosis):.3f}",
+            "Kurtosis:": f"{self.kurtosis.item():.3f}",
             "Durbin-Watson:": f"{self.dw:.3f}",
             "Jarque-Bera (JB):": f"{self.jb:.3f}",
             "Prob(JB):": f"{self.prob_jb:.3f}",
@@ -276,23 +297,7 @@ class OLSRegression(LinearRegression):
 
     def fit(self, X, y):
         """Fit the OLS model."""
-        # Ensure X is always 2D (even for a single feature)
-        if X.ndim == 1:
-            X = X.reshape(-1, 1)
-
-        self.X_orig, self.y = sort_arrays(X, y.ravel())
-        self.X_orig = np.array(self.X_orig)
-        self.y = np.array([self.y]).T
-
-        if self.fit_intercept:
-            self.X = np.hstack((np.ones((X.shape[0], 1)), self.X_orig))
-        else:
-            self.X = self.X_orig
-
-        self.coefficients = np.linalg.solve(
-            self.X.T @ self.X, self.X.T @ self.y
-        ).reshape(-1)
-        self._calculate_statistics()
+        super().fit(X, y)
 
 
 class WLSRegression(LinearRegression):
