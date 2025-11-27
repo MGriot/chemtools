@@ -228,4 +228,3 @@ def descriptive_statistics(data: Union[np.ndarray, pd.Series], alpha: float = 0.
         "Kurtosis": kurtosis(data),
     }
     return stats
-

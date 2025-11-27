@@ -232,11 +232,10 @@ class PairPlot(BasePlotter):
                     else:
                         ax.set_yticklabels([])
             
-            # Adjust layout to make space for legend
-            fig.subplots_adjust(right=0.8)
-
             # Manual legend creation
-            if hue_col:
+            if hue_col and params['showlegend']:
+                # Adjust layout to make space for legend
+                fig.subplots_adjust(right=0.8)
                 handles = []
                 labels = []
                 # Create dummy handles for the legend

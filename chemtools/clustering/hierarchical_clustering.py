@@ -118,8 +118,8 @@ class HierarchicalClustering:
     def _get_summary_data(self):
         """Returns a dictionary containing summary data for the model."""
         summary = self._create_general_summary(
-            self.n_variables,
-            self.n_objects,
+            self.n_samples,
+            self.n_samples, # n_objects should be n_samples. n_variables is not used in this function.
             No_Clusters=f"{self.n_samples - len(self.linkage_matrix_)}",
             Linkage=self.linkage_method
         )

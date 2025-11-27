@@ -76,7 +76,10 @@ class BaseModel(ABC):
         return {}
 
     def _create_general_summary(
-        self, n_variables: int, n_objects: int, **kwargs
+        self,
+        n_variables: int,
+        n_objects: int,
+        **kwargs
     ) -> Dict[str, Dict[str, str]]:
         """Creates the 'general' part of the summary data dictionary."""
         summary_data = {
@@ -110,7 +113,10 @@ class BaseModel(ABC):
         }
 
     def _calculate_multicolumn_widths(
-        self, data: Dict[str, str], total_width: int, num_cols: int
+        self,
+        data: Dict[str, str],
+        total_width: int,
+        num_cols: int,
     ) -> Tuple[int, int, int]:
         """Calculates widths for multi-column dictionary formatting.
 
@@ -210,7 +216,10 @@ class BaseModel(ABC):
         return col_width_per_item, left_block_width, key_text_display_width
 
     def _format_multicolumn_dict(
-        self, data: Dict[str, str], total_width: int, num_cols: int = 2
+        self,
+        data: Dict[str, str],
+        total_width: int,
+        num_cols: int = 2,
     ) -> str:
         """Formats a dictionary into a multi-column string.
         Keys are left-aligned. Values in ALL columns are right-aligned within their available space
@@ -219,8 +228,8 @@ class BaseModel(ABC):
         if not data or num_cols <= 0:
             return ""
 
-        col_width_per_item, left_block_width, key_text_disp_width = (
-            self._calculate_multicolumn_widths(data, total_width, num_cols)
+        col_width_per_item, left_block_width, key_text_disp_width = self._calculate_multicolumn_widths(
+            data, total_width, num_cols
         )
 
         right_overall_block_width = total_width - left_block_width
@@ -253,10 +262,10 @@ class BaseModel(ABC):
                         # No leading separator for the very first column's content block
                     else:  # Second and subsequent columns
                         current_item_cell_total_width = (
-                            right_overall_block_width
-                            if num_cols == 2 and col_idx == 1
-                            else col_width_per_item
-                        )
+                        right_overall_block_width
+                        if num_cols == 2 and col_idx == 1
+                        else col_width_per_item
+                    )
                         leading_separator = DEFAULT_COLUMN_SEPARATOR
 
                     # Calculate space for value AFTER key_segment and any leading_separator
@@ -310,7 +319,9 @@ class BaseModel(ABC):
         return "\n".join(lines) + "\n"
 
     def _calculate_table_col_widths(
-        self, headers: List[Any], total_width: int
+        self,
+        headers: List[Any],
+        total_width: int,
     ) -> List[int]:
         """Calculates widths for table columns based on headers and total width."""
         num_cols = len(headers)
@@ -340,7 +351,9 @@ class BaseModel(ABC):
         return col_widths
 
     def _format_table(
-        self, table_info: Union[List[List[Any]], Dict[str, Any]], total_width: int
+        self,
+        table_info: Union[List[List[Any]], Dict[str, Any]],
+        total_width: int,
     ) -> str:
         """Formats a table (list of lists or dict with data/align) into a fixed-width string."""
         alignments: Optional[List[str]] = None
@@ -596,9 +609,7 @@ class BaseModel(ABC):
         # Remove any trailing default_sep_line if it's the last thing
         if final_summary_content.rstrip().endswith(default_sep_line.strip()):
             final_summary_content = (
-                final_summary_content.rstrip()[
-                    : -len(default_sep_line.strip())
-                ].rstrip()
+                final_summary_content.rstrip()[: -len(default_sep_line.strip())].rstrip()
                 + "\n"
             )
 

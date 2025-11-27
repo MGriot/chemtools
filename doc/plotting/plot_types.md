@@ -420,25 +420,12 @@ from chemtools.plots.regression import RegressionPlots
 
 ### Regression Component Visualizations
 
-Beyond the main regression results plot, individual components of a regression analysis can be visualized for deeper insight.
+The `plot_regression_results` function provides a comprehensive visualization of a linear regression model.
 
-**All Regression Components:**
-<img alt="All Regression Components" src="../img/regression/all.png">
-
-**Confidence Band:**
-<img alt="Confidence Band" src="../img/regression/confidence band.png">
-
-**Data Points:**
-<img alt="Data Points" src="../img/regression/data.png">
-
-**Prediction Band:**
-<img alt="Prediction Band" src="../img/regression/prediction band.png">
-
-**Regression Line:**
-<img alt="Regression Line" src="../img/regression/regression line.png">
-
-**Residuals Plot:**
-<img alt="Residuals Plot" src="../img/regression/residuals.png">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/regression/regression_results_classic_professional_dark.png">
+  <img alt="Regression Results Plot" src="../img/plots/regression/regression_results_classic_professional_light.png">
+</picture>
 
 ## Geographical Plots
 

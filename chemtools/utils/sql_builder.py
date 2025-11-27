@@ -29,8 +29,9 @@ class SqlModelBuilder:
         table_pattern = re.compile(r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?['`]?(\w+)['`]?\s*\((.*?)\);", re.IGNORECASE)
         
         # Capture: FOREIGN KEY (Col) REFERENCES Parent(ParentCol)
-        fk_pattern = re.compile(r"FOREIGN\s+KEY\s*\(['\"`]?(\w+)['\"`]?\)\s*REFERENCES\s+['\"`]?(\w+)['\"`]?\s*\(['\"`]?(\w+)['\"`]?\)", re.IGNORECASE)
-        
+        # Using a simpler regex to avoid escaping issues.
+        fk_pattern = re.compile(r"FOREIGN\s+KEY\s*\((\w+)\)\s*REFERENCES\s+(\w+)\s*\((\w+)\)", re.IGNORECASE)
+
         # Capture: Column definitions (Simplified: Name Type ...)
         col_pattern = re.compile(r"['`]?(\w+)['`]?\s+\w+")
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from chemtools.exploration.EDA import ExploratoryDataAnalysis
+from chemtools.exploration.eda import ExploratoryDataAnalysis
 from chemtools.plots.basic.bar import BarPlot
 from chemtools.plots.relationship.heatmap import HeatmapPlot
 import os # Import os for directory creation
@@ -29,12 +29,12 @@ def categorical_analysis_workflow():
     print("\n2. Summary Statistics:")
     eda = ExploratoryDataAnalysis(data) # Corrected instantiation
     
-    # Using chemtools EDA class for a quick overview
+    # Using chemtools EDA class for a quick overview of all categorical columns
     print("\n--- Using chemtools.exploration.EDA ---")
     categorical_summary = eda.get_categorical_summary()
     print(categorical_summary)
 
-    # Mimicking pandas value_counts() for detailed counts
+    # Mimicking pandas value_counts() for detailed counts of specific columns
     print("\n--- Mimicking pandas value_counts() ---")
     print("\nValue counts for Category1:")
     print(data['Category1'].value_counts())

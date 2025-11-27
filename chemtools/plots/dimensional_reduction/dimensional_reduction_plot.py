@@ -916,7 +916,7 @@ class DimensionalityReductionPlot(BasePlotter):
 
         if label_points:
             annot_fontsize = self.colors["annotation_fontsize_small"] - (
-                2 if is_matrix_plot else 0
+                3 if is_matrix_plot else 1
             )
             for d_idx in range(self.dim_reduction_model.n_objects):
                 obj_label = (

@@ -28,7 +28,7 @@ def handle_nan_values(X, method="mean", axis=None, index=None):
         handle_nan_values(X, method="mean", axis=0, index=[1, 3, 5])  # Apply to columns 1, 3, and 5
 
         # Apply to multiple rows
-        handle_nan_values(X, method="mean", axis=1, index=[0, 2, 4])  # Apply to rows 0, 2, and 4
+        handle_nan_values(X, method="mean", axis=1, index=[0, 2, 4])  # Apply to rows 0, 1, and 2
 
         # Apply to a range of columns
         handle_nan_values(X, method="mean", axis=0, index=slice(1, 4))  # Apply to columns 1, 2, and 3

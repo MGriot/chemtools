@@ -6,10 +6,10 @@ import plotly.express as px
 
 # Import all the plotter and model classes
 from chemtools.plots.clustering.plot_dendogram import DendrogramPlotter
-from chemtools.clustering.HierarchicalClustering import HierarchicalClustering
+from chemtools.clustering.hierarchical_clustering import HierarchicalClustering
 from chemtools.plots.geographical.map import MapPlot
 from chemtools.plots.regression.regression_plots import RegressionPlots
-from chemtools.regression.LinearRegression import OLSRegression
+from chemtools.regression.linear_regression import OLSRegression
 from chemtools.plots.relationship.pairplot import PairPlot
 from chemtools.plots.specialized.bullet import BulletPlot
 from chemtools.plots.specialized.dual_axis import DualAxisPlot
@@ -66,10 +66,15 @@ def generate_specialized_plots():
     for theme in themes:
         try:
             plotter = PairPlot(theme=theme)
-            fig = plotter.plot(pair_data, hue='species', title=f"Pair Plot ({theme})")
+            fig = plotter.plot(pair_data, hue='species', title=f"Pair Plot without Legend ({theme})")
             fig.savefig(os.path.join(output_dir, f"pairplot_{theme}.png"), bbox_inches='tight')
             plt.close(fig)
             print(f"  - Saved pair plot for theme: {theme}")
+
+            fig = plotter.plot(pair_data, hue='species', title=f"Pair Plot with Legend ({theme})", showlegend=True)
+            fig.savefig(os.path.join(output_dir, f"pairplot_with_legend_{theme}.png"), bbox_inches='tight')
+            plt.close(fig)
+            print(f"  - Saved pair plot with legend for theme: {theme}")
         except Exception as e:
             print(f"  - Error generating pair plot for theme {theme}: {e}")
 

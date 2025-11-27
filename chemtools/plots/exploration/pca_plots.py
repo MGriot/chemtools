@@ -31,7 +31,9 @@ class PCAplots(BasePlotter):
         params = self._process_common_params(**kwargs)
         fig, ax = self._create_figure(figsize=params["figsize"])
 
-        # Create heatmap
+        if not hasattr(self.pca_object, "correlation_matrix"):
+            raise AttributeError("Model must have 'correlation_matrix'.")
+
         im = ax.imshow(self.pca_object.correlation_matrix, cmap=cmap)
 
         # Add colorbar with themed styling

@@ -37,7 +37,7 @@ try:
     plt.close(fig1)
     print("   ... Filled plot generated.")
 except Exception as e:
-    print(f"   ... Error generating filled plot: {e}")
+    print(f"   ... Error generating light theme plot: {e}")
 
 
 # --- Demo 2: Unfilled (Contour) Violin ---

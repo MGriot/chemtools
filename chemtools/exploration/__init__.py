@@ -1,11 +1,11 @@
-from chemtools.dimensional_reduction.PrincipalComponentAnalysis import (
+from chemtools.dimensional_reduction.principal_component_analysis import (
     PrincipalComponentAnalysis,
 )
-from chemtools.dimensional_reduction.ExtendedPrincipalComponentAnalysis import (
+from chemtools.dimensional_reduction.extended_principal_component_analysis import (
     ExtendedPrincipalComponentAnalysis,
 )
-from .MultipleCorrespondenceAnalysis import MultipleCorrespondenceAnalysis
-from .GeneralizedCanonicalCorrelationAnalysis import (
+from .multiple_correspondence_analysis import MultipleCorrespondenceAnalysis
+from .generalized_canonical_correlation_analysis import (
     GeneralizedCanonicalCorrelationAnalysis,
 )
-from .EDA import ExploratoryDataAnalysis
+from .eda import ExploratoryDataAnalysis

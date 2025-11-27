@@ -24,7 +24,7 @@ Example usage:
 >>> # and 'qualitative_variables' is a list of column names for categorical variables
 >>> famd = FactorAnalysisOfMixedData(n_components=2) 
 >>> famd.fit(X, qualitative_variables=['cat_var1', 'cat_var2'])
->>> # ... Access results (e.g., famd.T, famd.eigenvalues) 
+>>> # ... Access results: famd.T, famd.eigenvalues) 
 >>> # ... and use plotting methods from DimensionalityReductionPlot
 """
 

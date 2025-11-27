@@ -129,23 +129,11 @@ regression_plotter = RegressionPlots(model, library="plotly")
 # and they will generate interactive Plotly plots instead.
 ```
 
-* `plot_residuals`: Plots residuals against observations to check for patterns and assess model assumptions.
-  ![Residual Plot](../img/regression/residuals.png) 
-
-* `plot_data`: Creates a scatter plot of the input data.
-  ![Data Plot](../img/regression/data.png)
-
-* `plot_regression_line`: Plots the regression line along with the data points.
-  ![Regression Line Plot](../img/regression/regression line.png)
-
-* `plot_confidence_band`: Visualizes the confidence band around the regression line, indicating the uncertainty in the estimated relationship.
-![Confidence Plot](../img/regression/confidence band.png)
-
-* `plot_prediction_band`: Displays the prediction band, which represents the range where future predictions are likely to fall.
-  ![Prediction Band Plot](../img/regression/prediction band.png)
-
 * `plot_regression_results`: Provides a comprehensive visualization of regression results, allowing customization of what to include in the plot (data points, regression line, confidence band, prediction band).
-  ![all Plot](../img/regression/all.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/regression/regression_results_classic_professional_dark.png">
+  <img alt="Regression Results Plot" src="../img/plots/regression/regression_results_classic_professional_light.png">
+</picture>
 
 These plotting functions support both Matplotlib and Plotly libraries, giving users flexibility in choosing their preferred visualization tool.
 Remember to replace placeholders like xlabel, ylabel, confidence_band_color, etc., with your desired values.
