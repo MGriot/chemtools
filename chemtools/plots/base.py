@@ -175,6 +175,27 @@ class BasePlotter:
         else:
             print(f"No themes loaded from {filepath}.")
 
+    def get_continuous_colormap(self, colors: Optional[List[str]] = None, name: str = "custom_theme_map"):
+        """
+        Generates a continuous colormap from a list of theme colors.
+
+        Args:
+            colors (list, optional): A list of hex colors to create a gradient from. 
+                                     If None, a default gradient is created from the theme's 
+                                     background color to its main theme color.
+            name (str, optional): The name for the new colormap.
+
+        Returns:
+            A matplotlib.colors.LinearSegmentedColormap object.
+        """
+        from matplotlib.colors import LinearSegmentedColormap
+        
+        if colors is None:
+            # Create a default sequential gradient
+            colors = [self.colors['bg_color'], self.colors['theme_color']]
+        
+        return LinearSegmentedColormap.from_list(name, colors)
+
     def _init_matplotlib_style(self):
         plt.style.use("default")  # Start with a known base
         base_style = {

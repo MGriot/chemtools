@@ -69,7 +69,8 @@ class RaincloudPlot(BasePlotter):
 
             jitter_amount = kwargs.get("jitter_amount", 0.04)
             point_size = kwargs.get("point_size", 20)
-            plot_offset = kwargs.get("plot_offset", 0.25)
+            plot_offset = kwargs.get("plot_offset", 0.05) # Reduced for internal compactness
+            category_spacing = kwargs.get("category_spacing", 1.5) # Increased for external separation
 
             n_categories = len(categories)
             colors = self.colors["category_color_scale"][:n_categories]
@@ -80,7 +81,7 @@ class RaincloudPlot(BasePlotter):
                 if subset.empty:
                     continue
 
-                center = i
+                center = i * category_spacing # Apply category spacing
                 cloud_position = center + plot_offset
                 data_viz_position = center - plot_offset
                 
@@ -157,7 +158,7 @@ class RaincloudPlot(BasePlotter):
                             line.set_zorder(20)
 
             if orientation == "vertical":
-                ax.set_xticks(np.arange(n_categories))
+                ax.set_xticks(np.arange(n_categories) * category_spacing) # Adjust x-ticks
                 ax.set_xticklabels(categories)
                 self._set_labels(
                     ax,
@@ -166,7 +167,7 @@ class RaincloudPlot(BasePlotter):
                     ylabel=numerical_var,
                 )
             else:
-                ax.set_yticks(np.arange(n_categories))
+                ax.set_yticks(np.arange(n_categories) * category_spacing) # Adjust y-ticks
                 ax.set_yticklabels(categories)
                 self._set_labels(
                     ax,

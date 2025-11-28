@@ -17,46 +17,77 @@ data = pd.DataFrame({
 
 print("--- Raincloud Plot Demo ---")
 
-output_dir = "doc/img/examples/raincloud_demo"
+output_dir = "doc/img/plots/distribution"
 os.makedirs(output_dir, exist_ok=True) # Create output directory
 
-# --- Demo 1: Filled Violin ---
-print("\n1. Generating filled raincloud plot...")
+# --- Demo 1: Vertical Light Theme ---
+print("\n1. Generating vertical light theme raincloud plot...")
 try:
-    plotter_filled = RaincloudPlot(library='matplotlib', theme='classic_professional_light')
-    fig1 = plotter_filled.plot(
+    plotter_light = RaincloudPlot(library='matplotlib', theme='classic_professional_light')
+    fig1 = plotter_light.plot(
         data,
         x='Category',
         y='Value',
+        orientation='vertical',
         violin_filled=True,
-        title="Filled Raincloud Plot",
-        plot_offset=0.1,  # Adjusted for closer points and violin
-        jitter_amount=0.02 # Adjusted for tighter points
     )
-    fig1.savefig(os.path.join(output_dir, "filled_raincloud_plot.png"), bbox_inches='tight')
+    fig1.savefig(os.path.join(output_dir, "raincloud_vertical_classic_professional_light.png"), bbox_inches='tight')
     plt.close(fig1)
-    print("   ... Filled plot generated.")
+    print("   ... Vertical light theme plot generated.")
 except Exception as e:
-    print(f"   ... Error generating light theme plot: {e}")
+    print(f"   ... Error generating vertical light theme plot: {e}")
 
 
-# --- Demo 2: Unfilled (Contour) Violin ---
-print("\n2. Generating unfilled (contour) raincloud plot...")
+# --- Demo 2: Vertical Dark Theme ---
+print("\n2. Generating vertical dark theme raincloud plot...")
 try:
-    plotter_unfilled = RaincloudPlot(library='matplotlib', theme='oceanic_slate_dark')
-    fig2 = plotter_unfilled.plot(
+    plotter_dark = RaincloudPlot(library='matplotlib', theme='classic_professional_dark')
+    fig2 = plotter_dark.plot(
         data,
         x='Category',
         y='Value',
-        violin_filled=False,
-        title="Unfilled (Contour) Raincloud Plot",
-        plot_offset=0.1,  # Adjusted for closer points and violin
-        jitter_amount=0.02 # Adjusted for tighter points
+        orientation='vertical',
+        violin_filled=True,
     )
-    fig2.savefig(os.path.join(output_dir, "unfilled_raincloud_plot.png"), bbox_inches='tight')
+    fig2.savefig(os.path.join(output_dir, "raincloud_vertical_classic_professional_dark.png"), bbox_inches='tight')
     plt.close(fig2)
-    print("   ... Unfilled plot generated.")
+    print("   ... Vertical dark theme plot generated.")
 except Exception as e:
-    print(f"   ... Error generating unfilled plot: {e}")
+    print(f"   ... Error generating vertical dark theme plot: {e}")
+
+# --- Demo 3: Horizontal Light Theme ---
+print("\n3. Generating horizontal light theme raincloud plot...")
+try:
+    plotter_light_h = RaincloudPlot(library='matplotlib', theme='classic_professional_light')
+    fig3 = plotter_light_h.plot(
+        data,
+        x='Value',
+        y='Category',
+        orientation='horizontal',
+        violin_filled=True,
+    )
+    fig3.savefig(os.path.join(output_dir, "raincloud_horizontal_classic_professional_light.png"), bbox_inches='tight')
+    plt.close(fig3)
+    print("   ... Horizontal light theme plot generated.")
+except Exception as e:
+    print(f"   ... Error generating horizontal light theme plot: {e}")
+
+# --- Demo 4: Horizontal Dark Theme ---
+print("\n4. Generating horizontal dark theme raincloud plot...")
+try:
+    plotter_dark_h = RaincloudPlot(library='matplotlib', theme='classic_professional_dark')
+    fig4 = plotter_dark_h.plot(
+        data,
+        x='Value',
+        y='Category',
+        orientation='horizontal',
+        violin_filled=True,
+    )
+    fig4.savefig(os.path.join(output_dir, "raincloud_horizontal_classic_professional_dark.png"), bbox_inches='tight')
+    plt.close(fig4)
+    print("   ... Horizontal dark theme plot generated.")
+except Exception as e:
+    print(f"   ... Error generating horizontal dark theme plot: {e}")
+
 
 print("\n--- Demo Complete ---")
