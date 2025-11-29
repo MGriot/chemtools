@@ -1,90 +1,92 @@
 import os
 import pandas as pd
-from chemtools.exploration import PrincipalComponentAnalysis
-from chemtools.plots.exploration import PCAplots
+import numpy as np
 import matplotlib.pyplot as plt
+
+# Import plotter classes
+from chemtools.plots.exploration.pca_plots import PCAplots
+
+# Import model classes (for dummy data/models)
+from chemtools.exploration import PrincipalComponentAnalysis
 
 def generate_pca_plots():
     """
-    This script runs a PCA and generates all associated plots for all available themes.
+    This script generates various PCA-related plots for demonstration purposes.
     The plots are saved in the 'doc/img/exploration/pca' directory.
     """
-    # --- 1. Setup ---
+    print("--- Generating PCA Plots ---")
     output_dir = os.path.join("doc", "img", "exploration", "pca")
     os.makedirs(output_dir, exist_ok=True)
-    print(f"Saving plots to: {output_dir}")
 
-    themes = [
-        "classic_professional_light", "classic_professional_dark",
-        "amethyst_twilight_light", "amethyst_twilight_dark",
-        "botanical_sage_light", "botanical_sage_dark",
-        "emerald_grove_light", "emerald_grove_dark",
-        "eminent_graphite_light", "eminent_graphite_dark",
-        "golden_umber_light", "golden_umber_dark",
-        "oceanic_slate_light", "oceanic_slate_dark",
-        "terracotta_sun_light", "terracotta_sun_dark",
-    ]
+    themes = ["classic_professional_light", "classic_professional_dark"]
 
-    # --- 2. Load Data ---
-    try:
-        data = pd.read_excel("data/pca.xlsx", index_col=0)
-        X = data.values
-        variables = data.columns.tolist()
-        objects = data.index.tolist()
-        print("Data loaded successfully.")
-    except FileNotFoundError:
-        print("Error: 'data/pca.xlsx' not found. Please ensure the sample data is present.")
-        return
+    # --- 1. Create Synthetic Data ---
+    np.random.seed(42)
+    num_samples = 50
+    num_variables = 7
+    # Create some correlated data for PCA
+    data_raw = np.random.randn(num_samples, num_variables)
+    data_raw[:, 0] = data_raw[:, 0] * 3 + data_raw[:, 1] # Introduce correlation
+    data_raw[:, 2] = data_raw[:, 2] * 2 - data_raw[:, 3]
+    
+    pca_data_X = pd.DataFrame(data_raw, columns=[f'Var{i+1}' for i in range(num_variables)])
+    pca_data_X['Obj'] = [f'Obj{i+1}' for i in range(num_samples)]
+    
+    # --- 2. Perform PCA ---
+    pca_model = PrincipalComponentAnalysis()
+    pca_model.fit(pca_data_X.drop('Obj', axis=1).values, 
+                  variables_names=[f'Var{i+1}' for i in range(num_variables)],
+                  objects_names=pca_data_X['Obj'].tolist())
+    pca_model.reduction(n_components=5) # Reduce to 5 components for plotting
+    pca_model.statistics() # Calculate statistics like T2 and Q
+    print("\nPCA performed successfully with synthetic data.")
 
-    # --- 3. Perform PCA ---
-    pca = PrincipalComponentAnalysis()
-    pca.fit(X, variables_names=variables, objects_names=objects)
-    pca.reduction(n_components=5) # Reduce to 5 components for plotting
-    pca.statistics() # Calculate statistics like T2 and Q
-    print("PCA performed successfully.")
-
-    # --- 4. Generate and Save Plots ---
-    plot_functions = {
-        "correlation_matrix": "plot_correlation_matrix",
-        "eigenvalues": "plot_eigenvalues",
-        "loadings": "plot_loadings",
-        "scores": "plot_scores",
-        "biplot": "plot_biplot",
-        "hotteling_t2_vs_q": "plot_hotteling_t2_vs_q",
-        "pci_contribution": "plot_pci_contribution",
-    }
-
+    # --- 3. Generate and Save Plots ---
     for theme in themes:
-        print(f"  Generating plots for theme: {theme}")
+        print(f"\n  Generating plots for theme: {theme}")
         try:
-            # Most PCA plots are matplotlib-only for now
-            plotter = PCAplots(pca, library="matplotlib", theme=theme)
+            plotter = PCAplots(pca_model, library="matplotlib", theme=theme)
+            
+            # Correlation Matrix
+            fig = plotter.plot_correlation_matrix(subplot_title=f"PCA Correlation Matrix ({theme})")
+            fig.savefig(os.path.join(output_dir, f"pca_correlation_matrix_{theme}.png"), bbox_inches='tight')
+            plt.close(fig)
 
-            for plot_name, method_name in plot_functions.items():
-                plot_method = getattr(plotter, method_name)
-                
-                # Some methods have specific arguments
-                if plot_name in ["loadings", "scores", "biplot"]:
-                    # Generate single plot for first 2 components
-                    fig = plot_method(components=(0, 1))
-                elif plot_name == "eigenvalues":
-                    fig = plot_method(criteria=["greater_than_one", "average_eigenvalue", "broken_stick"])
-                else:
-                    fig = plot_method()
+            # Eigenvalues (Scree Plot)
+            fig = plotter.plot_eigenvalues(criteria=["greater_than_one", "average_eigenvalue", "broken_stick"], subplot_title=f"PCA Eigenvalue Plot ({theme})")
+            fig.savefig(os.path.join(output_dir, f"pca_eigenvalues_{theme}.png"), bbox_inches='tight')
+            plt.close(fig)
 
-                if fig:
-                    filename = f"pca_{plot_name}_{theme}.png"
-                    filepath = os.path.join(output_dir, filename)
-                    fig.savefig(filepath, bbox_inches='tight')
-                    plt.close(fig) # Close figure to free memory
-                    print(f"    - Saved {filename}")
-                else:
-                    print(f"    - Could not generate {plot_name} for theme {theme}")
+            # Scores Plot
+            fig = plotter.plot_scores(components=(0,1), subplot_title=f"PCA Scores Plot ({theme})")
+            fig.savefig(os.path.join(output_dir, f"pca_scores_{theme}.png"), bbox_inches='tight')
+            plt.close(fig)
 
+            # Loadings Plot
+            fig = plotter.plot_loadings(components=(0,1), subplot_title=f"PCA Loadings Plot ({theme})")
+            fig.savefig(os.path.join(output_dir, f"pca_loadings_{theme}.png"), bbox_inches='tight')
+            plt.close(fig)
+
+            # Biplot
+            fig = plotter.plot_biplot(components=(0,1), subplot_title=f"PCA Biplot ({theme})")
+            fig.savefig(os.path.join(output_dir, f"pca_biplot_{theme}.png"), bbox_inches='tight')
+            plt.close(fig)
+            
+            # Hotelling's T2 vs. Q Residuals
+            fig = plotter.plot_hotteling_t2_vs_q(subplot_title=f"PCA Hotelling's T2 vs. Q ({theme})")
+            fig.savefig(os.path.join(output_dir, f"pca_hotteling_t2_vs_q_{theme}.png"), bbox_inches='tight')
+            plt.close(fig)
+
+            # PCI Contribution Plot
+            fig = plotter.plot_pci_contribution(subplot_title=f"PCA PCI Contribution ({theme})")
+            fig.savefig(os.path.join(output_dir, f"pca_pci_contribution_{theme}.png"), bbox_inches='tight')
+            plt.close(fig)
+
+            print(f"    - Saved all PCA plots for theme: {theme}")
         except Exception as e:
-            print(f"Error generating plots for theme {theme}: {e}")
+            print(f"    - Error generating PCA plots for theme {theme}: {e}")
 
-    print("\nAll PCA plots have been generated.")
+    print("\n--- All PCA plots have been generated. ---")
 
 if __name__ == "__main__":
     generate_pca_plots()

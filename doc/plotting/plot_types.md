@@ -15,41 +15,26 @@ Located in `chemtools.plots.basic`.
 
 The `BarPlot` class can be used to create simple bar charts showing the frequency of categories, or more complex stacked and grouped bar charts to compare values across multiple categories.
 
+[**Details and Examples &raquo;**](basic/bar.md)
+
 ```python
 from chemtools.plots.basic.bar import BarPlot
 
 # plotter = BarPlot()
-# For value counts of a single category:
-# plotter.plot_counts(data, column, **kwargs)
-# For plotting y vs x, with optional grouping/stacking:
 # plotter.plot(data, x, y, color=None, mode='group', **kwargs)
-# For plotting a pre-computed crosstab dataframe:
-# plotter.plot_crosstab(crosstab_df, stacked=True, **kwargs)
 ```
--   `plot_counts`: Plots frequency of a single categorical column.
--   `plot`: Plots `y` vs `x` from long-format data. `mode` can be `'group'` or `'stack'`.
--   `plot_crosstab`: Plots a wide-format (crosstab) DataFrame directly. `stacked` can be `True` or `False`.
 
-**Examples:**
-
-*Simple Bar Plot of Counts*
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/basic/bar_plot_counts_classic_professional_dark.png">
-  <img alt="Bar Plot Counts" src="../img/plots/basic/bar_plot_counts_classic_professional_light.png">
-</picture>
-
-*Grouped Bar Plot*
+**Example:**
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../img/plots/basic/bar_plot_grouped_classic_professional_dark.png">
   <img alt="Grouped Bar Plot" src="../img/plots/basic/bar_plot_grouped_classic_professional_light.png">
 </picture>
 
-*Total Revenue by Region (Semantic Model Example)*
-<img alt="Total Revenue by Region" src="../img/examples/semantic_model/total_revenue_by_region.png">
-
 ### Line Plot
 
 Used for visualizing data points connected by straight line segments. It is especially useful for showing trends in data over time or another continuous interval. The `mode` parameter can also be set to `'dot'` or `'area'`.
+
+[**Details and Examples &raquo;**](basic/line.md)
 
 ```python
 from chemtools.plots.basic.line import LinePlot
@@ -69,6 +54,8 @@ from chemtools.plots.basic.line import LinePlot
 
 Pie charts are used to show the proportion of different categories in a dataset. The `hole` parameter can be used to create a donut chart.
 
+[**Details and Examples &raquo;**](basic/pie.md)
+
 ```python
 from chemtools.plots.basic.pie import PiePlot
 
@@ -79,8 +66,8 @@ from chemtools.plots.basic.pie import PiePlot
 
 **Example:**
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/basic/pie_plot_classic_professional_dark.png">
-  <img alt="Pie Plot" src="../img/plots/basic/pie_plot_classic_professional_light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/basic/donut_plot_classic_professional_dark.png">
+  <img alt="Donut Chart" src="../img/plots/basic/donut_plot_classic_professional_light.png">
 </picture>
 
 ## Distribution Plots
@@ -89,7 +76,9 @@ Located in `chemtools.plots.distribution`.
 
 ### Histogram
 
-A histogram is used to visualize the distribution of a numerical variable. It groups numbers into ranges (bins) and the height of the bar shows how many data points fall into that range. The `mode` can be set to `'density'` to show a Kernel Density Estimate (KDE) plot instead.
+A histogram is used to visualize the distribution of a numerical variable by grouping data into bins. The `HistogramPlot` class can also render a smoothed Kernel Density Estimate (KDE) curve.
+
+[**Details and Examples &raquo;**](distribution/histogram.md)
 
 ```python
 from chemtools.plots.distribution.histogram import HistogramPlot
@@ -107,7 +96,9 @@ from chemtools.plots.distribution.histogram import HistogramPlot
 
 ### Box Plot
 
-A box plot (or box-and-whisker plot) displays the five-number summary of a set of data: minimum, first quartile (Q1), median, third quartile (Q3), and maximum. It is very effective for comparing distributions across multiple groups.
+A box plot (or box-and-whisker plot) displays the five-number summary of a set of data. It is very effective for comparing distributions across multiple groups.
+
+[**Details and Examples &raquo;**](distribution/boxplot.md)
 
 ```python
 from chemtools.plots.distribution.boxplot import BoxPlot
@@ -126,24 +117,20 @@ from chemtools.plots.distribution.boxplot import BoxPlot
 
 ### Violin Plot
 
-The violin plot is a powerful visualization that combines aspects of a box plot with a kernel density estimate. It shows the distribution of quantitative data across several categories, providing a richer understanding of the data's shape, central tendency, and spread than a simple box plot. Our enhanced violin plot also supports "raincloud" visualizations and automatic statistical annotations.
+The violin plot is a powerful visualization that combines a box plot with a kernel density estimate. The `ViolinPlot` in `chemtools` is enhanced with features for showing individual data points (jitter), mean markers, and automatic statistical annotations.
+
+[**Details and Examples &raquo;**](distribution/violin.md)
 
 ```python
 from chemtools.plots.violin import ViolinPlot
 
 # plotter = ViolinPlot()
-# plotter.plot(data, y, x=None, show_jitter=False, show_mean=False, show_n=False, perform_stat_test=False, **kwargs)
+# plotter.plot(data, y, x=None, show_jitter=False, **kwargs)
 ```
 -   `y`: The numerical column to plot.
 -   `x`: Optional categorical column for grouped plots.
--   `show_jitter` (bool): If `True`, adds a "raincloud" of jittered data points, showing individual data points alongside the distribution.
--   `show_mean` (bool): If `True`, adds a distinct marker for the mean of each category, providing a clear indication of central tendency.
--   `show_n` (bool): If `True`, shows the sample size for each category on the x-axis labels, giving context to the distribution.
--   `perform_stat_test` (bool): If `True`, automatically performs pairwise t-tests between categories and annotates statistically significant results directly on the plot (matplotlib only).
--   `stat_annotations` (list): A list of dictionaries for manually plotting statistical comparisons (matplotlib only). This overrides `perform_stat_test` if provided.
--   `y_max_override` (float, optional): Manually sets the upper y-axis limit to ensure all annotations are comfortably visible.
--   `violin_alpha` (float, optional): Transparency (alpha) for the violin plot bodies (0.0 to 1.0). Overrides automatic adjustment.
--   `jitter_alpha` (float, optional): Transparency (alpha) for the jittered data points (0.0 to 1.0). Overrides automatic adjustment.
+-   `show_jitter` (bool): Adds a "raincloud" of jittered data points.
+-   `perform_stat_test` (bool): Automatically performs and annotates pairwise t-tests.
 
 **Example (with jitter and mean):**
 <picture>
@@ -153,9 +140,9 @@ from chemtools.plots.violin import ViolinPlot
 
 ### Beeswarm Plot
 
-A beeswarm plot (or swarmplot) displays individual data points for a numerical variable, arranging them to avoid overlap. This results in a "swarming" effect that reveals the distribution and density of the data more effectively than a standard scatter or box plot. It is a very good alternative to the boxplot, which can hide the underlying distribution.
+A beeswarm plot displays individual data points for a numerical variable, arranged to avoid overlap. This "swarming" effect reveals the data's distribution and density, making it a great alternative to a box plot for smaller datasets.
 
-**When to use it:** Use the beeswarm plot for smaller datasets to get a clear view of each data point. Avoid using it for very large datasets, as the algorithm to prevent point overlap will become computationally intensive and the plot may become too crowded. For larger datasets, a violin plot is a better alternative.
+[**Details and Examples &raquo;**](distribution/beeswarm.md)
 
 ```python
 from chemtools.plots.distribution.beeswarm import BeeswarmPlot
@@ -165,8 +152,6 @@ from chemtools.plots.distribution.beeswarm import BeeswarmPlot
 ```
 -   `x`: The column name for the categorical variable.
 -   `y`: The column name for the numerical variable.
--   `point_size` (int): Size of the scatter points.
--   `spread_factor` (float): Controls the horizontal spread of points.
 
 **Example:**
 <picture>
@@ -176,23 +161,17 @@ from chemtools.plots.distribution.beeswarm import BeeswarmPlot
 
 ### Raincloud Plot
 
-The Raincloud plot is a powerful visualization that combines a violin plot, a jittered scatter plot (the "rain"), and a box plot to provide a comprehensive view of data distributions. It is particularly useful for comparing distributions across different categories, showing both the overall shape and individual data points.
+The Raincloud plot provides a comprehensive view of data distributions by combining a violin plot (the "cloud"), a jittered scatter plot (the "rain"), and a box plot.
+
+[**Details and Examples &raquo;**](distribution/raincloud.md)
 
 ```python
 from chemtools.plots.distribution.raincloud import RaincloudPlot
 
 # plotter = RaincloudPlot()
-# Vertical Raincloud Plot (x is categorical, y is numerical)
 # plotter.plot(data, x='Category', y='Value', orientation='vertical', **kwargs)
-# Horizontal Raincloud Plot (x is numerical, y is categorical)
-# plotter.plot(data, x='Value', y='Category', orientation='horizontal', **kwargs)
 ```
--   `x`: The column name for the categorical variable (vertical) or numerical variable (horizontal).
--   `y`: The column name for the numerical variable (vertical) or categorical variable (horizontal).
 -   `orientation` (str): `'vertical'` (default) or `'horizontal'`.
--   `jitter_width` (float): Controls the spread of jittered points.
--   `box_width` (float): Controls the width of the box plot.
--   `violin_width` (float): Controls the width of the violin plot.
 
 **Example (Vertical):**
 <picture>
@@ -200,21 +179,27 @@ from chemtools.plots.distribution.raincloud import RaincloudPlot
   <img alt="Vertical Raincloud Plot" src="../img/plots/distribution/raincloud_vertical_classic_professional_light.png">
 </picture>
 
-**Example (Horizontal):**
+### Ridgeline Plot
+
+A ridgeline plot (or joyplot) is used to visualize the distribution of a numerical variable for several groups, arranged in a cascading, overlapping manner. It is excellent for comparing many distributions at once.
+
+[**Details and Examples &raquo;**](distribution/ridgeline.md)
+
+```python
+from chemtools.plots.distribution.ridgeline import RidgelinePlot
+
+# plotter = RidgelinePlot()
+# plotter.plot(data, x='Value', y='Category', overlap=0.6, **kwargs)
+```
+- `x`: The column for the numerical variable.
+- `y`: The column for the categorical variable that defines the rows.
+- `overlap` (float): The degree of vertical overlap between density plots.
+
+**Example:**
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/distribution/raincloud_horizontal_classic_professional_dark.png">
-  <img alt="Horizontal Raincloud Plot" src="../img/plots/distribution/raincloud_horizontal_classic_professional_light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/distribution/ridgeline_simple_classic_professional_dark.png">
+  <img alt="Ridgeline Plot" src="../img/plots/distribution/ridgeline_simple_classic_professional_light.png">
 </picture>
-
-**Example (Filled Raincloud Plot):**
-<img alt="Filled Raincloud Plot" src="../img/examples/raincloud_demo/filled_raincloud_plot.png">
-
-**Example (Unfilled Raincloud Plot):**
-<img alt="Unfilled Raincloud Plot" src="../img/examples/raincloud_demo/unfilled_raincloud_plot.png">
-
-**Citation:**
-This implementation is inspired by the concepts presented in:
-[https://python-graph-gallery.com/raincloud-plot-with-matplotlib-and-ptitprince/](https://python-graph-gallery.com/raincloud-plot-with-matplotlib-and-ptitprince/)
 
 ## Relationship Plots
 
@@ -222,7 +207,9 @@ Located in `chemtools.plots.relationship`.
 
 ### Scatter Plot
 
-Scatter plots are used to visualize the relationship between two numerical variables. Each point on the plot represents an observation from the dataset. They are essential for identifying correlation, trends, and outliers. The `size_column` can be used to create a bubble chart, adding a third dimension to the visualization.
+Scatter plots are used to visualize the relationship between two or three numerical variables. They are essential for identifying correlation, trends, and outliers. The `ScatterPlot` class supports 2D scatter plots, 3D scatter plots, and bubble charts where a third variable is encoded as the size of the points.
+
+[**Details and Examples &raquo;**](relationship/scatterplot.md)
 
 ```python
 from chemtools.plots.relationship.scatterplot import ScatterPlot
@@ -231,25 +218,28 @@ from chemtools.plots.relationship.scatterplot import ScatterPlot
 # plotter.plot_2d(data, x_column, y_column, size_column=None, **kwargs)
 # plotter.plot_3d(data, x_column, y_column, z_column, **kwargs)
 ```
--   `size_column`: Creates a bubble chart if provided.
+-   `size_column`: Creates a bubble chart if provided to `plot_2d`.
 
 **Example:**
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/relationship/scatter_plot_classic_professional_dark.png">
-  <img alt="Scatter Plot" src="../img/plots/relationship/scatter_plot_classic_professional_light.png">
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/relationship/scatter_2d_classic_professional_dark.png">
+  <img alt="Scatter Plot" src="../img/plots/relationship/scatter_2d_classic_professional_light.png">
 </picture>
 
 ### Heatmap
 
-Heatmaps are used to visualize a matrix of data, where individual values are represented as colors. They are particularly useful for displaying correlation matrices or the results of clustering.
+Heatmaps are used to visualize a matrix of data, where individual values are represented as colors. They are particularly useful for displaying correlation matrices or the co-occurrence frequency of categorical variables.
+
+[**Details and Examples &raquo;**](relationship/heatmap.md)
 
 ```python
 from chemtools.plots.relationship.heatmap import HeatmapPlot
 
 # plotter = HeatmapPlot()
-# plotter.plot(data, **kwargs)
+# plotter.plot(data, annot=True, **kwargs)
 ```
 -   `data`: pandas DataFrame representing the matrix to plot.
+-   `annot` (bool): If `True`, displays the numerical value on each cell.
 
 **Example (Correlation Matrix):**
 <picture>
@@ -259,7 +249,9 @@ from chemtools.plots.relationship.heatmap import HeatmapPlot
 
 ### Pair Plot
 
-A pair plot creates a matrix of plots to visualize the relationships between several variables in a dataset. For numerical variables, it shows scatter plots for each pair and a distribution plot (like a histogram or KDE) on the diagonal. It's an excellent tool for exploratory data analysis.
+A pair plot creates a matrix of plots to visualize the pairwise relationships between several variables in a dataset. It's an excellent tool for exploratory data analysis. The `chemtools` implementation provides an advanced version for the matplotlib backend that shows scatter plots, distribution plots (KDE), and correlation coefficients all in one matrix.
+
+[**Details and Examples &raquo;**](relationship/pairplot.md)
 
 ```python
 from chemtools.plots.relationship.pairplot import PairPlot
@@ -275,13 +267,35 @@ from chemtools.plots.relationship.pairplot import PairPlot
   <img alt="Pair Plot" src="../img/plots/relationship/pairplot_classic_professional_light.png">
 </picture>
 
+### 2D Density Plot
+
+When scatter plots become too crowded due to a large number of data points, a 2D density plot is an excellent alternative. It visualizes the distribution of data points using color to represent density, with options for Kernel Density Estimates (KDE), 2D histograms, and hexbin plots.
+
+[**Details and Examples &raquo;**](relationship/density.md)
+
+```python
+from chemtools.plots.relationship.density import DensityPlot
+
+# plotter = DensityPlot()
+# plotter.plot(data, x='x_var', y='y_var', kind='kde', **kwargs)
+```
+- `kind`: The type of density plot, can be `'kde'`, `'hist2d'`, or `'hexbin'`.
+
+**Example (KDE):**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/relationship/density_kde_dark.png">
+  <img alt="2D Density Plot" src="../img/plots/relationship/density_kde_light.png">
+</picture>
+
 ## Specialized Plots
 
 Located in `chemtools.plots.specialized`.
 
 ### Parallel Coordinates Plot
 
-This plot is used for visualizing high-dimensional data. Each vertical axis represents a different variable, and each colored line represents an observation, showing how it behaves across all variables. It is useful for identifying clusters and patterns.
+This plot is used for visualizing high-dimensional data. Each vertical axis represents a different variable, and each colored line represents an observation, showing how it behaves across all variables.
+
+[**Details and Examples &raquo;**](specialized/parallel_coordinates.md)
 
 ```python
 from chemtools.plots.specialized.parallel_coordinates import ParallelCoordinatesPlot
@@ -299,7 +313,9 @@ from chemtools.plots.specialized.parallel_coordinates import ParallelCoordinates
 
 ### Funnel Chart
 
-A funnel chart is used to visualize the progressive reduction of data as it passes from one phase to another. It is commonly used to represent stages in a sales process or user engagement flow.
+A funnel chart is used to visualize the progressive reduction of data as it passes from one phase to another, such as in a sales process.
+
+[**Details and Examples &raquo;**](specialized/funnel.md)
 
 ```python
 from chemtools.plots.specialized.funnel import FunnelPlot
@@ -317,7 +333,9 @@ from chemtools.plots.specialized.funnel import FunnelPlot
 
 ### Bullet Chart
 
-A bullet chart is a variation of a bar chart designed to compare a primary measure (the "bullet") to a target measure, all within the context of qualitative ranges (e.g., poor, average, good).
+A bullet chart compares a primary measure to a target measure and provides context in the form of qualitative performance ranges.
+
+[**Details and Examples &raquo;**](specialized/bullet.md)
 
 ```python
 from chemtools.plots.specialized.bullet import BulletPlot
@@ -335,13 +353,15 @@ from chemtools.plots.specialized.bullet import BulletPlot
 
 ### Dual-Axis Chart
 
-This chart allows for the visualization of two different variables with different scales on the same plot, using two separate y-axes (a left and a right axis). This is useful for comparing trends between two related metrics.
+This chart allows for the visualization of two different variables with different scales on the same plot, using two separate y-axes.
+
+[**Details and Examples &raquo;**](specialized/dual_axis.md)
 
 ```python
 from chemtools.plots.specialized.dual_axis import DualAxisPlot
 
 # plotter = DualAxisPlot() # Matplotlib only
-# plotter.plot(data, x_column, y1_column, y2_column, plot1_kind='bar', plot2_kind='line', **kwargs)
+# plotter.plot(data, x_column, y1_column, y2_column, **kwargs)
 ```
 -   **Note:** Matplotlib library only.
 
@@ -358,6 +378,8 @@ Located in `chemtools.plots.clustering`.
 ### Dendrogram
 
 A dendrogram is a tree-like diagram that records the sequences of merges or splits in a hierarchical clustering. It shows how clusters are related to one another and is the primary way to visualize the output of hierarchical clustering.
+
+[**Details and Examples &raquo;**](clustering/dendrogram.md)
 
 ```python
 from chemtools.clustering import HierarchicalClustering
@@ -382,6 +404,8 @@ Located in `chemtools.plots.temporal`.
 
 A run chart is a line graph of data plotted over time. It is used to find trends or patterns in the data.
 
+[**Details and Examples &raquo;**](temporal/run_chart.md)
+
 ```python
 from chemtools.plots.temporal.run_chart import RunChartPlot
 
@@ -402,6 +426,8 @@ Located in `chemtools.plots.regression`.
 ### Regression Results Plot
 
 This plot provides a comprehensive visualization of a linear regression model, showing the original data points, the fitted regression line, and the confidence and prediction bands.
+
+[**Details and Examples &raquo;**](regression/regression.md)
 
 ```python
 from chemtools.regression import OLSRegression
@@ -432,32 +458,36 @@ The `plot_regression_results` function provides a comprehensive visualization of
 Located in `chemtools.plots.geographical`.
 
 ### Map Plot
+
+Geographical plots are used to visualize data on a map. This includes choropleth maps, where regions are colored based on a value, and geo scatter plots, which place points at specific latitude/longitude coordinates.
+
+[**Details and Examples &raquo;**](geographical/map.md)
+
 ```python
 from chemtools.plots.geographical.map import MapPlot
 
 # plotter = MapPlot(library='plotly')
-# To plot colored regions:
 # plotter.plot_choropleth(data, locations_column, values_column, **kwargs)
-# To plot points on a map:
-# plotter.plot_scatter_geo(data, lat_column, lon_column, **kwargs)
 ```
--   **Note:** Plotly library is recommended for these plots. To save these plots as static images, you will also need the `kaleido` package (`pip install --upgrade kaleido`).
+-   **Note:** Plotly library is recommended for these plots.
+
+**Example (Choropleth):**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/geographical/choropleth_map.png">
+  <img alt="Choropleth Map" src="../img/plots/geographical/choropleth_map.png">
+</picture>
 
 ## Exploration Plots
 
-Located in `chemtools.plots.exploration`.
+Located in `chemtools.plots.exploration`. These plots are designed to visualize the results of specific multivariate analysis techniques.
 
 ### Factor Analysis for Mixed Data (FAMD) Plots
 
-FAMD plots are used to visualize the results of Factor Analysis for Mixed Data, showing both loadings and scores.
+FAMD is a principal component method for datasets containing both numerical and categorical variables. These plots visualize the results.
 
-**FAMD Loadings Plot:**
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/dimensional_reduction/famd/famd_loadings_classic_professional_dark.png">
-  <img alt="FAMD Loadings Plot" src="../img/dimensional_reduction/famd/famd_loadings_classic_professional_light.png">
-</picture>
+[**Details and Examples &raquo;**](exploration/famd.md)
 
-**FAMD Scores Plot:**
+**Example (Scores Plot):**
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../img/dimensional_reduction/famd/famd_scores_classic_professional_dark.png">
   <img alt="FAMD Scores Plot" src="../img/dimensional_reduction/famd/famd_scores_classic_professional_light.png">
@@ -465,15 +495,11 @@ FAMD plots are used to visualize the results of Factor Analysis for Mixed Data, 
 
 ### Multiple Correspondence Analysis (MCA) Plots
 
-MCA plots are used to visualize the relationships between multiple categorical variables, showing eigenvalues and the positions of categories/observations.
+MCA is used to analyze patterns in categorical data. These plots visualize the relationships between categories and observations.
 
-**MCA Eigenvalues Plot:**
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/mca/mca_eigenvalues_classic_professional_dark.png">
-  <img alt="MCA Eigenvalues Plot" src="../img/exploration/mca/mca_eigenvalues_classic_professional_light.png">
-</picture>
+[**Details and Examples &raquo;**](exploration/mca.md)
 
-**MCA Objects Plot:**
+**Example (Objects Plot):**
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/mca/mca_objects_classic_professional_dark.png">
   <img alt="MCA Objects Plot" src="../img/exploration/mca/mca_objects_classic_professional_light.png">
@@ -481,46 +507,12 @@ MCA plots are used to visualize the relationships between multiple categorical v
 
 ### Principal Component Analysis (PCA) Plots
 
-PCA plots are fundamental for visualizing the results of Principal Component Analysis, including biplots, loadings, scores, correlation matrices, eigenvalues, Hotelling's T2 vs Q plots, and PCI contributions.
+PCA plots are fundamental for visualizing the results of PCA, including biplots, loadings, scores, and scree plots.
 
-**PCA Biplot:**
+[**Details and Examples &raquo;**](exploration/pca.md)
+
+**Example (Biplot):**
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_biplot_classic_professional_dark.png">
   <img alt="PCA Biplot" src="../img/exploration/pca/pca_biplot_classic_professional_light.png">
-</picture>
-
-**PCA Correlation Matrix:**
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_correlation_matrix_classic_professional_dark.png">
-  <img alt="PCA Correlation Matrix" src="../img/exploration/pca/pca_correlation_matrix_classic_professional_light.png">
-</picture>
-
-**PCA Eigenvalues Plot:**
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_eigenvalues_classic_professional_dark.png">
-  <img alt="PCA Eigenvalues Plot" src="../img/exploration/pca/pca_eigenvalues_classic_professional_light.png">
-</picture>
-
-**PCA Hotelling's T2 vs Q Plot:**
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_hotteling_t2_vs_q_classic_professional_dark.png">
-  <img alt="PCA Hotelling's T2 vs Q Plot" src="../img/exploration/pca/pca_hotteling_t2_vs_q_classic_professional_light.png">
-</picture>
-
-**PCA Loadings Plot:**
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_loadings_classic_professional_dark.png">
-  <img alt="PCA Loadings Plot" src="../img/exploration/pca/pca_loadings_classic_professional_light.png">
-</picture>
-
-**PCA PCI Contribution Plot:**
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_pci_contribution_classic_professional_dark.png">
-  <img alt="PCA PCI Contribution Plot" src="../img/exploration/pca/pca_pci_contribution_classic_professional_light.png">
-</picture>
-
-**PCA Scores Plot:**
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_scores_classic_professional_dark.png">
-  <img alt="PCA Scores Plot" src="../img/exploration/pca/pca_scores_classic_professional_light.png">
 </picture>

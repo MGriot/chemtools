@@ -34,15 +34,17 @@ class MapPlot(BasePlotter):
         elif self.library == "plotly":
             title = params.get("title", f'Choropleth Map of {values_column}')
             
-            # Make a copy of kwargs to modify
             plotly_kwargs = kwargs.copy()
-            
-            # 'title' is passed explicitly, so remove it from plotly_kwargs to avoid conflict
             plotly_kwargs.pop('title', None)
             plotly_kwargs.pop('subplot_title', None)
 
+            # Get width and height from params and pass explicitly
+            plot_width = params.get("width")
+            plot_height = params.get("height")
+            
             fig = px.choropleth(data, locations=locations_column, color=values_column,
-                                title=title, color_continuous_scale=px.colors.sequential.Plasma, **plotly_kwargs)
+                                title=title, color_continuous_scale=px.colors.sequential.Plasma,
+                                width=plot_width, height=plot_height, **plotly_kwargs)
             self._apply_common_layout(fig, params)
             return fig
         else:
@@ -70,20 +72,24 @@ class MapPlot(BasePlotter):
         elif self.library == "plotly":
             title = params.get("title", 'Geo Scatter Plot')
             
-            # Remove 'title' from kwargs to avoid conflict with explicit title argument
-            kwargs.pop('title', None) 
-            kwargs.pop('subplot_title', None) 
+            plotly_kwargs = kwargs.copy()
+            plotly_kwargs.pop('title', None) 
+            plotly_kwargs.pop('subplot_title', None) 
 
-            color_col = kwargs.pop('color', None) # Remove 'color' from kwargs to handle it explicitly
+            color_col = plotly_kwargs.pop('color', None) # Remove 'color' from kwargs to handle it explicitly
+
+            # Get width and height from params and pass explicitly
+            plot_width = params.get("width")
+            plot_height = params.get("height")
 
             if color_col:
-                # If a color column is provided, use category_color_scale for discrete colors
                 fig = px.scatter_geo(data, lat=lat_column, lon=lon_column, title=title,
-                                     color=color_col, color_discrete_sequence=self.colors['category_color_scale'], **kwargs)
+                                     color=color_col, color_discrete_sequence=self.colors['category_color_scale'],
+                                     width=plot_width, height=plot_height, **plotly_kwargs)
             else:
-                # If no color column, use a single accent color from the theme
                 fig = px.scatter_geo(data, lat=lat_column, lon=lon_column, title=title,
-                                     color_discrete_sequence=[self.colors['accent_color']], **kwargs)
+                                     color_discrete_sequence=[self.colors['accent_color']],
+                                     width=plot_width, height=plot_height, **plotly_kwargs)
             self._apply_common_layout(fig, params)
             return fig
         else:

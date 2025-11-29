@@ -512,13 +512,20 @@ class BasePlotter:
             "labels": kwargs.get(
                 "labels", None
             ),  # E.g. for legend items or point labels
-            "height": kwargs.get("height", default_height_px),  # For Plotly layout
-            "width": kwargs.get("width", default_width_px),  # For Plotly layout
             "showlegend": kwargs.get(
                 "showlegend", default_showlegend
             ),  # Default to True, except for heatmaps
             "legend_opts": kwargs.get("legend_opts", self.legend_opts),
         }
+
+        # ONLY include width and height in common_params if library is matplotlib.
+        # For Plotly, they are handled by px.function calls and should not be passed to update_layout via params.
+        if self.library == "matplotlib":
+            common_params["height"] = kwargs.get("height", default_height_px)
+            common_params["width"] = kwargs.get("width", default_width_px)
+        # For Plotly, the individual plotters (like MapPlot) will extract them directly from kwargs if needed
+        # and pass them to px.function. We do not want them to propagate to _apply_common_layout via params.
+
         return common_params
 
     def _apply_common_layout(self, fig_or_ax, params):
@@ -574,9 +581,9 @@ class BasePlotter:
             fig = fig_or_ax  # fig_or_ax is fig for Plotly
             legend_opts = params.get("legend_opts")
             
+            # For Plotly, width and height are assumed to be set by the initial px.function call.
+            # Do not include them in layout_update here to avoid conflicts.
             layout_update = {
-                "width": params.get("width"),
-                "height": params.get("height"),
                 "showlegend": params.get("showlegend", False),
             }
 
