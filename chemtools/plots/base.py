@@ -516,6 +516,7 @@ class BasePlotter:
                 "showlegend", default_showlegend
             ),  # Default to True, except for heatmaps
             "legend_opts": kwargs.get("legend_opts", self.legend_opts),
+            "color_by": kwargs.get("color_by", None), # Add color_by to common params
         }
 
         # ONLY include width and height in common_params if library is matplotlib.
@@ -554,28 +555,46 @@ class BasePlotter:
             # Handle legend with new legend_opts
             if params.get("showlegend", False):
                 legend_opts = params.get("legend_opts") or {}
-                for ax_item in fig.get_axes():
-                    handles, labels = ax_item.get_legend_handles_labels()
-                    if handles:
-                        # Apply theme defaults that can be overridden by user
-                        final_legend_opts = {
-                            'labelcolor': self.colors["text_color"],
-                            **legend_opts
-                        }
-                        
-                        # Set facecolor and edgecolor only if not provided by user
-                        if 'facecolor' not in final_legend_opts:
-                            final_legend_opts['facecolor'] = self.colors["bg_color"]
-                        if 'edgecolor' not in final_legend_opts:
-                            final_legend_opts['edgecolor'] = self.colors["detail_light_color"]
+                
+                # Check for custom legend handles/labels provided by the plotter
+                custom_handles = params.get('legend_handles')
+                custom_labels = params.get('legend_labels')
+                
+                # Find the first axis to attach the legend to
+                target_ax = None
+                if fig.get_axes():
+                    target_ax = fig.get_axes()[0] # Use the first axis for the legend
+                
+                if target_ax and (custom_handles and custom_labels):
+                    # Use custom handles and labels
+                    handles = custom_handles
+                    labels = custom_labels
+                elif target_ax:
+                    # Fallback to getting handles and labels directly from the axis
+                    handles, labels = target_ax.get_legend_handles_labels()
+                else:
+                    handles, labels = [], [] # No axis or no legend items found
 
-                        leg = ax_item.legend(handles=handles, labels=labels, **final_legend_opts)
-                        
-                        if leg:
-                            # Set title color separately if title is in opts
-                            if 'title' in final_legend_opts:
-                                plt.setp(leg.get_title(), color=self.colors["text_color"])
-                        break  # Assume one legend is enough or handled per axis
+                if handles:
+                    # Apply theme defaults that can be overridden by user
+                    final_legend_opts = {
+                        'labelcolor': self.colors["text_color"],
+                        **legend_opts
+                    }
+                    
+                    # Set facecolor and edgecolor only if not provided by user
+                    if 'facecolor' not in final_legend_opts:
+                        final_legend_opts['facecolor'] = self.colors["bg_color"]
+                    if 'edgecolor' not in final_legend_opts:
+                        final_legend_opts['edgecolor'] = self.colors["detail_light_color"]
+
+                    leg = target_ax.legend(handles=handles, labels=labels, **final_legend_opts)
+                    
+                    if leg:
+                        # Set title color separately if title is in opts
+                        if 'title' in final_legend_opts:
+                            plt.setp(leg.get_title(), color=self.colors["text_color"])
+
 
         elif self.library == "plotly":
             fig = fig_or_ax  # fig_or_ax is fig for Plotly

@@ -287,6 +287,27 @@ from chemtools.plots.relationship.density import DensityPlot
   <img alt="2D Density Plot" src="../img/plots/relationship/density_kde_light.png">
 </picture>
 
+### Joint Plot (Marginal Plot)
+
+A joint plot combines a 2D plot (like a scatter plot or 2D KDE) with 1D distribution plots (histograms or KDEs) along its margins, providing a comprehensive view of the relationship between two variables and their individual distributions.
+
+[**Details and Examples &raquo;**](relationship/jointplot.md)
+
+```python
+from chemtools.plots.relationship.jointplot import JointPlot
+
+# plotter = JointPlot()
+# fig = plotter.plot(data, x='var_a', y='var_b', central_kind='scatter', marginal_kind='hist')
+```
+- `central_kind`: Type of central plot: `'scatter'` or `'kde2d'`.
+- `marginal_kind`: Type of marginal plot: `'hist'` or `'kde1d'`.
+
+**Example (Scatter with Histograms):**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/relationship/joint_scatter_hist_classic_professional_dark.png">
+  <img alt="Joint Plot Scatter with Histograms" src="../img/plots/relationship/joint_scatter_hist_classic_professional_light.png">
+</picture>
+
 ## Specialized Plots
 
 Located in `chemtools.plots.specialized`.
