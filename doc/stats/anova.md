@@ -48,32 +48,6 @@ import pandas as pd
 from chemtools.stats.anova import TwoWayANOVA
 
 # Sample data (balanced design with repetitions)
-data = pd.DataFrame({
-    'Value': [10, 12, 11, 15, 14, 16, 18, 17, 19, 20, 22, 21],
-    'Factor1': ['A1', 'A1', 'A1', 'A1', 'A1', 'A1', 'A2', 'A2', 'A2', 'A2', 'A2', 'A2'],
-    'Factor2': ['B1', 'B1', 'B2', 'B2', 'B1', 'B1', 'B1', 'B1', 'B2', 'B2', 'B1', 'B1']
-})
-
-# Ensure repetitions are clear for a balanced design
-# For example, 2 repetitions per cell (A1B1, A1B2, A2B1, A2B2)
-data_two_way = pd.DataFrame({
-    'Value': [
-        10, 11,  # A1, B1, rep1, rep2
-        15, 16,  # A1, B2, rep1, rep2
-        18, 19,  # A2, B1, rep1, rep2
-        22, 23   # A2, B2, rep1, rep2
-    ],
-    'Factor1': [
-        'A1', 'A1', 'A1', 'A1',
-        'A2', 'A2', 'A2', 'A2'
-    ],
-    'Factor2': [
-        'B1', 'B1', 'B2', 'B2',
-        'B1', 'B1', 'B2', 'B2'
-    ]
-})
-
-# Corrected sample data for 2 reps per cell
 data_two_way = pd.DataFrame({
     'Value': [10, 11, 15, 16, 18, 19, 22, 23],
     'Factor1': ['A1', 'A1', 'A1', 'A1', 'A2', 'A2', 'A2', 'A2'],

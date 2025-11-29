@@ -392,6 +392,26 @@ from chemtools.plots.specialized.dual_axis import DualAxisPlot
   <img alt="Dual-Axis Chart" src="../img/plots/specialized/dual_axis_plot_classic_professional_light.png">
 </picture>
 
+### Radar Chart
+
+A radar chart (or spider plot) is a two-dimensional chart type designed to plot one or more series of values over multiple quantitative variables.
+
+[**Details and Examples &raquo;**](specialized/radar.md)
+
+```python
+from chemtools.plots.specialized.radar import RadarPlot
+
+# plotter = RadarPlot() # Matplotlib only
+# plotter.plot(data, labels, **kwargs)
+```
+-   **Note:** Matplotlib library only.
+
+**Example:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/specialized/radar_plot_dark.png">
+  <img alt="Radar Chart" src="../img/plots/specialized/radar_plot_light.png">
+</picture>
+
 ## Clustering Plots
 
 Located in `chemtools.plots.clustering`.

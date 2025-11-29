@@ -82,6 +82,55 @@ The library features a powerful plotting system that:
 
 For detailed information on how to use the library, please refer to our [comprehensive documentation](doc/Documentation.md).
 
+## Getting Started
+
+To set up your development environment, follow these steps:
+
+### Option 1: Using `uv` (Recommended)
+
+`uv` is an extremely fast Python package installer and resolver, written in Rust.
+
+1.  **Install `uv`**:
+    ```bash
+    pip install uv
+    # or via cargo
+    # cargo install uv
+    ```
+    For more installation options, refer to the [uv documentation](https://docs.astral.sh/uv/installation/).
+
+2.  **Create and activate a virtual environment**:
+    ```bash
+    # IMPORTANT: If you encounter permissions errors during this step, you may need to
+    # manually delete the `.venv` directory before running this command.
+    uv venv --clear
+    .venv/Scripts/activate # On Windows
+    source .venv/bin/activate # On macOS/Linux
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    uv pip install -r requirements.txt
+    ```
+
+### Option 2: Using Conda/Miniforge
+
+If you prefer using Conda or Miniforge for environment management:
+
+1.  **Install Conda or Miniforge**: If you don't have it already, download and install [Miniforge](https://github.com/conda-forge/miniforge#miniforge-installers) (recommended for conda-forge packages).
+
+2.  **Create and activate the environment**:
+    ```bash
+    conda env create -f environment.yml
+    conda activate chemtools
+    ```
+
+### Running Tests
+
+Once your environment is set up, you can run tests using `pytest`:
+```bash
+pytest
+```
+
 ## Examples
 
 Check out the Jupyter notebooks (`.ipynb`) in the repository for practical examples of how to use **chemtools**. 

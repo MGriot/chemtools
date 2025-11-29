@@ -58,6 +58,8 @@ Unified plotting interface:
 
 ## Usage Examples
 
+For information on how to set up your development environment and contribute to the project, please refer to the [Development Guide](development_guide.md).
+
 The `examples` directory contains Jupyter notebooks demonstrating the library's functionality:
 - Basic data preprocessing
 - PCA analysis workflow
