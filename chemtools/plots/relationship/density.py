@@ -31,6 +31,7 @@ class DensityPlot(BasePlotter):
                     `thresh` (float): Lowest iso-proportion level at which to draw a contour line (default 0.05).
                     `contour_line_color` (str): Color of the contour lines (defaults to theme text color).
                     `line_alpha` (float): Alpha transparency for the contour lines (default 0.7).
+                    `shading` (str): Shading method for pcolormesh (e.g., 'auto', 'flat', 'gouraud'). Defaults to None (matplotlib default).
                 - For 'hist2d': 
                     `bins` (int or tuple): Number of bins in each dimension (default 30).
                     `cmap` (str or Colormap): Colormap (defaults to theme-generated).
@@ -100,6 +101,7 @@ class DensityPlot(BasePlotter):
         fill_alpha = kwargs.get('fill_alpha', 0.8)
         line_alpha = kwargs.get('line_alpha', 0.7)
         fill_method = kwargs.get('fill_method', 'contourf')
+        shading = kwargs.get('shading', None) # Get shading from kwargs, default to None
 
         zi_max = zi.max()
         level_values = np.linspace(thresh * zi_max, zi_max, levels)
@@ -109,7 +111,8 @@ class DensityPlot(BasePlotter):
             if fill_method == 'contourf':
                 ax.contourf(xi, yi, zi, levels=level_values, cmap=cmap, alpha=fill_alpha)
             elif fill_method == 'pcolormesh':
-                ax.pcolormesh(xi, yi, zi, shading='gouraud', cmap=cmap, alpha=fill_alpha)
+                # Pass shading parameter if provided, otherwise let pcolormesh use its default
+                ax.pcolormesh(xi, yi, zi, shading=shading, cmap=cmap, alpha=fill_alpha)
             else:
                 raise ValueError(f"Unsupported fill_method: '{fill_method}'. Choose from 'contourf' or 'pcolormesh'.")
 
