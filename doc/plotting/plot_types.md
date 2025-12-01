@@ -543,40 +543,90 @@ from chemtools.plots.geographical.map import MapPlot
 
 ## Exploration Plots
 
+
+
 Located in `chemtools.plots.exploration`. These plots are designed to visualize the results of specific multivariate analysis techniques.
+
+
 
 ### Factor Analysis for Mixed Data (FAMD) Plots
 
+
+
 FAMD is a principal component method for datasets containing both numerical and categorical variables. These plots visualize the results.
+
+
 
 [**Details and Examples &raquo;**](exploration/famd.md)
 
+
+
 **Example (Scores Plot):**
+
 <picture>
+
   <source media="(prefers-color-scheme: dark)" srcset="../img/dimensional_reduction/famd/famd_scores_classic_professional_dark.png">
+
   <img alt="FAMD Scores Plot" src="../img/dimensional_reduction/famd/famd_scores_classic_professional_light.png">
+
 </picture>
+
+
 
 ### Multiple Correspondence Analysis (MCA) Plots
 
+
+
 MCA is used to analyze patterns in categorical data. These plots visualize the relationships between categories and observations.
+
+
 
 [**Details and Examples &raquo;**](exploration/mca.md)
 
+
+
 **Example (Objects Plot):**
+
 <picture>
+
   <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/mca/mca_objects_classic_professional_dark.png">
+
   <img alt="MCA Objects Plot" src="../img/exploration/mca/mca_objects_classic_professional_light.png">
+
 </picture>
+
+
 
 ### Principal Component Analysis (PCA) Plots
 
+
+
 PCA plots are fundamental for visualizing the results of PCA, including biplots, loadings, scores, and scree plots.
+
+
 
 [**Details and Examples &raquo;**](exploration/pca.md)
 
+
+
 **Example (Biplot):**
+
 <picture>
+
   <source media="(prefers-color-scheme: dark)" srcset="../img/exploration/pca/pca_biplot_classic_professional_dark.png">
+
   <img alt="PCA Biplot" src="../img/exploration/pca/pca_biplot_classic_professional_light.png">
+
 </picture>
+
+
+
+## Classification Plots
+
+
+
+Located in `chemtools.plots.classification`. These plots are used to visualize the results of classification models.
+
+
+
+- [SIMCA Plot](classification_plots.md)

@@ -9,6 +9,8 @@ from .array import (
     array_to_column,
     reorder_array,
     sort_arrays,
+    unfold_hypercube,
+    refold_hypercube,
 )
 
 from .data import (

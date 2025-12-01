@@ -1,0 +1,4 @@
+from .k_nearest_neighbors import KNearestNeighbors
+from .linear_discriminant_analysis import LinearDiscriminantAnalysis
+from .principal_component_classification_analysis import PrincipalComponentClassificationAnalysis
+from .simca import SIMCA

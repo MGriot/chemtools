@@ -233,6 +233,44 @@ class PrincipalComponentAnalysis(BaseModel):
         X_new_autoscaled = (X_new - self.mean) / std_stable
         return np.dot(X_new_autoscaled, self.W)
 
+    def predict_stats(self, X_new: np.ndarray) -> tuple[float, float]:
+        """
+        Calculates T2 and Q statistics for new observations.
+
+        Args:
+            X_new (np.ndarray): New data to compute statistics for (n_samples, n_features).
+
+        Returns:
+            A tuple containing (T2, Q) for the new data.
+        """
+        if self.W is None:
+            raise RuntimeError("Model must be fitted before computing statistics.")
+        
+        # Ensure input is 2D
+        if X_new.ndim == 1:
+            X_new = X_new.reshape(1, -1)
+
+        # Scale new data using stored mean and std from training
+        std_stable = np.where(self.std == 0, 1e-9, self.std)
+        X_new_scaled = (X_new - self.mean) / std_stable
+        
+        # Project onto PCA space to get scores (T_new)
+        T_new = np.dot(X_new_scaled, self.W)
+        
+        # Reconstruct from scores
+        X_reconstructed = np.dot(T_new, self.W.T)
+        
+        # Calculate Q-residual
+        error = X_new_scaled - X_reconstructed
+        Q = np.sum(error**2, axis=1).item()
+        
+        # Calculate T2 statistic
+        V_reduced_stable = np.where(self.V_reduced <= 1e-9, 1e-9, self.V_reduced)
+        T2 = T_new @ np.diag(V_reduced_stable**-1) @ T_new.T
+        T2 = np.diag(T2).item()
+        
+        return T2, Q
+
     def hotellings_t2_critical_value(self, alpha=0.05, p=None, n=None):
         """
         Calculates the critical value for Hotelling's T-squared statistic.
@@ -240,12 +278,12 @@ class PrincipalComponentAnalysis(BaseModel):
         p = p if p is not None else self.n_component
         n = n if n is not None else self.n_objects
 
-        if n is None or p is None or n <= p:
+        if n is None or p is None or n <= p or p == 0:
             return np.nan
 
         try:
             f_critical_value = f.ppf(1 - alpha, p, n - p)
-            return (p * (n - 1)) / (n - p) * f_critical_value
+            return (p * (n - 1) * (n + 1)) / (n * (n - p)) * f_critical_value
         except (ValueError, Exception):
             return np.nan
 
@@ -269,15 +307,22 @@ class PrincipalComponentAnalysis(BaseModel):
                 "No. Objects": f"{self.n_objects}",
                 "No. Components (Reduced)": f"{self.n_component if self.n_component is not None else 'N/A'}",
             },
-            "eigenvalues": {
-                self.PC_index[i]: [
-                    f"{self.V_ordered[i]:.4f}",
-                    f"{self.explained_variance_ratio[i] * 100:.2f}%",
-                    f"{cumulative_explained_variance[i] * 100:.2f}%",
-                ]
-                for i in range(len(self.V_ordered))
+            "tables": {
+                "Eigenvalues": {
+                    "data": [
+                        ["Component", "Eigenvalue", "Explained Var. (%)", "Cumulative Var. (%)"]
+                    ] + [
+                        [
+                            self.PC_index[i],
+                            f"{self.V_ordered[i]:.4f}",
+                            f"{self.explained_variance_ratio[i] * 100:.2f}",
+                            f"{cumulative_explained_variance[i] * 100:.2f}",
+                        ]
+                        for i in range(len(self.V_ordered))
+                    ]
+                }
             },
-            "statistics": (
+            "additional_stats": (
                 {
                     "Hotelling's T2 Critical Value (alpha=0.05)": (
                         f"{self.T2_critical_value:.4f}"
@@ -285,8 +330,11 @@ class PrincipalComponentAnalysis(BaseModel):
                         else "N/A"
                     ),
                 }
-                if hasattr(self, "T2_critical_value")
+                if hasattr(self, "T2_critical_value") and self.T2_critical_value is not None
                 else {}
             ),
         }
+        self.notes.extend(getattr(self, "_temp_notes", []))
         return summary
+
+        

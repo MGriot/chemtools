@@ -9,11 +9,15 @@ For a high-level overview of the project's goals and core architectural principl
 The library is organized into several modules:
 
 ### 1. Data Preprocessing
-- Data autoscaling
+An overview of all preprocessing functions can be found here:
+- [Preprocessing Functions](preprocessing/index.md)
+
+This includes:
+- Data autoscaling and Pareto scaling
+- Row-wise normalization
+- Baseline correction
 - Correlation matrix calculation
-- Matrix diagonalization
-- Matrix standard deviation
-- Variance calculation
+- And more...
 
 ### 2. Exploration
 Tools for exploratory data analysis:
@@ -27,16 +31,17 @@ Tools for exploratory data analysis:
 ### 3. Regression
 Various regression analysis techniques:
 - [Linear Regression](regression/Linear%20Regression.md)
-- [Ordinary Least Squares (OLS)](regression/ols.md)
-- [Weighted Least Squares (WLS)](regression/wls.md)
-- [Generalized Least Squares (GLS)](regression/gls.md)
 
 ### 4. Classification
 Classification methods:
+- [Linear Discriminant Analysis (LDA)](classification/lda.md)
+- [k-Nearest Neighbors (k-NN)](classification/knn.md)
+- [Soft Independent Modeling of Class Analogies (SIMCA)](classification/simca.md)
 - [Principal Component Classification Analysis (PCCA)](classification/pcca.md)
 
 ### 5. Clustering
 Clustering algorithms:
+- [k-Means Clustering](clustering/kmeans.md)
 - [Hierarchical Clustering](clustering/hierarchical_clustering.md)
 
 ### 6. Statistical Functions
@@ -55,17 +60,19 @@ Unified plotting interface:
 - [Plot Styles and Themes](plotting/styles_and_themes.md)
 - [Plot Types](plotting/plot_types.md)
 - [Categorical Plots](plotting/categorical_plots.md)
+- [Classification Plots](plotting/classification_plots.md)
 
-## Usage Examples
+## Usage Examples and Workflows
 
 For information on how to set up your development environment and contribute to the project, please refer to the [Development Guide](development_guide.md).
 
-The `examples` directory contains Jupyter notebooks demonstrating the library's functionality:
-- Basic data preprocessing
-- PCA analysis workflow
-- Regression model fitting
-- Classification examples
-- Clustering demonstrations
+### Analysis Workflows
+- **[XRF Data Analysis Workflow](workflows/xrf_analysis.md)**: A complete guide to analyzing X-Ray Fluorescence data using PCA and SIMCA.
+
+### Scripted Examples
+The `examples` directory contains Python scripts demonstrating the library's functionality:
+- `run_xrf_analysis_example.py`: Demonstrates PCA and SIMCA on synthetic XRF data.
+- `run_simca_example.py`: A focused example of the SIMCA classifier.
 
 ## Contributing
 

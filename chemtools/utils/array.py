@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Tuple
 
 
 def array_to_column(array):
@@ -58,3 +59,45 @@ def sort_arrays(x, y):
 
     # No non-constant columns found, return original arrays
     return x, y
+
+
+def unfold_hypercube(cube: np.ndarray) -> np.ndarray:
+    """
+    Unfolds a 3D data cube (hypercube) into a 2D matrix.
+
+    This is a common step for multivariate analysis of imaging data (e.g., MA-XRF),
+    where each pixel becomes an object (row) and spectral channels are variables (columns).
+
+    Args:
+        cube (np.ndarray): A 3D numpy array with shape (height, width, depth/channels).
+
+    Returns:
+        np.ndarray: A 2D numpy array with shape (height * width, depth/channels).
+    """
+    if cube.ndim != 3:
+        raise ValueError("Input must be a 3D numpy array (hypercube).")
+    h, w, d = cube.shape
+    return cube.reshape((h * w, d))
+
+
+def refold_hypercube(matrix: np.ndarray, h: int, w: int) -> np.ndarray:
+    """
+    Refolds a 2D matrix back into a 3D data cube (hypercube).
+
+    This is used to visualize results (e.g., PCA scores) as a map after analysis.
+
+    Args:
+        matrix (np.ndarray): A 2D numpy array with shape (h * w, depth/channels).
+        h (int): The original height of the hypercube.
+        w (int): The original width of the hypercube.
+
+    Returns:
+        np.ndarray: A 3D numpy array with shape (h, w, depth/channels).
+    """
+    if matrix.ndim != 2:
+        raise ValueError("Input matrix must be a 2D numpy array.")
+    if matrix.shape[0] != h * w:
+        raise ValueError(f"Matrix rows ({matrix.shape[0]}) do not match target dimensions ({h}x{w}={h*w}).")
+    
+    d = matrix.shape[1]
+    return matrix.reshape((h, w, d))
