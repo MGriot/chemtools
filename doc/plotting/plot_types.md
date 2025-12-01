@@ -70,6 +70,29 @@ from chemtools.plots.basic.pie import PiePlot
   <img alt="Donut Chart" src="../img/plots/basic/donut_plot_classic_professional_light.png">
 </picture>
 
+### Sunburst Plot
+
+A sunburst plot is a multi-layered pie chart used to visualize hierarchical data, showing part-to-whole relationships across multiple categories and subcategories.
+
+[**Details and Examples &raquo;**](basic/sunburst.md)
+
+```python
+from chemtools.plots.basic import SunburstPlot
+
+# plotter = SunburstPlot()
+# fig = plotter.plot(df, cols=['Layer1', 'Layer2'], count_col='Material', status_col='Status', status_ok_val='Ok')
+```
+-   `cols`: List of 2 column names representing the hierarchy.
+-   `count_col`: Column to count unique values for segment sizes.
+-   `status_col`: Column determining segment transparency.
+-   `status_ok_val`: Value in `status_col` for full opacity.
+
+**Example:**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../img/plots/basic/sunburst_plot_classic_professional_dark.png">
+  <img alt="Sunburst Plot" src="../img/plots/basic/sunburst_plot_classic_professional_light.png">
+</picture>
+
 ## Distribution Plots
 
 Located in `chemtools.plots.distribution`.

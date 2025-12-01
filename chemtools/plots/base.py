@@ -152,16 +152,29 @@ class BasePlotter:
         self.colors = BasePlotter._ALL_THEMES[
             self.theme
         ].copy()  # Use a copy to allow augmentation in subclasses
+
+
+
+        # Ensure category_color_scale is a list; provide a default if missing or incorrect
+        if not isinstance(self.colors.get('category_color_scale'), list) or not self.colors.get('category_color_scale'):
+            print(f"Warning: 'category_color_scale' not found or is not a list in theme '{self.theme}'. Using a default color scale.")
+            self.colors['category_color_scale'] = plt.cm.get_cmap('tab10').colors.tolist() # Fallback to matplotlib's tab10
+            # DEBUGGING: Print after fallback
+            print(f"DEBUG in BasePlotter (after fallback): category_color_scale = {self.colors.get('category_color_scale')}")
+
         self.watermark = kwargs.get("watermark", None)
         self.user_figsize = kwargs.get(
             "figsize", (10, 6)
         )  # Default figsize changed slightly
-        self.legend_opts = legend_opts
+        self.legend_opts = legend_opts or {}
 
         if self.library == "matplotlib":
             self._init_matplotlib_style()
         elif self.library == "plotly":
             self._init_plotly_style()
+        
+        # Generate and store colormaps
+        self._generate_colormaps_from_palette()
 
     def load_custom_theme(self, filepath):
         """
@@ -174,6 +187,55 @@ class BasePlotter:
             print(f"Custom themes loaded from {filepath}. Available themes: {list(BasePlotter._ALL_THEMES.keys())}")
         else:
             print(f"No themes loaded from {filepath}.")
+
+    @staticmethod
+    def _hex_to_luminance(hex_color):
+        """Calculates relative luminance to sort colors by brightness."""
+        import matplotlib.colors as mcolors
+        rgb = mcolors.to_rgb(hex_color)
+        # Standard formula for perceived brightness
+        return 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
+
+    def _generate_colormaps_from_palette(self):
+        """
+        Generates Sequential, Diverging, and Raw colormaps from the theme's 
+        categorical color list and stores them in the instance.
+        """
+        import matplotlib.colors as mcolors
+
+        category_list = self.colors.get('category_color_scale')
+        if not category_list or not isinstance(category_list, list):
+            # This should not happen due to the fallback in __init__, but as a safeguard:
+            return 
+
+        theme_name = self.theme
+
+        # --- A. SEQUENTIAL ---
+        sorted_colors = sorted(category_list, key=self._hex_to_luminance)
+        self.sequential_cmap = mcolors.LinearSegmentedColormap.from_list(
+            f"{theme_name}_sequential", sorted_colors, N=256
+        )
+
+        # --- B. DIVERGING ---
+        if len(category_list) >= 2:
+            color_start = category_list[0]
+            color_end = category_list[1]
+            
+            if "light" in theme_name:
+                neutral = self.colors.get('bg_color', '#f5f5f5')
+            else:
+                neutral = self.colors.get('bg_color', '#2b2b2b')
+            
+            self.diverging_cmap = mcolors.LinearSegmentedColormap.from_list(
+                f"{theme_name}_diverging", [color_start, neutral, color_end], N=256
+            )
+        else:
+            self.diverging_cmap = None
+
+        # --- C. RAW (Spectral) ---
+        self.raw_cmap = mcolors.LinearSegmentedColormap.from_list(
+            f"{theme_name}_raw", category_list, N=256
+        )
 
     def get_continuous_colormap(self, colors: Optional[List[str]] = None, name: str = "custom_theme_map"):
         """

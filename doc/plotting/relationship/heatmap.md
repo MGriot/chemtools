@@ -4,7 +4,7 @@ Heatmaps are graphical representations of data where the individual values conta
 
 ## Numerical Heatmap
 
-This is the standard heatmap used to visualize a matrix of numerical data, such as a correlation matrix.
+This is the standard heatmap used to visualize a matrix of numerical data, such as a correlation matrix. The `BasePlotter` also automatically generates colormaps from the theme's palette that can be used here (e.g., `plotter.sequential_cmap`).
 
 ### Usage
 ```python
@@ -20,14 +20,15 @@ data = pd.DataFrame(np.random.rand(5, 5),
 # Create Plot
 plotter = HeatmapPlot(theme='classic_professional_light')
 # 'annot=True' displays the numerical value in each cell
-fig = plotter.plot(data, annot=True, title="Numerical Heatmap")
+# We use the auto-generated sequential colormap from the theme
+fig = plotter.plot(data, annot=True, title="Numerical Heatmap", cmap=plotter.sequential_cmap)
 fig.savefig("heatmap_numerical.png")
 ```
 
 ### Parameters for `plot`
 - `data` (pd.DataFrame): The numerical matrix to plot.
 - `annot` (bool): If `True`, the data value for each cell is written on the heatmap.
-- `**kwargs`: Additional keyword arguments passed to the `BasePlotter` or the underlying plotting function (`cmap` for matplotlib, `colorscale` for plotly).
+- `**kwargs`: Additional keyword arguments passed to the `BasePlotter` or the underlying plotting function. For matplotlib, this includes `cmap`. You can pass a standard matplotlib colormap name, or use one of the automatically generated colormaps from the plotter instance, such as `plotter.sequential_cmap`, `plotter.diverging_cmap`, or `plotter.raw_cmap`. For plotly, use `colorscale`.
 
 ### Example Output
 <picture>

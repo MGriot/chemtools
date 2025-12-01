@@ -1,0 +1,100 @@
+{
+    "classic_professional_light": {
+        "metadata": {
+            "font_family": "sans-serif",
+            "font_style": "normal"
+        },
+        "colors": {
+            "bg_color": "#ffffff",
+            "text_color": "#2b2b2b",
+            "subtext_color": "#6e6e6e",
+            "grid_color": "#e0e0e0",
+            "spine_color": "#b4aea9",
+            "theme_color": "#005f73",
+            "accent_color": "#c00000",
+            "success_color": "#2a9d8f",
+            "error_color": "#d62828",
+            "prediction_band": "#2a9d8f",
+            "confidence_band": "#f4a261"
+        },
+        "palettes": {
+            "category_color_scale": [
+                "#1B9E77",
+                "#D95F02",
+                "#7570B3",
+                "#E7298A",
+                "#66A61E",
+                "#E6AB02",
+                "#A6761D",
+                "#666666",
+                "#1f78b4",
+                "#b2df8a"
+            ],
+            "sequential_colormap": "viridis",
+            "diverging_colormap": "RdBu"
+        },
+        "geometry": {
+            "line_width_main": 2.5,
+            "line_width_grid": 0.8,
+            "marker_size": 8,
+            "alpha_fill": 0.6,
+            "alpha_band": 0.2
+        },
+        "typography": {
+            "title_fontsize": 16,
+            "label_fontsize": 14,
+            "tick_fontsize": 11,
+            "annotation_fontsize_small": 10,
+            "annotation_fontsize_medium": 12
+        }
+    },
+    "classic_professional_dark": {
+        "metadata": {
+            "font_family": "sans-serif",
+            "font_style": "normal"
+        },
+        "colors": {
+            "bg_color": "#2b2b2b",
+            "text_color": "#ffffff",
+            "subtext_color": "#cccccc",
+            "grid_color": "#404040",
+            "spine_color": "#666666",
+            "theme_color": "#4cc9f0",
+            "accent_color": "#ff595e",
+            "success_color": "#48cae4",
+            "error_color": "#ff595e",
+            "prediction_band": "#48cae4",
+            "confidence_band": "#ffd60a"
+        },
+        "palettes": {
+            "category_color_scale": [
+                "#8dd3c7",
+                "#ffffb3",
+                "#bebada",
+                "#fb8072",
+                "#80b1d3",
+                "#fdb462",
+                "#b3de69",
+                "#fccde5",
+                "#d9d9d9",
+                "#bc80bd"
+            ],
+            "sequential_colormap": "plasma",
+            "diverging_colormap": "coolwarm"
+        },
+        "geometry": {
+            "line_width_main": 2.5,
+            "line_width_grid": 0.6,
+            "marker_size": 8,
+            "alpha_fill": 0.7,
+            "alpha_band": 0.25
+        },
+        "typography": {
+            "title_fontsize": 16,
+            "label_fontsize": 14,
+            "tick_fontsize": 11,
+            "annotation_fontsize_small": 10,
+            "annotation_fontsize_medium": 12
+        }
+    }
+}

@@ -121,6 +121,34 @@ Your theme must define the following keys:
 | `annotation_fontsize_small`  | Small font size for annotations.                    |
 | `annotation_fontsize_medium` | Medium font size for annotations.                   |
 
+### Generated Colormaps from Palette
+
+To make plotting continuous data with themed colors easier, `BasePlotter` automatically generates three `matplotlib.colors.LinearSegmentedColormap` objects from the `category_color_scale` defined in the current theme. These are available as attributes on any plotter instance.
+
+*   `self.sequential_cmap`: A sequential colormap, created by sorting the palette colors by their perceived brightness (luminance). This is ideal for representing data that goes from low to high.
+*   `self.diverging_cmap`: A diverging colormap, created by using the first two (usually most contrasting) colors of the palette and a neutral midpoint. This is useful for data that has a meaningful center point, like zero.
+*   `self.raw_cmap`: A colormap created by simply interpolating the palette colors in their original order.
+
+**Usage Example:**
+
+You can pass these colormaps directly to any plot that accepts a `cmap` argument (typically in `matplotlib` plots).
+
+```python
+from chemtools.plots.relationship import HeatmapPlot
+import pandas as pd
+import numpy as np
+
+# Sample correlation matrix
+data = pd.DataFrame(np.random.rand(10, 10))
+
+# Initialize a plotter
+plotter = HeatmapPlot(theme="classic_professional_light")
+
+# Use the automatically generated sequential colormap
+fig = plotter.plot(data, annot=True, cmap=plotter.sequential_cmap)
+fig.show()
+```
+
 
 ## Available Plot Types
 

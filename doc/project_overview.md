@@ -38,6 +38,7 @@ The `BasePlotter` class provides a unified and flexible framework for generating
     *   **`THEMES`:** Defines comprehensive color palettes and aesthetic settings for "light" and "dark" themes.
     *   **`STYLE_PRESETS`:** Provides predefined style configurations (e.g., "default", "minimal", "presentation") for both Matplotlib and Plotly, enabling quick application of visual styles.
     *   **`_init_matplotlib_style()` / `_init_plotly_style()`:** Methods to configure the chosen backend's global or template settings based on the selected theme and style preset.
+    *   **Automatic Colormap Generation:** Automatically creates sequential, diverging, and raw colormaps from the theme's categorical color palette, making them readily available for continuous data plots.
 *   **Common Plotting Utilities:**
     *   **`_process_common_params(**kwargs)`:** A crucial method that processes and normalizes common plotting parameters (e.g., `figsize`, `title`, `xlabel`, `ylabel`, `showlegend`) passed by the user. This ensures consistency across all plot types and handles backend-specific conversions (e.g., Matplotlib `figsize` to Plotly `width`/`height`).
     *   **`_create_figure(**kwargs)`:** Handles the creation of the base figure and axes object(s) for the chosen backend, applying initial theme and style settings.
