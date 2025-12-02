@@ -2,6 +2,7 @@
     "oceanic_slate_light": {
         "bg_color": "#f8f9fa",
         "text_color": "#343a40",
+        "text_color_inverted": "#f8f9fa",
         "grid_color": "#dee2e6",
         "detail_light_color": "#ced4da",
         "detail_medium_color": "#adb5bd",
@@ -27,6 +28,7 @@
     "oceanic_slate_dark": {
         "bg_color": "#343a40",
         "text_color": "#f8f9fa",
+        "text_color_inverted": "#343a40",
         "grid_color": "#495057",
         "detail_light_color": "#6c757d",
         "detail_medium_color": "#adb5bd",

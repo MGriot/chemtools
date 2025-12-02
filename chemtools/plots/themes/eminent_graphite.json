@@ -2,6 +2,7 @@
     "eminent_graphite_light": {
         "bg_color": "#ffffff",
         "text_color": "#1c1c1e",
+        "text_color_inverted": "#ffffff",
         "grid_color": "#e5e5e5",
         "detail_light_color": "#cccccc",
         "detail_medium_color": "#a0a0a0",
@@ -27,6 +28,7 @@
     "eminent_graphite_dark": {
         "bg_color": "#1c1c1e",
         "text_color": "#f2f2f2",
+        "text_color_inverted": "#1c1c1e",
         "grid_color": "#4a4a4a",
         "detail_light_color": "#636366",
         "detail_medium_color": "#8e8e93",

@@ -2,6 +2,7 @@
     "amethyst_twilight_light": {
         "bg_color": "#f9f8fa",
         "text_color": "#2e294e",
+        "text_color_inverted": "#f9f8fa",
         "grid_color": "#e1dfe8",
         "detail_light_color": "#c4c0d3",
         "detail_medium_color": "#8f8aa1",
@@ -27,6 +28,7 @@
     "amethyst_twilight_dark": {
         "bg_color": "#242038",
         "text_color": "#f7f7ff",
+        "text_color_inverted": "#242038",
         "grid_color": "#4a455a",
         "detail_light_color": "#655f7a",
         "detail_medium_color": "#8e88a2",

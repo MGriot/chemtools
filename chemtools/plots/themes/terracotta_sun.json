@@ -2,6 +2,7 @@
     "terracotta_sun_light": {
         "bg_color": "#fffbf7",
         "text_color": "#4a2511",
+        "text_color_inverted": "#fffbf7",
         "grid_color": "#e6dcd5",
         "detail_light_color": "#d1c4ba",
         "detail_medium_color": "#a1887f",
@@ -27,6 +28,7 @@
     "terracotta_sun_dark": {
         "bg_color": "#2c1d10",
         "text_color": "#fdecdf",
+        "text_color_inverted": "#2c1d10",
         "grid_color": "#523c2a",
         "detail_light_color": "#6e533e",
         "detail_medium_color": "#9b7d63",

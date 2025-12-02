@@ -2,6 +2,7 @@
     "golden_umber_light": {
         "bg_color": "#faf8f5",
         "text_color": "#433a3f",
+        "text_color_inverted": "#faf8f5",
         "grid_color": "#e0dcd8",
         "detail_light_color": "#c1b8b1",
         "detail_medium_color": "#8a7e78",
@@ -27,6 +28,7 @@
     "golden_umber_dark": {
         "bg_color": "#3a322e",
         "text_color": "#f2e8de",
+        "text_color_inverted": "#3a322e",
         "grid_color": "#5e524c",
         "detail_light_color": "#7a6e67",
         "detail_medium_color": "#9f938b",

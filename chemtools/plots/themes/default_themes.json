@@ -2,6 +2,7 @@
     "classic_professional_light": {
         "bg_color": "#ffffff",
         "text_color": "#2b2b2b",
+        "text_color_inverted": "#ffffff",
         "grid_color": "#e0e0e0",
         "detail_light_color": "#b4aea9",
         "detail_medium_color": "#7F7F7F",
@@ -27,6 +28,7 @@
     "classic_professional_dark": {
         "bg_color": "#2b2b2b",
         "text_color": "#ffffff",
+        "text_color_inverted": "#2b2b2b",
         "grid_color": "#404040",
         "detail_light_color": "#666666",
         "detail_medium_color": "#888888",

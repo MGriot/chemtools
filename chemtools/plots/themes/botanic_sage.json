@@ -2,6 +2,7 @@
     "botanical_sage_light": {
         "bg_color": "#fcfcfc",
         "text_color": "#333d29",
+        "text_color_inverted": "#fcfcfc",
         "grid_color": "#e0e0e0",
         "detail_light_color": "#c1c1c1",
         "detail_medium_color": "#8a8a8a",
@@ -27,6 +28,7 @@
     "botanical_sage_dark": {
         "bg_color": "#283618",
         "text_color": "#fefae0",
+        "text_color_inverted": "#283618",
         "grid_color": "#4a5737",
         "detail_light_color": "#606c38",
         "detail_medium_color": "#939a7b",

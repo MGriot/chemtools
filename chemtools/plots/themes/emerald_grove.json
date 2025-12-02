@@ -2,6 +2,7 @@
     "emerald_grove_light": {
         "bg_color": "#f7fff7",
         "text_color": "#132a13",
+        "text_color_inverted": "#f7fff7",
         "grid_color": "#dae5d9",
         "detail_light_color": "#b8c9b8",
         "detail_medium_color": "#799179",
@@ -27,6 +28,7 @@
     "emerald_grove_dark": {
         "bg_color": "#1e2a20",
         "text_color": "#e8f5e9",
+        "text_color_inverted": "#1e2a20",
         "grid_color": "#3f4c3f",
         "detail_light_color": "#5a6e5a",
         "detail_medium_color": "#819981",
